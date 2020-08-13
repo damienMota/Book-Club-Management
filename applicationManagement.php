@@ -1,5 +1,6 @@
 <?php
-
+	use PHPMailer\PHPMailer\PHPMailer;
+	
 	$conn = mysqli_connect('localhost', 'damien', 'Oimadi*1', 'application_management');
 	$sql = "SELECT * FROM application_main;";
 	$sqlHeaders = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'application_main';";
@@ -107,17 +108,42 @@
 	}
 	if($_POST["action"] == "initiate_application")
 	{
-		//test commit//
-		$name = $_POST["first_name"].$_POST["last_name"];
-		$subject = "Application Initiated for: LEGO";
-		$mailFrom = "outbyaspen@gmail.com";
-		$message = "TEST";
-		
-		$mailTo = $_POST["primary_email"];
-		$headers = "From: ".$mailFrom;
-		
-		mail($mailTo, $subject, $message, $headers);
-		echo "Success";
+		$name = $_POST["first_name"].' '.$_POST["last_name"];
+		$email = $_POST["primary_email"];
+		$subject = 'Test Subject';
+		$body = file_get_contents("initiation_email.html");
+
+		require_once "PHPMailer/PHPMailer.php";
+		require_once "PHPMailer/SMTP.php";
+		require_once "PHPMailer/Exception.php";
+
+		$mail = new PHPMailer();
+
+		//smtp settings
+		$mail->isSMTP();
+		$mail->Host = "smtp.gmail.com";
+		$mail->SMTPAuth = true;
+		$mail->Username = "mota.damien@gmail.com";
+		$mail->Password = 'damienab';
+		$mail->Port = 465;
+		$mail->SMTPSecure = "ssl";
+
+		//email settings
+		$mail->isHTML(true);
+		$mail->setFrom($email, $name);
+		$mail->addAddress($email);
+		$mail->Subject = ("Application Initiated for: ".$name);
+		$mail->Body = $body;
+
+		if($mail->send()){
+			$status = "success";
+			$response = "Email is sent!";
+		}
+		else
+		{
+			$status = "failed";
+			$response = "Something is wrong: <br>" . $mail->ErrorInfo;
+		}
 	}
 	if($_POST["action"] == "create_client_session")
 	{
