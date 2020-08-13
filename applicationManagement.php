@@ -145,9 +145,13 @@
 			$response = "Something is wrong: <br>" . $mail->ErrorInfo;
 		}
 	}
-	if($_POST["action"] == "create_client_session")
+	if($_POST["action"] == "send_validation_code")
 	{
-		error_log("hello");
-		$_SESSION["client_application"] = "true";
+		$to = "3238069526@vtext.com";
+		$from = "Damien Test";
+		$message = "This is a text message\nNew line...";
+		$headers = "From: $from\n";
+		mail($to, '', $message, $headers);
+		return;
 	}
 ?>
