@@ -107,6 +107,7 @@
 	}
 	if($_POST["action"] == "initiate_application")
 	{
+		//test commit//
 		$name = $_POST["first_name"].$_POST["last_name"];
 		$subject = "Application Initiated for: LEGO";
 		$mailFrom = "outbyaspen@gmail.com";
