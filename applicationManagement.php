@@ -111,8 +111,11 @@
 		$name = $_POST["first_name"].' '.$_POST["last_name"];
 		$email = $_POST["primary_email"];
 		$subject = 'Test Subject';
-		$body = file_get_contents("initiation_email.html");
+		$verification_code = mt_rand(100000, 999999);
+		$fixedTemplate = str_replace("[verification_code]",$verification_code,file_get_contents("initiation_email.html"));
+		$body = $fixedTemplate;
 
+		"INSERT INTO application_main (name,primary_phone_number,primary_email,application_status,business_name,reference_number,validate_token) VALUES ('$1', '3238069526', 'outbyaspen@gmail.com', 'pending', '', '', '123333')",array($name);
 		require_once "PHPMailer/PHPMailer.php";
 		require_once "PHPMailer/SMTP.php";
 		require_once "PHPMailer/Exception.php";
