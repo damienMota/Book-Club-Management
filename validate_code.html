@@ -10,21 +10,61 @@
 <body>
 	<div style="text-align:center;font-size:35px;margin-top:100px;"><b>Please Enter Verification Code</b></div>
 	<div style="text-align:center;margin-top:20px;border-radius:25px;"><input type="text" id="verification_code"></div>
-	<div style="text-align:center;margin-top:20px;"><button>Resend Verification Code</button></div>
+	<div style="text-align:center;margin-top:20px;"><button onclick="submitVerificationCode();" id="submitVerificationCode">Submit Verification Code</button></div>
+	<div style="text-align:center;margin-top:20px;"><button onclick="resendVerificationCode();">Resend Verification Code</button></div>
 </body>
 </html>
 <script>
 $(document).ready(function()
 {
+	<!-- $.ajax -->
+	<!-- ({ -->
+		<!-- type: "POST", -->
+		<!-- url: "applicationManagement.php", -->
+		<!-- data:{action:"send_validation_code"}, -->
+		<!-- success: function(data) -->
+		<!-- { -->
+		<!-- } -->
+	<!-- }); -->
+	
+});
+var err = 0;
+function submitVerificationCode()
+{
 	$.ajax
 	({
 		type: "POST",
 		url: "applicationManagement.php",
-		data:{action:"send_validation_code"},
+		data:{action:"submit_verification_code",code:$("#verification_code").val()},
 		success: function(data)
 		{
-			console.log("success");
+			err++;
+			console.log(err);
+			if(data == "Success")
+			{
+				Swal.fire({html:'Verification Code Validated', icon:'success'}).then(function()
+				{
+					location.reload();
+				});
+			}
+			if(data == "Error")
+			{
+				Swal.fire({html:'Incorrect Verification Code', icon:'error'});
+				if(err >= 5)
+				{
+					Swal.fire({html:'The number of incorrect attempts has been exceeded. <br> Please click <b>Resend Verification Code</b>', icon:'error'}).then(function()
+					{
+						$("#verification_code").prop("disabled",true);
+						$("#submitVerificationCode").prop("disabled",true);
+						
+					});
+				}
+			}
 		}
 	});
-});
+}
+function resendVerificationCode()
+{
+	
+}
 </script>
