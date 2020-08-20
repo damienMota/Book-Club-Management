@@ -17,16 +17,7 @@
 <script>
 $(document).ready(function()
 {
-	<!-- $.ajax -->
-	<!-- ({ -->
-		<!-- type: "POST", -->
-		<!-- url: "applicationManagement.php", -->
-		<!-- data:{action:"send_validation_code"}, -->
-		<!-- success: function(data) -->
-		<!-- { -->
-		<!-- } -->
-	<!-- }); -->
-	
+
 });
 var err = 0;
 function submitVerificationCode()
@@ -65,6 +56,15 @@ function submitVerificationCode()
 }
 function resendVerificationCode()
 {
-	
+	$.ajax
+	({
+		type: "POST",
+		url: "applicationManagement.php",
+		data:{action:"resend_verification_code",code:$("#verification_code").val()},
+		success: function(data)
+		{
+			
+		}
+	});
 }
 </script>

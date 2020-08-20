@@ -10,8 +10,22 @@
 <body>
 	<a href="http://localhost/applicationManagement/validation.php">Please click here to access Application Poratl</a>
 	<div>Verification Code: [verification_code]</span></div>
+	<input type="hidden" id="application_id" value="[application_id]">
 </body>
 <script>
-
+$(document).ready(function()
+{
+	console.log("hello");
+	<!-- $.ajax -->
+	<!-- ({ -->
+		<!-- type: "POST", -->
+		<!-- url: "applicationManagement.php", -->
+		<!-- data:{action:"supply_application_id",application_id:$("#application_id").val()}, -->
+		<!-- success: function(data) -->
+		<!-- { -->
+			
+		<!-- } -->
+	<!-- }); -->
+}):
 </script>
 </html>

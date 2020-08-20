@@ -18,8 +18,6 @@
 	$rowCompleted = mysqli_fetch_assoc($rsSubmitted);
 	$rs = mysqli_query($conn,$sql);
 	$rsHeaders = mysqli_query($conn,$sqlHeaders);
-	while($row = mysqli_fetch_assoc($rs))
-	{
 		if($_POST["action"] == "pending_table")
 		{
 			if(mysqli_num_rows($rsPending) == 0)
@@ -38,20 +36,24 @@
 			}
 			else
 			{
-				if($row["application_status"] == "pending")
+				if($rowPending["application_status"] == "pending")
 				{
-					$ret = '<table><tr>';
-					foreach($row as $key => $item)
+					$ret = '<table id="pendingTable"><thead><tr>';
+					while($row = mysqli_fetch_assoc($rs))
 					{
-						$ret .= '<th>'.strtoupper($key).'</th>';
+						foreach($row as $key => $item)
+						{
+							$fixedHeader = str_replace("_"," ",$key);
+							$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
+						}
+						$ret .= '</tr>';
+						$ret .= '<tr>';
+						foreach($row as $key => $item)
+						{
+							$ret .= '<td>'.$item.'</td>';
+						}
 					}
-					$ret .= '</tr>';
-					$ret .= '<tr>';
-					foreach($row as $key => $item)
-					{
-						$ret .= '<td>'.$item.'</td>';
-					}
-					$ret .= '</tr></table>';
+					$ret .= '</tr></thead></table>';
 					echo $ret;
 				}
 			}
@@ -122,9 +124,13 @@
 					echo $ret;
 				}
 		}
-	}
 	if($_POST["action"] == "initiate_application")
-	{	
+	{
+		$name = $_POST["first_name"].' '.$_POST["last_name"];
+		$email = $_POST["primary_email"];
+		$subject = 'Test Subject';
+		$verification_code = mt_rand(100000, 999999);
+		$appId = mysqli_insert_id($conn);
 		//Building Prepared Statement for Insert into table application_main//
 		$insertName = mysqli_real_escape_string($conn, $name);
 		$insertPrimaryPhone = mysqli_real_escape_string($conn, $_POST["primary_phone_number"]);
@@ -146,11 +152,10 @@
 		}
 		
 		//Formatting for PHP Mailer//
-		$name = $_POST["first_name"].' '.$_POST["last_name"];
-		$email = $_POST["primary_email"];
-		$subject = 'Test Subject';
-		$verification_code = mt_rand(100000, 999999);
-		$fixedTemplate = str_replace("[verification_code]",$verification_code,file_get_contents("initiation_email.html"));
+		error_log($appId);
+		$find = array("[verification_code]","[application_id]");
+		$repl = array($verification_code,$appId);
+		$fixedTemplate = str_replace($find,$repl,file_get_contents("initiation_email.html"));
 		$body = $fixedTemplate;
 		
 		require_once "PHPMailer/PHPMailer.php";
@@ -212,5 +217,28 @@
 			}
 		}
 	}
-
+	if($_POST["action"] = "resend_verification_code")
+	{
+		$sql = "SELECT primary_email FROM application_main where validation_code=?;";
+		$stmt = mysqli_stmt_init($conn);
+		mysqli_stmt_prepare($stmt, $sql);
+		if(!mysqli_stmt_prepare($stmt, $sql))
+		{
+			echo "SQL ERROR";
+		}
+		else
+		{
+			mysqli_stmt_bind_param($stmt, "i",$validationCode);
+			mysqli_stmt_execute($stmt);
+			mysqli_stmt_store_result($stmt);
+			if(mysqli_stmt_num_rows($stmt) == 1)
+			{
+				echo "Success";
+			}
+			else
+			{
+				echo "Error";
+			}
+		}
+	}
 ?>
