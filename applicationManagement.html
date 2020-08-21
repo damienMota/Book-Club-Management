@@ -63,6 +63,7 @@ function pendingTable()
 		data:{action:"pending_table"},
 		success: function(data)
 		{
+			console.log(data);
 			$("#pendingApplicationsTable").append(data);
 			$("#pendingTable").DataTable();
 		}

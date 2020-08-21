@@ -38,22 +38,24 @@
 			{
 				if($rowPending["application_status"] == "pending")
 				{
-					$ret = '<table id="pendingTable"><thead><tr>';
+					$ret = '<table id="pendingTable">';
 					while($row = mysqli_fetch_assoc($rs))
 					{
-						foreach($row as $key => $item)
+						$ret.= '<thead><tr>';
+						error_log(mysqli_num_fields($rs));
+						for($i=0;$i<mysqli_num_fields($rs);$i++)
 						{
-							$fixedHeader = str_replace("_"," ",$key);
+							$fixedHeader = str_replace("_"," ","DOG");
 							$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
 						}
-						$ret .= '</tr>';
+						$ret .= '</tr></thead>';
 						$ret .= '<tr>';
 						foreach($row as $key => $item)
 						{
 							$ret .= '<td>'.$item.'</td>';
 						}
 					}
-					$ret .= '</tr></thead></table>';
+					$ret .= '</tr></table>';
 					echo $ret;
 				}
 			}
@@ -74,22 +76,28 @@
 				$ret .= '</tr></thead></table>';
 				echo $ret;
 			}
-				if($row["application_status"] == "submitted")
+			else
+			{
+				if($rowSubmitted["application_status"] == "submitted")
 				{
 					$ret = '<table><tr>';
-					foreach($row as $key => $item)
+					while($row = mysqli_fetch_assoc($rs))
 					{
-						$ret .= '<th>'.strtoupper($key).'</th>';
+						foreach($row as $key => $item)
+						{
+							$ret .= '<th>'.strtoupper($key).'</th>';
+						}
+						$ret .= '</tr>';
+						$ret .= '<tr>';
+						foreach($row as $key => $item)
+						{
+							$ret .= '<td>'.$item.'</td>';
+						}
+						$ret .= '</tr></table>';
+						echo $ret;
 					}
-					$ret .= '</tr>';
-					$ret .= '<tr>';
-					foreach($row as $key => $item)
-					{
-						$ret .= '<td>'.$item.'</td>';
-					}
-					$ret .= '</tr></table>';
-					echo $ret;
 				}
+			}
 		}
 		if($_POST["action"] == "completed_table")
 		{
@@ -107,22 +115,28 @@
 				$ret .= '</tr></thead></table>';
 				echo $ret;
 			}
-				if($row["application_status"] == "completed")
+			else
+			{
+				if($rowCompleted["application_status"] == "completed")
 				{
 					$ret = '<table><tr>';
-					foreach($row as $key => $item)
+					while($row = mysqli_fetch_assoc($rs))
 					{
-						$ret .= '<th>'.strtoupper($key).'</th>';
+						foreach($row as $key => $item)
+						{
+							$ret .= '<th>'.strtoupper($key).'</th>';
+						}
+						$ret .= '</tr>';
+						$ret .= '<tr>';
+						foreach($row as $key => $item)
+						{
+							$ret .= '<td>'.$item.'</td>';
+						}
+						$ret .= '</tr></table>';
+						echo $ret;
 					}
-					$ret .= '</tr>';
-					$ret .= '<tr>';
-					foreach($row as $key => $item)
-					{
-						$ret .= '<td>'.$item.'</td>';
-					}
-					$ret .= '</tr></table>';
-					echo $ret;
 				}
+			}
 		}
 	if($_POST["action"] == "initiate_application")
 	{
@@ -152,7 +166,6 @@
 		}
 		
 		//Formatting for PHP Mailer//
-		error_log($appId);
 		$find = array("[verification_code]","[application_id]");
 		$repl = array($verification_code,$appId);
 		$fixedTemplate = str_replace($find,$repl,file_get_contents("initiation_email.html"));
