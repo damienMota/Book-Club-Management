@@ -12,8 +12,26 @@
 	<div style="text-align:center;margin-top:20px;border-radius:25px;"><input type="text" id="verification_code"></div>
 	<div style="text-align:center;margin-top:20px;"><button onclick="submitVerificationCode();" id="submitVerificationCode">Submit Verification Code</button></div>
 	<div style="text-align:center;margin-top:20px;"><button onclick="resendVerificationCode();">Resend Verification Code</button></div>
+	<input type="hidden" id="application_id" value="[application_id]">
+	<div id="resendPopup" style="display:none;margin-left:550px;margin-top:250px">
+		<div>Please Enter The Email and Phone Number Provided for this Account</div><br>
+		<div style="width:90%;text-align:right;">
+			<div style="display:inline-block;">Email:<input style="margin-left:4px;" id="email" type="text" ></div>
+			<div style="display:inline-block;margin-top:8px;">Phone Number:<input style="margin-left:4px;" id="phone" type="text" ></div>
+		</div>
+		<div style="text-align:center;margin-top:10px;"><button>Submit</button></div>
+	</div>
 </body>
 </html>
+<style>
+#resendPopup {
+  width: 300px;
+  border: 1px solid black;
+  padding: 50px;
+  margin: 20px;
+  position: absolute
+}
+</style>
 <script>
 $(document).ready(function()
 {
@@ -30,7 +48,6 @@ function submitVerificationCode()
 		success: function(data)
 		{
 			err++;
-			console.log(err);
 			if(data == "Success")
 			{
 				Swal.fire({html:'Verification Code Validated', icon:'success'}).then(function()
@@ -56,15 +73,13 @@ function submitVerificationCode()
 }
 function resendVerificationCode()
 {
-	$.ajax
-	({
-		type: "POST",
-		url: "applicationManagement.php",
-		data:{action:"resend_verification_code",code:$("#verification_code").val()},
-		success: function(data)
-		{
-			
-		}
-	});
+	<!-- $('body').css({ -->
+	<!-- "width" : "100%","height" : "100%","position" : "fixed", "top" : "0", "left" : "0", "opacity" : "0.2", "background-color" : "revert" -->
+	<!-- }).appendTo(document.body); -->
+	$('body > *:not(#resendPopup)').css({
+	"filter" : "blur(5px)"
+	}).appendTo(document.body);
+	
+	$('#resendPopup').show();
 }
 </script>

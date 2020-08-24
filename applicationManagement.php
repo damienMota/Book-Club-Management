@@ -39,16 +39,14 @@
 				if($rowPending["application_status"] == "pending")
 				{
 					$ret = '<table id="pendingTable">';
+					for($i=0;$i<mysqli_num_fields($rs);$i++)
+					{
+						$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
+						$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
+					}
+					$ret .= '</tr></thead>';
 					while($row = mysqli_fetch_assoc($rs))
 					{
-						$ret.= '<thead><tr>';
-						error_log(mysqli_num_fields($rs));
-						for($i=0;$i<mysqli_num_fields($rs);$i++)
-						{
-							$fixedHeader = str_replace("_"," ","DOG");
-							$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
-						}
-						$ret .= '</tr></thead>';
 						$ret .= '<tr>';
 						foreach($row as $key => $item)
 						{
@@ -144,7 +142,6 @@
 		$email = $_POST["primary_email"];
 		$subject = 'Test Subject';
 		$verification_code = mt_rand(100000, 999999);
-		$appId = mysqli_insert_id($conn);
 		//Building Prepared Statement for Insert into table application_main//
 		$insertName = mysqli_real_escape_string($conn, $name);
 		$insertPrimaryPhone = mysqli_real_escape_string($conn, $_POST["primary_phone_number"]);
@@ -165,8 +162,9 @@
 			mysqli_stmt_execute($stmt);
 		}
 		
-		//Formatting for PHP Mailer//
+		//Formatting for PHP Mailer//		
 		$find = array("[verification_code]","[application_id]");
+		$appId = mysqli_insert_id($conn);
 		$repl = array($verification_code,$appId);
 		$fixedTemplate = str_replace($find,$repl,file_get_contents("initiation_email.html"));
 		$body = $fixedTemplate;

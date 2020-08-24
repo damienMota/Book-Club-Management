@@ -8,24 +8,25 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 </head>
 <body>
-	<a href="http://localhost/applicationManagement/validation.php">Please click here to access Application Poratl</a>
+	<a href="http://localhost/applicationManagement/validation.php">Please click here to access Application Portal</a>
 	<div>Verification Code: [verification_code]</span></div>
 	<input type="hidden" id="application_id" value="[application_id]">
 </body>
 <script>
 $(document).ready(function()
 {
-	console.log("hello");
-	<!-- $.ajax -->
-	<!-- ({ -->
-		<!-- type: "POST", -->
-		<!-- url: "applicationManagement.php", -->
-		<!-- data:{action:"supply_application_id",application_id:$("#application_id").val()}, -->
-		<!-- success: function(data) -->
-		<!-- { -->
-			
-		<!-- } -->
-	<!-- }); -->
-}):
+	console.log("before ajax");
+	$.ajax
+	({
+		type: "POST",
+		url: "validation.php",
+		data:{action:"supply_application_id",application_id:$("#application_id").val()},
+		success: function(data)
+		{
+			return;
+			console.log("after ajax");
+		}
+	});
+});
 </script>
 </html>
