@@ -228,9 +228,12 @@
 			}
 		}
 	}
-	if($_POST["action"] = "resend_verification_code")
+	if($_POST["action"] == "resend_verification_code")
 	{
-		$sql = "SELECT primary_email FROM application_main where validation_code=?;";
+		$email = mysqli_real_escape_string($conn, $_POST["email"]);
+		$phone = mysqli_real_escape_string($conn, $_POST["phone"]);
+		
+		$sql = "SELECT * FROM application_main where primary_email =? and primary_phone_number =?;";
 		$stmt = mysqli_stmt_init($conn);
 		mysqli_stmt_prepare($stmt, $sql);
 		if(!mysqli_stmt_prepare($stmt, $sql))
@@ -239,16 +242,72 @@
 		}
 		else
 		{
-			mysqli_stmt_bind_param($stmt, "i",$validationCode);
+			$validation_code = mt_rand(100000, 999999);
+			mysqli_stmt_bind_param($stmt, "ss",$email,$phone);
 			mysqli_stmt_execute($stmt);
-			mysqli_stmt_store_result($stmt);
-			if(mysqli_stmt_num_rows($stmt) == 1)
+			$result = mysqli_stmt_get_result($stmt);
+			while($row = mysqli_fetch_assoc($result))
 			{
-				echo "Success";
-			}
-			else
-			{
-				echo "Error";
+				// mysqli_stmt_store_result($stmt); //This originally was after the execute//This is used to use num rows
+				if(isset($row["application_id"]) && $row["application_id"] != "")
+				{
+					$updateSQL = "UPDATE application_main set validation_code =? where application_id =?;";
+					$updateSTMT = mysqli_stmt_init($conn);
+					mysqli_stmt_prepare($updateSTMT, $updateSQL);
+					if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
+					{
+						echo "SQL ERROR";
+					}
+					else
+					{
+						mysqli_stmt_bind_param($updateSTMT, "ii",$validation_code,$row["application_id"]);
+						mysqli_stmt_execute($updateSTMT);
+						
+						$email = $row["primary_email"];
+						$name = $row["name"];
+						$find = array("[validation_code]");
+						$repl = array($validation_code);
+						$fixedTemplate = str_replace($find,$repl,file_get_contents("initiation_email.html"));
+						$body = $fixedTemplate;
+						
+						require_once "PHPMailer/PHPMailer.php";
+						require_once "PHPMailer/SMTP.php";
+						require_once "PHPMailer/Exception.php";
+
+						$mail = new PHPMailer();
+
+						// smtp settings
+						$mail->isSMTP();
+						$mail->Host = "smtp.gmail.com";
+						$mail->SMTPAuth = true;
+						$mail->Username = "mota.damien@gmail.com";
+						$mail->Password = 'damienab';
+						$mail->Port = 465;
+						$mail->SMTPSecure = "ssl";
+
+						// email settings
+						$mail->isHTML(true);
+						$mail->setFrom($email, $name);
+						$mail->addAddress($email);
+						$mail->Subject = ("Application Initiated for: ".$name);
+						$mail->Body = $body;
+						$status = "";
+						if($mail->send()){
+							$status = "success";
+							$response = "Email is sent!";
+						}
+						else
+						{
+							$status = "failed";
+							$response = "Something is wrong: <br>" . $mail->ErrorInfo;
+						}
+						echo $status;
+					}
+				}
+				else
+				{
+					echo "Error";
+				}
 			}
 		}
 	}

@@ -8,10 +8,10 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 </head>
 <body>
-	<div style="text-align:center;font-size:35px;margin-top:100px;"><b>Please Enter Verification Code</b></div>
+	<div style="text-align:center;font-size:35px;margin-top:100px;"><b>Please Enter Validation Code</b></div>
 	<div style="text-align:center;margin-top:20px;border-radius:25px;"><input type="text" id="verification_code"></div>
-	<div style="text-align:center;margin-top:20px;"><button onclick="submitVerificationCode();" id="submitVerificationCode">Submit Verification Code</button></div>
-	<div style="text-align:center;margin-top:20px;"><button onclick="resendVerificationCode();">Resend Verification Code</button></div>
+	<div style="text-align:center;margin-top:20px;"><button onclick="submitVerificationCode();" id="submitVerificationCode">Submit Validation Code</button></div>
+	<div style="text-align:center;margin-top:20px;"><button onclick="validateEmailPhone();">Resend Validation Code</button></div>
 	<input type="hidden" id="application_id" value="[application_id]">
 	<div id="resendPopup" style="display:none;margin-left:550px;margin-top:250px">
 		<div>Please Enter The Email and Phone Number Provided for this Account</div><br>
@@ -19,7 +19,7 @@
 			<div style="display:inline-block;">Email:<input style="margin-left:4px;" id="email" type="text" ></div>
 			<div style="display:inline-block;margin-top:8px;">Phone Number:<input style="margin-left:4px;" id="phone" type="text" ></div>
 		</div>
-		<div style="text-align:center;margin-top:10px;"><button>Submit</button></div>
+		<div style="text-align:center;margin-top:10px;"><button onclick="resendVerificationCode()">Submit</button><button style="margin-left:10px;" id="cancelResend">Cancel</button></div>
 	</div>
 </body>
 </html>
@@ -35,7 +35,14 @@
 <script>
 $(document).ready(function()
 {
-
+	$("#cancelResend").click(function()
+	{
+		$('body > *:not(#resendPopup)').css({
+		"filter" : "blur(0px)"
+		}).appendTo(document.body);
+	
+		$('#resendPopup').hide();
+	});
 });
 var err = 0;
 function submitVerificationCode()
@@ -50,9 +57,9 @@ function submitVerificationCode()
 			err++;
 			if(data == "Success")
 			{
-				Swal.fire({html:'Verification Code Validated', icon:'success'}).then(function()
+				Swal.fire({html:'Validation Code Has Been Verified.', icon:'success'}).then(function()
 				{
-					location.reload();
+					window.location.href = "http://localhost/applicationManagement/client_application.php";
 				});
 			}
 			if(data == "Error")
@@ -60,7 +67,7 @@ function submitVerificationCode()
 				Swal.fire({html:'Incorrect Verification Code', icon:'error'});
 				if(err >= 5)
 				{
-					Swal.fire({html:'The number of incorrect attempts has been exceeded. <br> Please click <b>Resend Verification Code</b>', icon:'error'}).then(function()
+					Swal.fire({html:'The number of incorrect attempts has been exceeded. <br> Please click <b>Resend Validation Code</b>', icon:'error'}).then(function()
 					{
 						$("#verification_code").prop("disabled",true);
 						$("#submitVerificationCode").prop("disabled",true);
@@ -71,7 +78,7 @@ function submitVerificationCode()
 		}
 	});
 }
-function resendVerificationCode()
+function validateEmailPhone()
 {
 	<!-- $('body').css({ -->
 	<!-- "width" : "100%","height" : "100%","position" : "fixed", "top" : "0", "left" : "0", "opacity" : "0.2", "background-color" : "revert" -->
@@ -81,5 +88,32 @@ function resendVerificationCode()
 	}).appendTo(document.body);
 	
 	$('#resendPopup').show();
+}
+function resendVerificationCode()
+{
+	$.ajax
+	({
+		type: "POST",
+		url: "applicationManagement.php",
+		data:{action:"resend_verification_code",email:$("#email").val(),phone:$("#phone").val()},
+		success: function(data)
+		{
+			console.log(data);
+			if(data == "success")
+			{
+				Swal.fire({html:'Email has been sent out with a new verification code.', icon:'success'}).then(function()
+				{
+					return;
+				});
+			}
+			else
+			{
+				Swal.fire({html:"Email or Phone number provided isn't <br> attached to any existing account.<br>Please try again.", icon:'warning'}).then(function()
+				{
+					return;
+				});
+			}
+		}
+	});
 }
 </script>
