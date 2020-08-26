@@ -217,14 +217,19 @@
 		{
 			mysqli_stmt_bind_param($stmt, "i",$validationCode);
 			mysqli_stmt_execute($stmt);
-			mysqli_stmt_store_result($stmt);
-			if(mysqli_stmt_num_rows($stmt) == 1)
+			$result = mysqli_stmt_get_result($stmt);
+			while($row = mysqli_fetch_assoc($result))
 			{
-				echo "Success";
-			}
-			else
-			{
-				echo "Error";
+				if(isset($row["application_id"]) && $row["application_id"] != "")
+				{
+					$return[] = $row["application_id"];
+					$return[] = "Success";
+					echo json_encode($return);
+				}
+				else
+				{
+					echo "Error";
+				}
 			}
 		}
 	}

@@ -8,8 +8,21 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 </head>
 <body>
-	<div>Success</div>
+	<div>Bio</div>
+	<div>Name<input type="text" id="name" value="[]"></div>
+	<div>Phone Number:<input type="text" id="primary_phone_number" value="[primary_phone_number]"></div>
+	<div>Email Address<input type="text" id="primary_email" value="[primary_email]"></div>
+	<div>Business Name<input type="text" id="business_name" value="[business_name]"></div>
+	<div>Education<div>[education]</div></div>
+	<div>About Me:<textarea id="about_me" value="[about_me]"rows="4" cols="50"></textarea></div>
+	<input type="hidden" id="application_id" value="[application_id]">
 </body>
 </html>
 <style>
 </style>
+<script>
+$(document).ready(function()
+{
+	console.log($("#application_id").val());
+});
+</script>
