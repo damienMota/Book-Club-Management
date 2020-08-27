@@ -141,16 +141,17 @@
 		$name = $_POST["first_name"].' '.$_POST["last_name"];
 		$email = $_POST["primary_email"];
 		$subject = 'Test Subject';
-		$verification_code = mt_rand(100000, 999999);
+		$validation_code = mt_rand(100000, 999999); 
+		$client_URN = substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()'),1,16);
 		//Building Prepared Statement for Insert into table application_main//
 		$insertName = mysqli_real_escape_string($conn, $name);
 		$insertPrimaryPhone = mysqli_real_escape_string($conn, $_POST["primary_phone_number"]);
 		$insertPrimaryEmail = mysqli_real_escape_string($conn, $_POST["primary_email"]);
 		$insertApplicationStatus = mysqli_real_escape_string($conn, "pending");
-		$insertValidationCode = mysqli_real_escape_string($conn, $verification_code);
+		$insertValidationCode = mysqli_real_escape_string($conn, $validation_code);
 		
-		$sql = "INSERT INTO application_main (name,primary_phone_number,primary_email,application_status,validation_code)
-				VALUES (?, ?, ?, ?, ?);";
+		$sql = "INSERT INTO application_main (name,primary_phone_number,primary_email,application_status,validation_code,client_URN)
+				VALUES (?, ?, ?, ?, ?, ?);";
 		$stmt = mysqli_stmt_init($conn);
 		if(!mysqli_stmt_prepare($stmt, $sql))
 		{
@@ -158,14 +159,14 @@
 		}
 		else
 		{
-			mysqli_stmt_bind_param($stmt, "ssssi", $insertName, $insertPrimaryPhone, $insertPrimaryEmail, $insertApplicationStatus, $insertValidationCode);
+			mysqli_stmt_bind_param($stmt, "ssssis", $insertName, $insertPrimaryPhone, $insertPrimaryEmail, $insertApplicationStatus, $insertValidationCode, $client_URN);
 			mysqli_stmt_execute($stmt);
 		}
 		
 		//Formatting for PHP Mailer//		
-		$find = array("[verification_code]","[application_id]");
+		$find = array("[validation_code]","[application_id]","[client_URN]");
 		$appId = mysqli_insert_id($conn);
-		$repl = array($verification_code,$appId);
+		$repl = array($validation_code,$appId,$client_URN);
 		$fixedTemplate = str_replace($find,$repl,file_get_contents("initiation_email.html"));
 		$body = $fixedTemplate;
 		
