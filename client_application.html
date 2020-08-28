@@ -8,14 +8,17 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 </head>
 <body>
-	<div>Bio</div>
-	<div>Name<input type="text" id="name" value="[]"></div>
-	<div>Phone Number:<input type="text" id="primary_phone_number" value="[primary_phone_number]"></div>
-	<div>Email Address<input type="text" id="primary_email" value="[primary_email]"></div>
-	<div>Business Name<input type="text" id="business_name" value="[business_name]"></div>
-	<div>Education<div>[education]</div></div>
-	<div>About Me:<textarea id="about_me" value="[about_me]"rows="4" cols="50"></textarea></div>
+	<div style="text-align:center;margin-top:50px;">
+	<div style="font-size:25px;margin-bottom:10px;"><b><u>Bio</u></b></div>
+	<div style="width:57%;text-align:right;margin-bottom:10px;"><b>Name:</b><input style="margin-left:5px;" type="text" id="name" value="[name]"></div>
+	<div style="width:57%;text-align:right;margin-bottom:10px;"><b>Phone Number:</b><input style="margin-left:5px;" type="text" id="primary_phone_number" value="[primary_phone_number]"></div>
+	<div style="width:57%;text-align:right;margin-bottom:10px;"><b>Email Address:</b><input style="margin-left:5px;" type="text" id="primary_email" value="[primary_email]"></div>
+	<div style="width:57%;text-align:right;margin-bottom:10px;"><b>Business Name:</b><input style="margin-left:5px;" type="text" id="business_name" value="[business_name]"></div>
+	<div style="width:57%;text-align:right;margin-bottom:10px;"><b>Education:</b><div style="display:inline-block;margin-left:5px;">[education]</div></div>
+	<div style="text-align:center;margin-bottom:10px;"><b>About Me:</b><br><textarea id="about_me" value="[about_me]"rows="4" cols="50"></textarea></div>
+	<div style="text-align:center;"><button onclick="submit();">Submit</button></div>
 	<input type="hidden" id="application_id" value="[application_id]">
+	</div>
 </body>
 </html>
 <style>
@@ -23,6 +26,58 @@
 <script>
 $(document).ready(function()
 {
-	console.log($("#application_id").val());
+	
 });
+function submit()
+{
+	var err = "";
+	if($("#name").val() == "")
+	{
+		err += '<br>Name';
+	}
+	if($("#primary_phone_number").val() == "")
+	{
+		err += '<br>Phone Number';
+	}
+	if($("#primary_email").val() == "")
+	{
+		err += '<br>Email';
+	}
+	if($("#business_name").val() == "")
+	{
+		err += '<br>Business Name';
+	}
+	if($("#about_me").val() == "")
+	{
+		err += '<br>About Me';
+	}
+	$("#client_education").each(function()
+	{
+		if($(this).val() == 0)
+		{
+			err += '<br>Education';
+		}
+	});
+	if(err != '')
+	{
+		Swal.fire({html:'Please supply the following fields '+ err, icon:'warning'});
+	}
+	else
+	{
+		console.log("success");
+		<!-- $.ajax -->
+		<!-- ({ -->
+			<!-- type: "POST", -->
+			<!-- url: "applicationManagement.php", -->
+			<!-- data:{action:"initiate_application",first_name:$("#first_name").val(),last_name:$("#last_name").val(),primary_phone_number:$("#primary_phone_number").val(),primary_email:$("#primary_email").val()}, -->
+			<!-- success: function(data) -->
+			<!-- { -->
+				<!-- Swal.fire({html:'Application Initiated', icon:'success'}).then(function() -->
+				<!-- { -->
+					<!-- location.reload(); -->
+				<!-- }); -->
+			<!-- } -->
+		<!-- }); -->
+	}
+}
 </script>

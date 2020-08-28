@@ -58,22 +58,10 @@ function submitVerificationCode()
 			var data = JSON.parse(data);
 			if(data[1] == "Success")
 			{
-				Swal.fire({html:'Validation Code Has Been Verified.', icon:'success'}).then(function()
-				{
-					$.ajax
-					({
-						type: "POST",
-						url: "clientApplication.php",
-						data:{action:"run_client_application",application_id:data[0]},
-						success: function(data)
-						{
-							console.log(data);
-							<!-- window.location.href = "http://localhost/applicationManagement/clientApplication.php"; -->
-							
-						}
-					});
-					
-				});
+				var url = window.location.toString();
+				var newURL = url.replace('/validation.php', '/clientApplication.php');
+				
+				window.location.href = newURL;
 			}
 			if(data == "Error")
 			{

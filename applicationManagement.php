@@ -223,7 +223,7 @@
 			{
 				if(isset($row["application_id"]) && $row["application_id"] != "")
 				{
-					$return[] = $row["application_id"];
+					$return[] = $row["client_URN"];
 					$return[] = "Success";
 					echo json_encode($return);
 				}
