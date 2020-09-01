@@ -99,7 +99,6 @@ function resendVerificationCode()
 		data:{action:"resend_verification_code",email:$("#email").val(),phone:$("#phone").val()},
 		success: function(data)
 		{
-			console.log(data);
 			if(data == "success")
 			{
 				Swal.fire({html:'Email has been sent out with a new verification code.', icon:'success'}).then(function()

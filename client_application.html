@@ -25,11 +25,14 @@
 </body>
 </html>
 <style>
+.eci_row
+{
+	margin-bottom:5px;
+}
 </style>
 <script>
 $(document).ready(function()
 {
-	
 });
 function submit()
 {
@@ -54,11 +57,36 @@ function submit()
 	{
 		err += '<br>About Me';
 	}
+	if($(".eci_name").val() == "" || $(".eci_email").val() == "" || $(".eci_phone_number").val() == "")
+	{
+		console.log("empty");
+	}
 	$("#client_education").each(function()
 	{
 		if($(this).val() == 0)
 		{
 			err += '<br>Education';
+		}
+	});
+	$(".eci_name").each(function()
+	{
+		if($(this).val() == "")
+		{
+			$(this).css("border", "2px solid red");
+		}
+	});
+	$(".eci_email").each(function()
+	{
+		if($(this).val() == "")
+		{
+			$(this).css("border", "2px solid red");
+		}
+	});
+	$(".eci_phone_number").each(function()
+	{
+		if($(this).val() == "")
+		{
+			$(this).css("border", "2px solid red");
 		}
 	});
 	if(err != '')
@@ -67,41 +95,67 @@ function submit()
 	}
 	else
 	{
-		console.log("success");
-		<!-- $.ajax -->
-		<!-- ({ -->
-			<!-- type: "POST", -->
-			<!-- url: "applicationManagement.php", -->
-			<!-- data:{action:"initiate_application",first_name:$("#first_name").val(),last_name:$("#last_name").val(),primary_phone_number:$("#primary_phone_number").val(),primary_email:$("#primary_email").val()}, -->
-			<!-- success: function(data) -->
-			<!-- { -->
-				<!-- Swal.fire({html:'Application Initiated', icon:'success'}).then(function() -->
-				<!-- { -->
-					<!-- location.reload(); -->
-				<!-- }); -->
-			<!-- } -->
-		<!-- }); -->
+		var eci_name = new Array();
+		$(".eci_name").each(function()
+		{
+			eci_name.push($(this).val());
+		});
+		
+		var eci_email = new Array();
+		$(".eci_email").each(function()
+		{
+			eci_email.push($(this).val());
+		});
+		
+		var eci_phone_number = new Array();
+		$(".eci_phone_number").each(function()
+		{
+			eci_phone_number.push($(this).val());
+		});
+		
+		$('#client_education option').each(function()
+		{
+			if($(this).is(':selected'))
+			{
+				var client_education = $(this).val();
+			}
+		});
+		$.ajax
+		({
+			type: "POST",
+			url: "applicationManagement.php",
+			data:{action:"submit_bio",name:$("#name").val(),primary_phone_number:$("#primary_phone_number").val(),primary_email:$("#primary_email").val(),
+			busines_name:$("#business_name").val(),client_education:client_education,eci_name:eci_name,eci_email:eci_email,eci_phone_number:eci_phone_number},
+			success: function(data)
+			{
+				Swal.fire({html:'Application Initiated', icon:'success'}).then(function()
+				{
+					location.reload();
+				});
+			}
+		});
 	}
 }
 function addECIRow()
-{	
-
-	var html = '<div class="eci_row"><input placeholder="Contact Name" type="text" id="eci_name">';
-	html += '<input placeholder="Contact Email" style="margin-left:10px;" type="text" id="eci_email">';
-	html += '<input placeholder="Phone Number"style="margin-left:10px;" type="text" id="eci_phone_number"><div class="test" style="margin-left:5px;display:inline-block;cursor: pointer;">';
+{
+	var html = '<div class="eci_row"><input placeholder="Contact Name" type="text" class="eci_name">';
+	html += '<input placeholder="Contact Email" style="margin-left:10px;" type="text" class="eci_email">';
+	html += '<input placeholder="Phone Number"style="margin-left:10px;" type="text" class="eci_phone_number"><div class="removeRow" style="margin-left:5px;display:inline-block;cursor: pointer;">';
 	html += '<svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-patch-minus" fill="currentColor" xmlns="http://www.w3.org/2000/svg">';
 	html += '<path fill-rule="evenodd" d="M5.5 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5z"/>';
 	html += '<path fill-rule="evenodd" d="M10.273 2.513l-.921-.944.715-.698.622.637.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944 1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92.016-1.32a1.89 1.89 0 0 0-1.912-1.911l-1.318.016z"/></svg>';
 	html += '</div></div>';
-	$("#eci").append(html);
-	
-	$(".test").click(function()
+	if($('.eci_row').length <= 3)
+	{
+		$("#eci").append(html);
+	}
+	else
+	{
+		Swal.fire({html:'The number of contacts allowed has been exceeded. Please allow room for 4 contacts only.', icon:'warning'});
+	}
+	$(".removeRow").click(function()
 	{
 		$(this).parent().remove();
 	});
 }
-<!-- function removeECIRow() -->
-<!-- { -->
-	<!-- console.log($(this).attr('class')); -->
-<!-- } -->
 </script>
