@@ -68,11 +68,13 @@ function submit()
 			err += '<br>Education';
 		}
 	});
+	var err2 = "";
 	$(".eci_name").each(function()
 	{
 		if($(this).val() == "")
 		{
 			$(this).css("border", "2px solid red");
+			err2 += 'err';
 		}
 	});
 	$(".eci_email").each(function()
@@ -80,6 +82,7 @@ function submit()
 		if($(this).val() == "")
 		{
 			$(this).css("border", "2px solid red");
+			err2 += 'err';
 		}
 	});
 	$(".eci_phone_number").each(function()
@@ -87,45 +90,50 @@ function submit()
 		if($(this).val() == "")
 		{
 			$(this).css("border", "2px solid red");
+			err2 += 'err';
 		}
 	});
+	if(err2 != '')
+	{
+		err += 'Emergency Contact';
+	}
 	if(err != '')
 	{
 		Swal.fire({html:'Please supply the following fields '+ err, icon:'warning'});
 	}
 	else
 	{
-		var eci_name = new Array();
+		var client_eci_name = new Array();
 		$(".eci_name").each(function()
 		{
-			eci_name.push($(this).val());
+			client_eci_name.push($(this).val());
 		});
 		
-		var eci_email = new Array();
+		var client_eci_email = new Array();
 		$(".eci_email").each(function()
 		{
-			eci_email.push($(this).val());
+			client_eci_email.push($(this).val());
 		});
 		
-		var eci_phone_number = new Array();
+		var client_eci_phone_number = new Array();
 		$(".eci_phone_number").each(function()
 		{
-			eci_phone_number.push($(this).val());
+			client_eci_phone_number.push($(this).val());
 		});
-		
+		var client_education_info = "";
 		$('#client_education option').each(function()
 		{
 			if($(this).is(':selected'))
 			{
-				var client_education = $(this).val();
+				client_education_info = $(this).val();
 			}
 		});
+		console.log(client_education_info);
 		$.ajax
 		({
 			type: "POST",
-			url: "applicationManagement.php",
-			data:{action:"submit_bio",name:$("#name").val(),primary_phone_number:$("#primary_phone_number").val(),primary_email:$("#primary_email").val(),
-			busines_name:$("#business_name").val(),client_education:client_education,eci_name:eci_name,eci_email:eci_email,eci_phone_number:eci_phone_number},
+			url: "clientApplication.php",
+			data:{action:"submit_bio",application_id:$("#application_id").val(),name:$("#name").val(),primary_phone_number:$("#primary_phone_number").val(),primary_email:$("#primary_email").val(),busines_name:$("#business_name").val(),client_education:client_education_info,about_me:$("#about_me").val(),eci_name:client_eci_name,eci_email:client_eci_email,eci_phone_number:client_eci_phone_number},
 			success: function(data)
 			{
 				Swal.fire({html:'Application Initiated', icon:'success'}).then(function()

@@ -75,5 +75,21 @@ else
 			echo $return;
 		}
 	}
+	if(isset($_POST["action"]) && $_POST["action"] == "submit_bio")
+	{
+		$updateSQL = "UPDATE application_main set name =? phone_number =? primary_email =? business_name =? client_education=? about_me=? where application_id =?;";
+		$updateSTMT = mysqli_stmt_init($conn);
+		mysqli_stmt_prepare($updateSTMT, $updateSQL);
+		if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
+		{
+			echo "SQL ERROR";
+		}
+		else
+		{
+			//SET THIS UP WHEN YOU RETURN//
+			mysqli_stmt_bind_param($updateSTMT, "ss",$validation_code,$row["application_id"]);
+			mysqli_stmt_execute($updateSTMT);
+		}
+	}
 }
 ?>
