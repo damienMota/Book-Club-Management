@@ -33,7 +33,10 @@
 <script>
 $(document).ready(function()
 {
-
+	$(".removeRow").click(function()
+	{
+		$(this).parent().remove();
+	});
 });
 function submit()
 {

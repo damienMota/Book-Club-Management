@@ -65,11 +65,42 @@ else
 				}
 				else
 				{
-					error_log("2");
+					$eciNameArray = array();
+					$eciEmailArray = array();
+					$eciPhoneArray = array();
+					while($rowECI = mysqli_fetch_assoc($resultECI))
+					{
+						$eciNameArray[] = $rowECI["eci_name"];
+						$eciEmailArray[] = $rowECI["eci_email"];
+						$eciPhoneArray[] = $rowECI["eci_phone_number"];
+					}
+					$err = count($eciNameArray) - 1;
+					$counter = $err ;
+					for($x = 0; $x <= $counter; $x++)
+					{
+						$emergencyContactInfo .= '<div class="eci_row"><input placeholder="Contact Name" type="text" class="eci_name" value='.$eciNameArray[$x].'>';
+						$emergencyContactInfo .= '<input placeholder="Contact Email" style="margin-left:10px;" type="text" class="eci_email" value='.$eciEmailArray[$x].'>';
+						$emergencyContactInfo .= '<input placeholder="Phone Number"style="margin-left:10px;" type="text" class="eci_phone_number" value='.$eciPhoneArray[$x].'>';
+						error_log($x);
+						if($x == 0)
+						{
+							$emergencyContactInfo .= '<div onclick="addECIRow();"style="margin-left:5px;display:inline-block;cursor: pointer;"><svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-patch-plus-fll" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+							<path fill-rule="evenodd" d="M10.067.87a2.89 2.89 0 0 0-4.134 0l-.622.638-.89-.011a2.89 2.89 0 0 0-2.924 2.924l.01.89-.636.622a2.89 2.89 0 0 0 0 4.134l.637.622-.011.89a2.89 2.89 0 0 0 2.924 2.924l.89-.01.622.636a2.89 2.89 0 0 0 4.134 0l.622-.637.89.011a2.89 2.89 0 0 0 2.924-2.924l-.01-.89.636-.622a2.89 2.89 0 0 0 0-4.134l-.637-.622.011-.89a2.89 2.89 0 0 0-2.924-2.924l-.89.01-.622-.636zM8.5 6a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V10a.5.5 0 0 0 1 0V8.5H10a.5.5 0 0 0 0-1H8.5V6z"/>
+							</svg></div></div>';
+						}
+						else
+						{
+							$emergencyContactInfo .= '<div class="removeRow" style="margin-left:5px;display:inline-block;cursor: pointer;">';
+							$emergencyContactInfo .= '<svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-patch-minus" fill="currentColor" xmlns="http://www.w3.org/2000/svg">';
+							$emergencyContactInfo .= '<path fill-rule="evenodd" d="M5.5 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5z"/>';
+							$emergencyContactInfo .= '<path fill-rule="evenodd" d="M10.273 2.513l-.921-.944.715-.698.622.637.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944 1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92.016-1.32a1.89 1.89 0 0 0-1.912-1.911l-1.318.016z"/></svg>';
+							$emergencyContactInfo .= '</div></div>';
+						}
+					}
 				}
 			}
-			$find = array("[application_id]","[name]","[primary_phone_number]","[primary_email]","[business_name]","[education]","[emergency_contact_info]","[about_me]");
-			$repl = array($row["application_id"],$row["name"],$row["primary_phone_number"],$row["primary_email"],$row["business_name"],$clientEducation,$emergencyContactInfo,$row["about_me"]);
+			$find = array("[application_id]","[name]","[primary_phone_number]","[primary_email]","[business_name]","[education]","[about_me]","[emergency_contact_info]");
+			$repl = array($row["application_id"],$row["name"],$row["primary_phone_number"],$row["primary_email"],$row["business_name"],$clientEducation,$row["about_me"],$emergencyContactInfo);
 			$return = str_replace($find,$repl,file_get_contents("client_application.html"));
 			echo $return;
 		}
@@ -96,7 +127,7 @@ else
 			mysqli_stmt_execute($updateSTMT);
 		}
 		
-		$deleteSQL = "DELETE from application_main WHERE application_id =?;";
+		$deleteSQL = "DELETE FROM emergency_contact_info WHERE eci_application_id = ?;";
 		$deleteSTMT = mysqli_stmt_init($conn);
 		mysqli_stmt_prepare($deleteSTMT, $deleteSQL);
 		if(!mysqli_stmt_prepare($deleteSTMT, $deleteSQL))
@@ -107,28 +138,30 @@ else
 		{
 			mysqli_stmt_bind_param($deleteSTMT, "i",$_POST["application_id"]);
 			mysqli_stmt_execute($deleteSTMT);
-			// $err = count($_POST["eci_name"]);
-			// $counter =  $err - 1;
-			// error_log($counter);
-			// for($x = 0; $x <= $counter; $x++)
-			// {
-				// error_log($x);
-				// $insertSQL = "INSERT INTO emergency_contact_info (eci_name,eci_phone_number,eci_email,eci_application_id)
-				// VALUES (?, ?, ?, ?);";
-				// $insertSTMT = mysqli_stmt_init($conn);
-				// mysqli_stmt_prepare($insertSTMT, $insertSQL);
-				// if(!mysqli_stmt_prepare($insertSTMT, $v))
-				// {
-					// echo "SQL ERROR";
-				// }
-				// else
-				// {
-					// mysqli_stmt_bind_param($insertSTMT, "sssi",$eci_name,$_POST["eci_phone"],$_POST["application_id"]);
-					// mysqli_stmt_execute($insertSTMT);
+			$err = count($_POST["eci_name"]);	
+			$counter =  $err - 1;
 
-				// }
-			// }
-			echo 'succes';
+			for($x = 0; $x <= $counter; $x++)
+			{			
+				$insertSQL = "INSERT INTO emergency_contact_info (eci_name,eci_phone_number,eci_email,eci_application_id)
+				VALUES (?, ?, ?, ?);";
+				$insertSTMT = mysqli_stmt_init($conn);
+				mysqli_stmt_prepare($insertSTMT, $insertSQL);
+				
+				
+				
+				if(!mysqli_stmt_prepare($insertSTMT, $insertSQL))
+				{
+					echo "SQL ERROR";
+				}
+				else
+				{
+					mysqli_stmt_bind_param($insertSTMT, "sssi",$_POST["eci_name"][$x],$_POST["eci_phone_number"][$x],$_POST["eci_email"][$x],$_POST["application_id"]);
+					mysqli_stmt_execute($insertSTMT);
+					echo 'succes';
+				}
+			}
+			
 		}
 	}
 }
