@@ -16,7 +16,7 @@
 	<div style="width:57%;text-align:right;margin-bottom:10px;"><b>Email Address:</b><input placeholder="Email Address" style="margin-left:5px;" type="text" id="primary_email" value="[primary_email]"></div>
 	<div style="width:57%;text-align:right;margin-bottom:10px;"><b>Business Name:</b><input placeholder="Business Name" style="margin-left:5px;" type="text" id="business_name" value="[business_name]"></div>
 	<div style="width:57%;text-align:right;margin-bottom:10px;"><b>Education:</b><div placeholder="Education" style="display:inline-block;margin-left:5px;">[education]</div></div>
-	<div style="text-align:center;margin-bottom:10px;"><b>About Me:</b><br><textarea id="about_me" value="[about_me]"rows="4" cols="50"></textarea></div>
+	<div style="text-align:center;margin-bottom:10px;"><b>About Me:</b><br><textarea id="about_me" rows="4" cols="50">[about_me]</textarea></div>
 	<div style="margin-bottom:10px;"><b>Emergency Contact Info</b></div>
 	<div id="eci">[emergency_contact_info]</div>
 	<div style="text-align:center;"><button onclick="submit();">Submit</button></div>
@@ -33,6 +33,7 @@
 <script>
 $(document).ready(function()
 {
+
 });
 function submit()
 {
@@ -136,10 +137,7 @@ function submit()
 			data:{action:"submit_bio",application_id:$("#application_id").val(),name:$("#name").val(),primary_phone_number:$("#primary_phone_number").val(),primary_email:$("#primary_email").val(),busines_name:$("#business_name").val(),client_education:client_education_info,about_me:$("#about_me").val(),eci_name:client_eci_name,eci_email:client_eci_email,eci_phone_number:client_eci_phone_number},
 			success: function(data)
 			{
-				Swal.fire({html:'Application Initiated', icon:'success'}).then(function()
-				{
-					location.reload();
-				});
+				Swal.fire({html:'Bio Updated', icon:'success'});
 			}
 		});
 	}

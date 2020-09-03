@@ -68,16 +68,22 @@ else
 					error_log("2");
 				}
 			}
-			
-			$find = array("[application_id]","[name]","[primary_phone_number]","[primary_email]","[business_name]","[education]","[emergency_contact_info]");
-			$repl = array($row["application_id"],$row["name"],$row["primary_phone_number"],$row["primary_email"],$row["business_name"],$clientEducation,$emergencyContactInfo);
+			$find = array("[application_id]","[name]","[primary_phone_number]","[primary_email]","[business_name]","[education]","[emergency_contact_info]","[about_me]");
+			$repl = array($row["application_id"],$row["name"],$row["primary_phone_number"],$row["primary_email"],$row["business_name"],$clientEducation,$emergencyContactInfo,$row["about_me"]);
 			$return = str_replace($find,$repl,file_get_contents("client_application.html"));
 			echo $return;
 		}
 	}
 	if(isset($_POST["action"]) && $_POST["action"] == "submit_bio")
 	{
-		$updateSQL = "UPDATE application_main set name =? phone_number =? primary_email =? business_name =? client_education=? about_me=? where application_id =?;";
+		$name = mysqli_real_escape_string($conn, $_POST["name"]);
+		$phone = mysqli_real_escape_string($conn, $_POST["primary_phone_number"]);
+		$email = mysqli_real_escape_string($conn, $_POST["primary_email"]);
+		$businessName = mysqli_real_escape_string($conn, $_POST["busines_name"]);
+		$education = mysqli_real_escape_string($conn, $_POST["client_education"]);
+		$aboutMe = mysqli_real_escape_string($conn, $_POST["about_me"]);
+		//UPDATE//
+		$updateSQL = "UPDATE application_main SET name =?,primary_phone_number =?,primary_email =?,business_name =?,client_education =?,about_me =? WHERE application_id =?;";
 		$updateSTMT = mysqli_stmt_init($conn);
 		mysqli_stmt_prepare($updateSTMT, $updateSQL);
 		if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
@@ -86,9 +92,43 @@ else
 		}
 		else
 		{
-			//SET THIS UP WHEN YOU RETURN//
-			mysqli_stmt_bind_param($updateSTMT, "ss",$validation_code,$row["application_id"]);
+			mysqli_stmt_bind_param($updateSTMT, "ssssssi",$name,$phone,$email,$businessName,$education,$aboutMe,$_POST["application_id"]);
 			mysqli_stmt_execute($updateSTMT);
+		}
+		
+		$deleteSQL = "DELETE from application_main WHERE application_id =?;";
+		$deleteSTMT = mysqli_stmt_init($conn);
+		mysqli_stmt_prepare($deleteSTMT, $deleteSQL);
+		if(!mysqli_stmt_prepare($deleteSTMT, $deleteSQL))
+		{
+			echo "SQL ERROR";
+		}
+		else
+		{
+			mysqli_stmt_bind_param($deleteSTMT, "i",$_POST["application_id"]);
+			mysqli_stmt_execute($deleteSTMT);
+			// $err = count($_POST["eci_name"]);
+			// $counter =  $err - 1;
+			// error_log($counter);
+			// for($x = 0; $x <= $counter; $x++)
+			// {
+				// error_log($x);
+				// $insertSQL = "INSERT INTO emergency_contact_info (eci_name,eci_phone_number,eci_email,eci_application_id)
+				// VALUES (?, ?, ?, ?);";
+				// $insertSTMT = mysqli_stmt_init($conn);
+				// mysqli_stmt_prepare($insertSTMT, $insertSQL);
+				// if(!mysqli_stmt_prepare($insertSTMT, $v))
+				// {
+					// echo "SQL ERROR";
+				// }
+				// else
+				// {
+					// mysqli_stmt_bind_param($insertSTMT, "sssi",$eci_name,$_POST["eci_phone"],$_POST["application_id"]);
+					// mysqli_stmt_execute($insertSTMT);
+
+				// }
+			// }
+			echo 'succes';
 		}
 	}
 }
