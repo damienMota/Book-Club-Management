@@ -132,7 +132,6 @@ function submit()
 				client_education_info = $(this).val();
 			}
 		});
-		console.log(client_education_info);
 		$.ajax
 		({
 			type: "POST",
@@ -140,7 +139,10 @@ function submit()
 			data:{action:"submit_bio",application_id:$("#application_id").val(),name:$("#name").val(),primary_phone_number:$("#primary_phone_number").val(),primary_email:$("#primary_email").val(),busines_name:$("#business_name").val(),client_education:client_education_info,about_me:$("#about_me").val(),eci_name:client_eci_name,eci_email:client_eci_email,eci_phone_number:client_eci_phone_number},
 			success: function(data)
 			{
-				Swal.fire({html:'Bio Updated', icon:'success'});
+				Swal.fire({html:'Bio Updated', icon:'success'}).then(function
+				{
+					
+				});
 			}
 		});
 	}

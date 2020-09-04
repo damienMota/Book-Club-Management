@@ -59,7 +59,7 @@ function submitVerificationCode()
 			if(data[1] == "Success")
 			{
 				var url = window.location.toString();
-				var newURL = url.replace('/validation.php', '/clientApplication.php');
+				var newURL = url.replace('/validation.php?page=', '/clientApplication.php?page=');
 				
 				window.location.href = newURL;
 			}
