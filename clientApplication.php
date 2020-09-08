@@ -105,33 +105,42 @@ else
 			}
 			else
 			{
-				$sql = "SELECT * FROM signator_info where application_id =?;";
-				$stmt = mysqli_stmt_init($conn);
-				mysqli_stmt_prepare($stmt, $sql);
-				if(!mysqli_stmt_prepare($stmt, $sql))
+				$signatorSql = "SELECT * FROM signator_info where application_id =?;";
+				$signatorStmt = mysqli_stmt_init($conn);
+				mysqli_stmt_prepare($signatorStmt, $signatorSql);
+				if(!mysqli_stmt_prepare($signatorStmt, $signatorSql))
 				{
 					echo "SQL ERROR";
 				}
 				else
 				{
 					$replClientAgreement = array();
-					mysqli_stmt_bind_param($stmt, "i",$row["application_id"]);
-					mysqli_stmt_execute($stmt);
-					$result = mysqli_stmt_get_result($stmt);
-					$signatorDecision = "";
-					while($rowSig = mysqli_fetch_assoc($result))
+					
+					mysqli_stmt_bind_param($signatorStmt, "i",$row["application_id"]);
+					mysqli_stmt_execute($signatorStmt);
+					$signatorResult = mysqli_stmt_get_result($signatorStmt);
+					if(mysqli_num_rows($signatorResult) == 0)
 					{
-						if($rowSig["signatorDecision"] == "")
-						{
-							$signatorDecision .= '<div style="display:inline-block;"><b>Sign Now</b><input style="margin-left:5px;"type="radio" id="signatorDecision" name="signatorDecision"></div><div style="display:inline-block;margin-left:10px;"><b>Print & Sign Later</b><input style="margin-left:5px;" id="signatorDecision" type="radio" name="signatorDecision"></div><br>';
-						}	
-						// $replClientAgreement[] = $row["application_id"];
-						// $replClientAgreement[] = $rowSig["signatorName"];
-						// $replClientAgreement[] = $rowSig["signedDate"];
-						// $replClientAgreement[] = $signatorDecision;
-						$replClientAgreement = array($row["application_id"],$rowSig["signatorName"],$rowSig["signedDate"],$signatorDecision);
+						$signatorDecision = '<div style="display:inline-block;"><b>Sign Now</b><input style="margin-left:5px;"type="radio" id="signNow" name="signatorDecision"></div><div style="display:inline-block;margin-left:10px;"><b>Print & Sign Later</b><input style="margin-left:5px;" id="printSignLater" type="radio" name="signatorDecision"></div><br>';
+						$replClientAgreement[] = $row["application_id"];
+						$replClientAgreement[] = $signatorDecision;
 					}
-					$find = array("[application_id]","[signatorName]","[signedDate],","[signatorDecision]");
+					else
+					{
+						while($rowSig = mysqli_fetch_assoc($signatorResult))
+						{
+							if($rowSig["signatorDecision"] == "")
+							{
+								$signatorDecision .= '<div style="display:inline-block;"><b>Sign Now</b><input style="margin-left:5px;"type="radio" id="signatorDecision" name="signatorDecision"></div><div style="display:inline-block;margin-left:10px;"><b>Print & Sign Later</b><input style="margin-left:5px;" id="signatorDecision" type="radio" name="signatorDecision"></div><br>';
+							}	
+							// $replClientAgreement[] = $row["application_id"];
+							// $replClientAgreement[] = $rowSig["signatorName"];
+							// $replClientAgreement[] = $rowSig["signedDate"];
+							// $replClientAgreement[] = $signatorDecision;
+							$replClientAgreement = array($row["application_id"],$rowSig["signatorName"],$rowSig["signedDate"],$signatorDecision);
+						}
+					}
+					$find = array("[application_id]","[signatorDecision]");
 					$return = str_replace($find,$replClientAgreement,file_get_contents("client_agreement.html"));
 					echo $return;
 				}

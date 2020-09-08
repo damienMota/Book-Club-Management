@@ -18,11 +18,37 @@
 	<div></div>
 	<input type="hidden" id="application_id" value="[application_id]">
 	<div style="width:58%;text-align:right;margin-top:10px;margin-bottom:5px;"><b>Signed Date:</b><input style="margin-left:5px;" type="text" value="[signedDate]" id="signedDate"></div>
-	<div style="width:58%;text-align:right;"><b>Signator Name:</b><input style="margin-left:5px;"type="text" value="[signedName]"id="signatorName"><br></div>
+	<div style="width:58%;text-align:right;"><b>Signator Name:</b><input style="margin-left:5px;"type="text" value="[signatorName]"id="signatorName"><br></div>
 	[signatorDecision]
-	<canvas id="sig-canvas" width="620" height="160">dog</canvas><br>
-	<button class="btn btn-default" id="sig-clearBtn">Clear Signature</button>
+	<div id="canvasContainer" style="height:205px;">
+		<div class="row">
+			<div class="col-md-12">
+		 		<canvas id="sig-canvas" width="620" height="160">
+		 			Get a better browser, bro.
+		 		</canvas>
+		 	</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<button class="btn btn-default" id="sig-clearBtn">Clear Signature</button>
+			</div>
+		</div>
+		<br/>
+		<div style="display:none;">
+			<div class="row">
+				<div class="col-md-12">
+					<textarea id="sig-dataUrl" class="form-control" rows="5">Data URL for your signature will go here!</textarea>
+				</div>
+			</div>
+			<br/>
+			<div class="row">
+				<div class="col-md-12">
+					<img id="sig-image" src="" alt="Your signature will go here!"/>
+				</div>
+			</div>
+		</div>
 	</div>
+	<button style="margin-top:15px;"class="btn btn-primary" id="sig-submitBtn" onclick="submit()">Submit</button>
 	
 </body>
 </html>
@@ -37,8 +63,40 @@
 <script>
 $(document).ready(function()
 {
-
+	canvas();
+	
+	$('input[type=radio][name=signatorDecision]').change(function() 
+	{
+		if($(this).attr("id") == "signNow")
+		{
+			$("#canvasContainer").show();
+		}
+		if($(this).attr("id") == "printSignLater")
+		{
+			$("#canvasContainer").hide();
+		}
+	});
 });
+function submit()
+{
+	if($('#signNow').is(':checked'))
+	{
+		$.ajax
+		({
+			type: "POST",
+			url: "clientApplication.php",
+			data:{action:"submit_agreement",application_id:$("#application_id").val(),signatorName:$("#signatorName").val(),signedDate:$("#signedDate").va()},
+			success: function(data)
+			{
+
+			}
+		});
+	}
+	if($('#printSignLater').is(':checked'))
+	{
+		console.log("printsignlater");
+	}
+}
 function canvas()
 {
   window.requestAnimFrame = (function(callback) {
