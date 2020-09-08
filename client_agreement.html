@@ -37,7 +37,7 @@
 		<div style="display:none;">
 			<div class="row">
 				<div class="col-md-12">
-					<textarea id="sig-dataUrl" class="form-control" rows="5">Data URL for your signature will go here!</textarea>
+					<textarea id="sig-dataUrl" class="form-control" rows="5"></textarea>
 				</div>
 			</div>
 			<br/>
@@ -79,18 +79,20 @@ $(document).ready(function()
 });
 function submit()
 {
-	if($('#signNow').is(':checked'))
+	console.log();
+	if($('input[type=radio][id=signNow]').is(':checked'))
 	{
-		$.ajax
-		({
-			type: "POST",
-			url: "clientApplication.php",
-			data:{action:"submit_agreement",application_id:$("#application_id").val(),signatorName:$("#signatorName").val(),signedDate:$("#signedDate").va()},
-			success: function(data)
-			{
+		var signatorDataUrl = $("#sig-dataUrl").val().split("data:image/png;base64,");
+		<!-- $.ajax -->
+		<!-- ({ -->
+			<!-- type: "POST", -->
+			<!-- url: "clientApplication.php", -->
+			<!-- data:{action:"submit_agreement",application_id:$("#application_id").val(),signatorName:$("#signatorName").val(),signedDate:$("#signedDate").va(),signatorBase64:$("#").val()}, -->
+			<!-- success: function(data) -->
+			<!-- { -->
 
-			}
-		});
+			<!-- } -->
+		<!-- }); -->
 	}
 	if($('#printSignLater').is(':checked'))
 	{
@@ -214,7 +216,6 @@ function canvas()
   function clearCanvas() {
     canvas.width = canvas.width;
   }
-
   // Set up the UI
   var sigText = document.getElementById("sig-dataUrl");
   var sigImage = document.getElementById("sig-image");
