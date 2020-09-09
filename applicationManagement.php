@@ -166,6 +166,19 @@
 		//Formatting for PHP Mailer//		
 		$find = array("[validation_code]","[application_id]","[client_URN]");
 		$appId = mysqli_insert_id($conn);
+		//INSERT APPLICATION ID FOR SIGNATOR_INFO TABLE
+		$sqlSI = "INSERT INTO signator_info (application_id)
+				VALUES (?);";
+		$stmtSI = mysqli_stmt_init($conn);
+		if(!mysqli_stmt_prepare($stmtSI, $sqlSI))
+		{
+			echo "SQL ERROR";
+		}
+		else
+		{
+			mysqli_stmt_bind_param($stmtSI, "i", $appId);
+			mysqli_stmt_execute($stmtSI);
+		}
 		$repl = array($validation_code,$appId,$client_URN);
 		$fixedTemplate = str_replace($find,$repl,file_get_contents("initiation_email.html"));
 		$body = $fixedTemplate;

@@ -48,7 +48,7 @@
 			</div>
 		</div>
 	</div>
-	<button style="margin-top:15px;"class="btn btn-primary" id="sig-submitBtn" onclick="submit()">Submit</button>
+	<button style="margin-top:15px;"class="btn btn-primary" id="sig-submitBtn">Submit</button>
 	
 </body>
 </html>
@@ -64,6 +64,14 @@
 $(document).ready(function()
 {
 	canvas();
+	var canvas = document.getElementById("sig-canvas");
+	var ctx = canvas.getContext("2d");
+
+	var image = new Image();
+	image.onload = function() {
+	  ctx.drawImage(image, 0, 0);
+	};
+	image.src = "[base64]";
 	
 	$('input[type=radio][name=signatorDecision]').change(function() 
 	{
@@ -77,26 +85,54 @@ $(document).ready(function()
 		}
 	});
 });
-function submit()
+function submit(base64)
 {
-	console.log();
-	if($('input[type=radio][id=signNow]').is(':checked'))
+	var err = "";
+	if($("#signedDate").val() == "")
 	{
-		var signatorDataUrl = $("#sig-dataUrl").val().split("data:image/png;base64,");
-		<!-- $.ajax -->
-		<!-- ({ -->
-			<!-- type: "POST", -->
-			<!-- url: "clientApplication.php", -->
-			<!-- data:{action:"submit_agreement",application_id:$("#application_id").val(),signatorName:$("#signatorName").val(),signedDate:$("#signedDate").va(),signatorBase64:$("#").val()}, -->
-			<!-- success: function(data) -->
-			<!-- { -->
-
-			<!-- } -->
-		<!-- }); -->
+		err += "<br>Signed Date"
 	}
-	if($('#printSignLater').is(':checked'))
+	if($("#signatorName").val() == "")
 	{
-		console.log("printsignlater");
+		err += "<br>Signator Name";
+	}
+	if(!$('input[type=radio][name=signatorDecision]').is(':checked'))
+	{
+		err += "<br>Signator Decison";
+	}
+	if(err != "")
+	{
+		Swal.fire({html:'Please supply the following fields: '+ err, icon:'warning'});
+	}
+	else
+	{
+		if($('input[type=radio][id=signNow]').is(':checked'))
+		{
+			var signatorDataUrl = base64.split("data:image/png;base64,");
+			$.ajax
+			({
+				type: "POST",
+				url: "clientApplication.php",
+				data:{action:"submit_agreement",application_id:$("#application_id").val(),signatorName:$("#signatorName").val(),signedDate:$("#signedDate").val(),signatorBase64:signatorDataUrl[1],signatorDecision:"signNow"},
+				success: function(data)
+				{
+
+				}
+			});
+		}
+		if($('#printSignLater').is(':checked'))
+		{
+			$.ajax
+			({
+				type: "POST",
+				url: "clientApplication.php",
+				data:{action:"submit_agreement",application_id:$("#application_id").val(),signatorName:$("#signatorName").val(),signedDate:$("#signedDate").val(),signatorDecision:"printSignLater"},
+				success: function(data)
+				{
+
+				}
+			});
+		}
 	}
 }
 function canvas()
@@ -230,6 +266,7 @@ function canvas()
     var dataUrl = canvas.toDataURL();
     sigText.innerHTML = dataUrl;
     sigImage.setAttribute("src", dataUrl);
+	submit(dataUrl);
   }, false);
 }
 </script>

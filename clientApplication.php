@@ -119,28 +119,38 @@ else
 					mysqli_stmt_bind_param($signatorStmt, "i",$row["application_id"]);
 					mysqli_stmt_execute($signatorStmt);
 					$signatorResult = mysqli_stmt_get_result($signatorStmt);
-					if(mysqli_num_rows($signatorResult) == 0)
-					{
-						$signatorDecision = '<div style="display:inline-block;"><b>Sign Now</b><input style="margin-left:5px;"type="radio" id="signNow" name="signatorDecision"></div><div style="display:inline-block;margin-left:10px;"><b>Print & Sign Later</b><input style="margin-left:5px;" id="printSignLater" type="radio" name="signatorDecision"></div><br>';
-						$replClientAgreement[] = $row["application_id"];
-						$replClientAgreement[] = $signatorDecision;
-					}
-					else
-					{
+					// if(mysqli_num_rows($signatorResult) == 0)
+					// {
+						// $signatorDecision = '<div style="display:inline-block;"><b>Sign Now</b><input style="margin-left:5px;"type="radio" id="signNow" name="signatorDecision"></div><div style="display:inline-block;margin-left:10px;"><b>Print & Sign Later</b><input style="margin-left:5px;" id="printSignLater" type="radio" name="signatorDecision"></div><br>';
+						// $replClientAgreement[] = $row["application_id"];
+						// $replClientAgreement[] = "";
+						// $replClientAgreement[] = "";
+						// $replClientAgreement[] = $signatorDecision;
+					// }
+					// else
+					// {
 						while($rowSig = mysqli_fetch_assoc($signatorResult))
 						{
 							if($rowSig["signatorDecision"] == "")
 							{
-								$signatorDecision .= '<div style="display:inline-block;"><b>Sign Now</b><input style="margin-left:5px;"type="radio" id="signatorDecision" name="signatorDecision"></div><div style="display:inline-block;margin-left:10px;"><b>Print & Sign Later</b><input style="margin-left:5px;" id="signatorDecision" type="radio" name="signatorDecision"></div><br>';
-							}	
-							// $replClientAgreement[] = $row["application_id"];
-							// $replClientAgreement[] = $rowSig["signatorName"];
-							// $replClientAgreement[] = $rowSig["signedDate"];
-							// $replClientAgreement[] = $signatorDecision;
-							$replClientAgreement = array($row["application_id"],$rowSig["signatorName"],$rowSig["signedDate"],$signatorDecision);
+								$signatorDecision = '<div style="display:inline-block;"><b>Sign Now</b><input style="margin-left:5px;"type="radio" id="signNow" name="signatorDecision"></div><div style="display:inline-block;margin-left:10px;"><b>Print & Sign Later</b><input style="margin-left:5px;" id="printSignLater" type="radio" name="signatorDecision"></div><br>';
+							}
+							if($rowSig["signatorDecision"] == "signNow")
+							{
+								$signatorDecision = '<div style="display:inline-block;"><b>Sign Now</b><input style="margin-left:5px;" type="radio" id="signNow" checked="checked" name="signatorDecision"></div><div style="display:inline-block;margin-left:10px;"><b>Print & Sign Later</b><input style="margin-left:5px;" id="printSignLater" type="radio" name="signatorDecision"></div><br>';
+							}
+							if($rowSig["signatorDecision"] == "printSignLater")
+							{
+								$signatorDecision = '<div style="display:inline-block;"><b>Sign Now</b><input style="margin-left:5px;" type="radio" id="signNow" checked="checked" name="signatorDecision"></div><div style="display:inline-block;margin-left:10px;"><b>Print & Sign Later</b><input style="margin-left:5px;" id="printSignLater" type="radio" checked="checked" name="signatorDecision"></div><br>';
+							}
+							$replClientAgreement[] = $row["application_id"];
+							$replClientAgreement[] = $rowSig["signedDate"];
+							$replClientAgreement[] = $rowSig["signatorName"];
+							$replClientAgreement[] = $signatorDecision;
+							$replClientAgreement[] = 'data:image/png;base64,'.$rowSig["signatorBase64"];
 						}
-					}
-					$find = array("[application_id]","[signatorDecision]");
+					// }
+					$find = array("[application_id]","[signedDate]","[signatorName]","[signatorDecision]","[base64]");
 					$return = str_replace($find,$replClientAgreement,file_get_contents("client_agreement.html"));
 					echo $return;
 				}
@@ -204,6 +214,42 @@ else
 				}
 			}
 			
+		}
+	}
+	if(isset($_POST["action"]) && $_POST["action"] == "submit_agreement")
+	{
+		$signatorName = mysqli_real_escape_string($conn, $_POST["signatorName"]);
+		$signatorDate = mysqli_real_escape_string($conn, $_POST["signedDate"]);
+		$signatorDecision = mysqli_real_escape_string($conn, $_POST["signatorDecision"]);
+		if($_POST["signatorDecision"] == "signNow")
+		{
+			$updateSQL = "UPDATE signator_info SET signatorName =?,signedDate =?,signatorBase64 =?,signatorDecision =? WHERE application_id =?;";
+			$updateSTMT = mysqli_stmt_init($conn);
+			mysqli_stmt_prepare($updateSTMT, $updateSQL);
+			if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
+			{
+				echo "SQL ERROR";
+			}
+			else
+			{
+				mysqli_stmt_bind_param($updateSTMT, "ssssi",$signatorName,$signatorDate,$_POST["signatorBase64"],$signatorDecision,$_POST["application_id"]);
+				mysqli_stmt_execute($updateSTMT);
+			}
+		}
+		if($_POST["signatorDecision"] == "printSignLater")
+		{
+			$updateSQL = "UPDATE signator_info SET signatorName =?,signedDate =?,signatorDecision =? WHERE application_id =?;";
+			$updateSTMT = mysqli_stmt_init($conn);
+			mysqli_stmt_prepare($updateSTMT, $updateSQL);
+			if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
+			{
+				echo "SQL ERROR";
+			}
+			else
+			{
+				mysqli_stmt_bind_param($updateSTMT, "sssi",$signatorName,$signatorDate,$signatorDecision,$_POST["application_id"]);
+				mysqli_stmt_execute($updateSTMT);
+			}
 		}
 	}
 }
