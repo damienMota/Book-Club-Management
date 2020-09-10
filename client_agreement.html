@@ -26,6 +26,7 @@
 		 		<canvas id="sig-canvas" width="620" height="160">
 		 			Get a better browser, bro.
 		 		</canvas>
+				<img style="display:none;" id="sig-image" src="[base64]" alt="Your signature will go here!"/>
 		 	</div>
 		</div>
 		<div class="row">
@@ -41,11 +42,6 @@
 				</div>
 			</div>
 			<br/>
-			<div class="row">
-				<div class="col-md-12">
-					<img id="sig-image" src="" alt="Your signature will go here!"/>
-				</div>
-			</div>
 		</div>
 	</div>
 	<button style="margin-top:15px;"class="btn btn-primary" id="sig-submitBtn">Submit</button>
@@ -64,15 +60,15 @@
 $(document).ready(function()
 {
 	canvas();
-	var canvas = document.getElementById("sig-canvas");
-	var ctx = canvas.getContext("2d");
-
-	var image = new Image();
-	image.onload = function() {
-	  ctx.drawImage(image, 0, 0);
-	};
-	image.src = "[base64]";
-	
+	drawImage();
+	if($('input[type=radio][id=signNow]').is(':checked'))
+	{
+		$("#canvasContainer").show();
+	}
+	if($('input[type=radio][id=printSignLater]').is(':checked'))
+	{
+		$("#canvasContainer").hide();
+	}
 	$('input[type=radio][name=signatorDecision]').change(function() 
 	{
 		if($(this).attr("id") == "signNow")
@@ -85,6 +81,12 @@ $(document).ready(function()
 		}
 	});
 });
+function drawImage()
+{
+	var canvas = document.getElementById("sig-canvas");
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(document.getElementById('sig-image'),0,0);
+}
 function submit(base64)
 {
 	var err = "";
