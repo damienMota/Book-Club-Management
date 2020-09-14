@@ -22,6 +22,7 @@ else
 		mysqli_stmt_execute($stmt);
 		$result = mysqli_stmt_get_result($stmt);
 		$clientEducation = "<select id='client_education'><option id=0 value=0>Please select an option</option>";
+		$test = 'false';
 		while($row = mysqli_fetch_assoc($result))
 		{
 			$signatorSql = "SELECT * FROM signator_info where application_id =?;";
@@ -142,12 +143,39 @@ else
 					}
 					else
 					{
-						// $pdf = new FPDF();
-						// $pdf->AddPage();
-						// $pdf->SetFont('Arial','B',16);
-						// $pdf->Cell(40,10,'Hello World!');
-						// $pdf->Output();
-						$return = file_get_contents("client_review.html");
+						$pdf = new FPDF();
+						$pdf->AddPage();
+						$pdf->SetFont('Arial','B',16);
+						$pdf->setXY(100,25);
+						$pdf->Cell(10,5,'Bio','B',1,'C');
+						$pdf->setXY(100,25);
+						
+						$pdf->SetFont('Arial','B',12);
+						$pdf->setXY(65,35);
+						$pdf->Cell(15,5,'Name:',0,1,'R');
+						$pdf->SetFont('Arial','',12);
+						$pdf->setXY(81,35);
+						$pdf->Cell(47,5,$row["name"],1,1,'C');
+						
+						$pdf->SetFont('Arial','B',12);
+						$pdf->setXY(65,43);
+						$pdf->Cell(15,5,'Phone Number:',0,1,'R');
+						$pdf->SetFont('Arial','',12);
+						$pdf->setXY(81,43);
+						$pdf->Cell(47,5,$row["primary_phone_number"],1,1,'C');
+						
+						$pdf->SetFont('Arial','B',12);
+						$pdf->setXY(65,51);
+						$pdf->Cell(15,5,'Email Address:',0,1,'R');
+						$pdf->SetFont('Arial','',12);
+						$pdf->setXY(81,50);
+						$pdf->Cell(47,5,$row["primary_email"],1,1,'L');
+						
+						$pdf->Output('downloads/clientAppReview_'.$row["application_id"].'.pdf','F');
+						
+						$find = array("[application_id]");
+						$repl = array($row["application_id"]);
+						$return = str_replace($find,$repl,file_get_contents("client_review.html"));
 					}
 					echo $return;
 				}
@@ -248,6 +276,10 @@ else
 				mysqli_stmt_execute($updateSTMT);
 			}
 		}
+	}
+	if(isset($_POST["action"]) && $_POST["action"] == "review_application")
+	{
+
 	}
 }
 ?>

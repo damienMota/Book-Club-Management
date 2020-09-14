@@ -9,7 +9,27 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 </head>
 <body>
-	<div style="font-size:25px;margin-top:60px;text-align:center;"><b><u>Client Application Reivew</u></b></div>
-	<!-- <embed type="application/pdf" src="pic_trulli.jpg" width="300" height="200"> -->
+	<div style="font-size:25px;margin-top:60px;text-align:center;"><b><u>Client Application Review</u></b></div>
+	<div style="text-align:center;margin-top:50px;"><embed src="downloads/clientAppReview_[application_id].pdf" width="1000px" height="400px" /></div>
+	<input type="hidden" id="application" value="[application_id]">
 </body>
 </html>
+<script>
+$(document).ready(function()
+{
+	
+});
+function reviewApplication()
+{
+	$.ajax
+	({
+		type: "POST",
+		url: "clientApplication.php",
+		data:{action:"review_application",application_id:$("#application_id").val()},
+		success: function(data)
+		{
+		
+		}
+	});
+}
+</script>
