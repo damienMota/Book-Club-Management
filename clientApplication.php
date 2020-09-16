@@ -146,30 +146,98 @@ else
 						$pdf = new FPDF();
 						$pdf->AddPage();
 						$pdf->SetFont('Arial','B',16);
-						$pdf->setXY(100,25);
+						$pdf->setXY(105,25);
 						$pdf->Cell(10,5,'Bio','B',1,'C');
-						$pdf->setXY(100,25);
+						$pdf->setXY(105,25);
 						
 						$pdf->SetFont('Arial','B',12);
-						$pdf->setXY(65,35);
+						$pdf->setXY(70,35);
 						$pdf->Cell(15,5,'Name:',0,1,'R');
 						$pdf->SetFont('Arial','',12);
-						$pdf->setXY(81,35);
+						$pdf->setXY(86,35);
 						$pdf->Cell(47,5,$row["name"],1,1,'C');
 						
 						$pdf->SetFont('Arial','B',12);
-						$pdf->setXY(65,43);
+						$pdf->setXY(70,43);
 						$pdf->Cell(15,5,'Phone Number:',0,1,'R');
 						$pdf->SetFont('Arial','',12);
-						$pdf->setXY(81,43);
+						$pdf->setXY(86,43);
 						$pdf->Cell(47,5,$row["primary_phone_number"],1,1,'C');
 						
 						$pdf->SetFont('Arial','B',12);
-						$pdf->setXY(65,51);
+						$pdf->setXY(70,51);
 						$pdf->Cell(15,5,'Email Address:',0,1,'R');
 						$pdf->SetFont('Arial','',12);
-						$pdf->setXY(81,50);
+						$pdf->setXY(86,51);
 						$pdf->Cell(47,5,$row["primary_email"],1,1,'L');
+						
+						$pdf->SetFont('Arial','B',12);
+						$pdf->setXY(70,59);
+						$pdf->Cell(15,5,'Business Name:',0,1,'R');
+						$pdf->SetFont('Arial','',12);
+						$pdf->setXY(86,59);
+						$pdf->Cell(47,5,$row["business_name"],1,1,'C');
+						
+						$pdf->SetFont('Arial','B',12);
+						$pdf->setXY(70,67);
+						$pdf->Cell(15,5,'Education:',0,1,'R');
+						$pdf->SetFont('Arial','',12);
+						$pdf->setXY(86,67);
+						$pdf->Cell(47,5,$row["client_education"],1,1,'C');
+						
+						$pdf->SetFont('Arial','B',12);
+						$pdf->setXY(105,75);
+						$pdf->Cell(15,5,'About Me:',0,1,'R');
+						$pdf->SetFont('Arial','',12);
+						$pdf->setXY(65,80);
+						$pdf->MultiCell(90,35,"",1,"L");
+						$pdf->setXY(66,81);
+						$pdf->MultiCell(90,5,$row["about_me"],0,"L");
+						
+						$pdf->SetFont('Arial','B',12);
+						$pdf->setXY(105,120);
+						$pdf->Cell(15,5,'Emergency Contact Info:',0,1,'C');
+						$pdf->setXY(60,130);
+						$pdf->Cell(15,5,'Name:',0,1,'C');
+						$pdf->setXY(100,130);
+						$pdf->Cell(15,5,'Email:',0,1,'C');
+						$pdf->setXY(140,130);
+						$pdf->Cell(15,5,'Phone Number:',0,1,'C');
+						$pdf->SetFont('Arial','',12);
+						
+						$sqlECI = "SELECT * FROM emergency_contact_info where eci_application_id =?;";
+						$stmtECI = mysqli_stmt_init($conn);
+						mysqli_stmt_prepare($stmtECI, $sqlECI);
+						if(!mysqli_stmt_prepare($stmtECI, $sqlECI))
+						{
+							echo "SQL ERROR";
+						}
+						else
+						{
+							mysqli_stmt_bind_param($stmtECI, "i",$row["application_id"]);
+							mysqli_stmt_execute($stmtECI);
+							$resultECI = mysqli_stmt_get_result($stmtECI);
+							
+							$eciNameArray = array();
+							$eciEmailArray = array();
+							$eciPhoneArray = array();
+							while($rowECI = mysqli_fetch_assoc($resultECI))
+							{
+								$eciNameArray[] = $rowECI["eci_name"];
+								$eciEmailArray[] = $rowECI["eci_email"];
+								$eciPhoneArray[] = $rowECI["eci_phone_number"];
+							}
+							$err = count($eciNameArray) - 1;
+							$counter = $err ;
+							for($x = 0; $x <= $counter; $x++)
+							{
+								$pdf->setXY(60,135);
+								$pdf->Cell(47,5,$eciNameArray[$x],1,1,'C');
+							}
+							
+						}
+						
+						
 						
 						$pdf->Output('downloads/clientAppReview_'.$row["application_id"].'.pdf','F');
 						
