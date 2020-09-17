@@ -197,11 +197,11 @@ else
 						$pdf->SetFont('Arial','B',12);
 						$pdf->setXY(105,120);
 						$pdf->Cell(15,5,'Emergency Contact Info:',0,1,'C');
-						$pdf->setXY(60,130);
+						$pdf->setXY(55,130);
 						$pdf->Cell(15,5,'Name:',0,1,'C');
-						$pdf->setXY(100,130);
+						$pdf->setXY(104,130);
 						$pdf->Cell(15,5,'Email:',0,1,'C');
-						$pdf->setXY(140,130);
+						$pdf->setXY(150,130);
 						$pdf->Cell(15,5,'Phone Number:',0,1,'C');
 						$pdf->SetFont('Arial','',12);
 						
@@ -229,10 +229,40 @@ else
 							}
 							$err = count($eciNameArray) - 1;
 							$counter = $err ;
+							$yAxis = 140;
+	
 							for($x = 0; $x <= $counter; $x++)
 							{
-								$pdf->setXY(60,135);
-								$pdf->Cell(47,5,$eciNameArray[$x],1,1,'C');
+								$yAxis = $yAxis+5;
+								if($x == 0)
+								{
+									$pdf->setXY(45,140);
+								}
+								else
+								{
+									$pdf->setXY(45,$yAxis);
+								}
+								$pdf->Cell(35,5,$eciNameArray[$x],1,1,'C');
+
+								if($x == 0)
+								{
+									$pdf->setXY(84,140);
+								}
+								else
+								{
+									$pdf->setXY(84,$yAxis);
+								}
+								$pdf->Cell(52,5,$eciEmailArray[$x],1,1,'C');
+								
+								if($x == 0)
+								{
+									$pdf->setXY(140,140);
+								}
+								else
+								{
+									$pdf->setXY(140,$yAxis);
+								}
+								$pdf->Cell(35,5,$eciPhoneArray[$x],1,1,'C');
 							}
 							
 						}
