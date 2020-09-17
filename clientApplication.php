@@ -33,7 +33,7 @@ else
 				echo "SQL ERROR";
 			}
 			else
-			{	
+			{
 				mysqli_stmt_bind_param($signatorStmt, "i",$row["application_id"]);
 				mysqli_stmt_execute($signatorStmt);
 				$signatorResult = mysqli_stmt_get_result($signatorStmt);
@@ -266,8 +266,59 @@ else
 							}
 							
 						}
+						$pdf->AddPage();
+						$pdf->SetFont('Arial','B',16);
+						$pdf->setXY(83,25);
+						$pdf->Cell(47,5,'Agreement Form','B',1,'C');
+						$pdf->setXY(25,35);
+						$pdf->SetFont('Arial','',10);
+						$pdf->MultiCell(165,5,"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ut lacinia risus. Proin sed elit ipsum. Mauris et mollis augue. Cras tellus nunc, luctus vel varius sit amet, faucibus eu ligula. Nulla sollicitudin, lorem id dictum congue, libero tortor rutrum libero, ac lobortis magna ante ut tellus. Suspendisse quis efficitur lorem. Fusce fermentum faucibus nisi, elementum egestas libero varius quis. Morbi convallis quam eget interdum consectetur. Suspendisse sapien elit, pretium nec ante ac, rhoncus dictum risus. Nunc dictum quis urna quis finibus. Aliquam nec massa magna. Maecenas ut sapien porta, vehicula dui a, commodo nisl. Quisque elementum venenatis est, quis porta enim mattis at. Proin consequat sit amet purus at egestas. Suspendisse id ultrices tortor, eu aliquet mi. Praesent at mi eu metus porta tempor. Donec convallis, nunc a lacinia dignissim, enim sapien aliquet neque, ut egestas metus lacus eu sem. Etiam fringilla a libero sit amet tincidunt. Nam bibendum facilisis leo, nec pulvinar massa porta sit amet. Nulla tincidunt eros nec velit cursus, non maximus mi imperdiet. Praesent nec ligula ac leo rutrum gravida sit amet vel ligula. Duis a mollis lacus, vitae semper nisl. Proin vulputate bibendum ligula ac gravida. Morbi suscipit porta sapien vitae malesuada. Suspendisse lectus felis, hendrerit nec nulla ut, suscipit tempor nibh. In pulvinar vel tellus id interdum. Morbi gravida porta rhoncus. Phasellus non lobortis magna.	Fusce et rutrum magna. In suscipit lacus eget ante varius pellentesque. In dapibus justo vitae condimentum vehicula. Maecenas pellentesque dolor ut nisi maximus venenatis. Cras a egestas massa, ut sodales purus. Pellentesque et tristique libero. Etiam rhoncus at sapien quis vestibulum. Cras luctus ex a lacus gravida accumsan. Sed nec ultrices est, eget tincidunt ipsum. Sed pharetra viverra nisl at faucibus. Cras lobortis dignissim vulputate. Curabitur commodo commodo vulputate. Aliquam eget maximus magna. Aliquam et mattis arcu. Pellentesque semper, dui eget blandit dapibus, augue nisi mollis erat, vel imperdiet eros ipsum a tortor. Donec sagittis dapibus sem. Pellentesque nibh ante, feugiat non turpis quis, sodales fringilla purus. Ut porttitor tempus aliquam. Nullam pharetra, justo a tempor rhoncus, est arcu faucibus lectus, vestibulum sollicitudin est tortor sit amet nunc. Duis aliquet non sapien eget viverra. Duis interdum lectus urna, eget venenatis sem pharetra id. Praesent condimentum pretium blandit. Fusce dignissim efficitur posuere. Praesent maximus mauris eget felis euismod, in posuere leo pulvinar. Morbi at quam ut velit gravida lacinia ornare eget quam. Donec egestas ligula vel dapibus vehicula. Aenean ante lacus, feugiat in sapien non, congue vestibulum mi. Maecenas vehicula iaculis purus, ac blandit ante imperdiet at. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce tempor arcu ut mauris tempus euismod. In hac habitasse platea dictumst.",1,"L");
 						
-						
+						$signatorSql = "SELECT * FROM signator_info where application_id =?;";
+						$signatorStmt = mysqli_stmt_init($conn);
+						mysqli_stmt_prepare($signatorStmt, $signatorSql);
+						if(!mysqli_stmt_prepare($signatorStmt, $signatorSql))
+						{
+							echo "SQL ERROR";
+						}
+						else
+						{
+							mysqli_stmt_bind_param($signatorStmt, "i",$row["application_id"]);
+							mysqli_stmt_execute($signatorStmt);
+							$signatorResult = mysqli_stmt_get_result($signatorStmt);
+							while($rowSig = mysqli_fetch_assoc($signatorResult))
+							{
+								$pdf->setXY(60,190);
+								$pdf->SetFont('Arial','B',12);
+								$pdf->Cell(26,5,'Signed Date:',0,0,'C');
+								$pdf->SetFont('Arial','',12);
+								$pdf->setXY(90,190);
+								$pdf->Cell(47,5,$rowSig["signedDate"],1,1,'C');
+								
+								$pdf->setXY(59,198);
+								$pdf->SetFont('Arial','B',12);
+								$pdf->Cell(26,5,'Signed Name:',0,0,'C');
+								$pdf->SetFont('Arial','',12);
+								$pdf->setXY(90,198);
+								$pdf->Cell(47,5,$rowSig["signatorName"],1,1,'C');
+								
+								$pdf->setXY(63,206);
+								$pdf->SetFont('Arial','B',12);
+								$pdf->Cell(26,5,'Signature:',0,0,'C');
+								$pdf->setXY(67,230);
+								
+								if($rowSig["signatorDecision"] == "printSignLater")
+								{
+									$pdf->Cell(73,5,'',"B",0,'C');
+								}
+								if($rowSig["signatorDecision"] == "signNow")
+								{
+									$img = 'data:image/png;base64,'.$rowSig["signatorBase64"];
+									$pdf->Image($img,70,210,100,0,'png');
+									$pdf->Cell(73,5,'',"B",0,'C');
+								}
+							}
+						}
 						
 						$pdf->Output('downloads/clientAppReview_'.$row["application_id"].'.pdf','F');
 						
@@ -375,9 +426,36 @@ else
 			}
 		}
 	}
-	if(isset($_POST["action"]) && $_POST["action"] == "review_application")
+	if(isset($_POST["action"]) && $_POST["action"] == "submit_application")
 	{
-
+		$updateSQL = "UPDATE application_main SET application_status =? WHERE application_id =?;";
+		$updateSTMT = mysqli_stmt_init($conn);
+		mysqli_stmt_prepare($updateSTMT, $updateSQL);
+		if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
+		{
+			echo "SQL ERROR";
+		}
+		else
+		{
+			mysqli_stmt_bind_param($updateSTMT, "si","submitted",$_POST["application_id"]);
+			mysqli_stmt_execute($updateSTMT);
+			
+			$sql = "SELECT * FROM application_main where client_URN =?;";
+			$stmt = mysqli_stmt_init($conn);
+			mysqli_stmt_prepare($stmt, $sql);
+			if(!mysqli_stmt_prepare($stmt, $sql))
+			{
+				echo "SQL ERROR";
+			}
+			else
+			{
+				mysqli_stmt_bind_param($stmt, "s",$url[1]);
+				mysqli_stmt_execute($stmt);
+				$result = mysqli_stmt_get_result($stmt);
+				
+				//Email Sent to Client After Application Has Been Submitted//
+			}
+		}
 	}
 }
 ?>

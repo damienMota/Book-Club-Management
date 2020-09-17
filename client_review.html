@@ -10,7 +10,9 @@
 </head>
 <body>
 	<div style="font-size:25px;margin-top:60px;text-align:center;"><b><u>Client Application Review</u></b></div>
-	<div style="text-align:center;margin-top:50px;"><embed style="border:solid black 1px;" src="downloads/clientAppReview_[application_id].pdf" width="1000px" height="400px" /></div>
+	<div style="font-size:13px;margin-top:40px;text-align:center;color:red;"><b>*Please Note if you've checked "Print Sign Later" on the Agreement Form you are responsible for downloading your Application and emailing it "mota.damien@gmail.com".</b></div>
+	<div style="text-align:center;margin-top:40px;"><embed style="border:solid black 1px;" src="downloads/clientAppReview_[application_id].pdf" width="1000px" height="400px" /></div>
+	<div onclick="submitApplication()">Submit Application</div>
 	<input type="hidden" id="application" value="[application_id]">
 </body>
 </html>
@@ -29,6 +31,22 @@ function reviewApplication()
 		success: function(data)
 		{
 		
+		}
+	});
+}
+function submitApplication()
+{
+	$.ajax
+	({
+		type: "POST",
+		url: "clientApplication.php",
+		data:{action:"submit_application",application_id:$("#application_id").val()},
+		success: function(data)
+		{
+			if(data == "success")
+			{
+				Swal.fire({html:'Application Has Been Submitted.<br>You will recieve an email shortly.', icon:'success'});
+			}
 		}
 	});
 }
