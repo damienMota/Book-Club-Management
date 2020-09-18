@@ -7,34 +7,33 @@
 	//Pending Table//
 	$sqlPending = "SELECT * FROM application_main where application_status = 'pending';";
 	$rsPending = mysqli_query($conn,$sqlPending);
-	$rowPending = mysqli_fetch_assoc($rsPending);
 	//Submitted Table//
 	$sqlSubmitted = "SELECT * FROM application_main where application_status = 'submitted';";
 	$rsSubmitted = mysqli_query($conn,$sqlSubmitted);
-	$rowSubmitted = mysqli_fetch_assoc($rsSubmitted);
 	//Completed Table//
 	$sqlCompleted = "SELECT * FROM application_main where application_status = 'completed';";
-	$rsCompleted = mysqli_query($conn,$sqlSubmitted);
-	$rowCompleted = mysqli_fetch_assoc($rsSubmitted);
+	$rsCompleted = mysqli_query($conn,$sqlCompleted);
 	$rs = mysqli_query($conn,$sql);
 	$rsHeaders = mysqli_query($conn,$sqlHeaders);
-		if($_POST["action"] == "pending_table")
+	if($_POST["action"] == "pending_table")
+	{
+		if(mysqli_num_rows($rsPending) == 0)
 		{
-			if(mysqli_num_rows($rsPending) == 0)
+			$ret = '<table id="pendingTable"><thead><tr>';
+			while($rowNum0 = mysqli_fetch_assoc($rsHeaders))
 			{
-				$ret = '<table id="pendingTable"><thead><tr>';
-				while($rowNum0 = mysqli_fetch_assoc($rsHeaders))
+				foreach($rowNum0 as $header)
 				{
-					foreach($rowNum0 as $header)
-					{
-						$fixedHeader = str_replace("_"," ",$header);
-						$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
-					}
+					$fixedHeader = str_replace("_"," ",$header);
+					$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
 				}
-				$ret .= '</tr></thead></table>';
-				echo $ret;
 			}
-			else
+			$ret .= '</tr></thead></table>';
+			echo $ret;
+		}
+		else
+		{
+			while($rowPending = mysqli_fetch_assoc($rsPending))
 			{
 				if($rowPending["application_status"] == "pending")
 				{
@@ -45,97 +44,97 @@
 						$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
 					}
 					$ret .= '</tr></thead>';
-					while($row = mysqli_fetch_assoc($rs))
-					{
 						$ret .= '<tr>';
-						foreach($row as $key => $item)
-						{
-							$ret .= '<td>'.$item.'</td>';
-						}
+					foreach($rowPending as $key => $item)
+					{
+						$ret .= '<td>'.$item.'</td>';
 					}
 					$ret .= '</tr></table>';
 					echo $ret;
 				}
 			}
 		}
-		if($_POST["action"] == "submitted_table")
+	}
+	if($_POST["action"] == "submitted_table")
+	{
+		if(mysqli_num_rows($rsSubmitted) == 0)
 		{
-			if(mysqli_num_rows($rsSubmitted) == 0)
+			$ret = '<table id="submittedTable"><thead><tr>';
+			while($rowNum0 = mysqli_fetch_assoc($rsHeaders))
 			{
-				$ret = '<table id="submittedTable"><thead><tr>';
-				while($rowNum0 = mysqli_fetch_assoc($rsHeaders))
+				foreach($rowNum0 as $header)
 				{
-					foreach($rowNum0 as $header)
-					{
-						$fixedHeader = str_replace("_"," ",$header);
-						$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
-					}
+					$fixedHeader = str_replace("_"," ",$header);
+					$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
 				}
-				$ret .= '</tr></thead></table>';
-				echo $ret;
 			}
-			else
+			$ret .= '</tr></thead></table>';
+			echo $ret;
+		}
+		else
+		{
+			while($rowSubmitted = mysqli_fetch_assoc($rsSubmitted))
 			{
 				if($rowSubmitted["application_status"] == "submitted")
 				{
-					$ret = '<table><tr>';
-					while($row = mysqli_fetch_assoc($rs))
+					$ret = '<table id="submittedTable"><tr>';
+					for($i=0;$i<mysqli_num_fields($rs);$i++)
 					{
-						foreach($row as $key => $item)
-						{
-							$ret .= '<th>'.strtoupper($key).'</th>';
-						}
-						$ret .= '</tr>';
-						$ret .= '<tr>';
-						foreach($row as $key => $item)
-						{
-							$ret .= '<td>'.$item.'</td>';
-						}
-						$ret .= '</tr></table>';
-						echo $ret;
-					}
-				}
-			}
-		}
-		if($_POST["action"] == "completed_table")
-		{
-			if(mysqli_num_rows($rsCompleted) == 0)
-			{
-				$ret = '<table id="completedTable"><thead><tr>';
-				while($rowNum0 = mysqli_fetch_assoc($rsHeaders))
-				{
-					foreach($rowNum0 as $header)
-					{
-						$fixedHeader = str_replace("_"," ",$header);
+						$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
 						$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
 					}
-				}
-				$ret .= '</tr></thead></table>';
-				echo $ret;
-			}
-			else
-			{
-				if($rowCompleted["application_status"] == "completed")
-				{
-					$ret = '<table><tr>';
-					while($row = mysqli_fetch_assoc($rs))
+					$ret .= '</tr></thead>';
+					$ret .= '<tr>';
+					foreach($rowSubmitted as $key => $item)
 					{
-						foreach($row as $key => $item)
-						{
-							$ret .= '<th>'.strtoupper($key).'</th>';
-						}
-						$ret .= '</tr>';
-						$ret .= '<tr>';
-						foreach($row as $key => $item)
-						{
-							$ret .= '<td>'.$item.'</td>';
-						}
-						$ret .= '</tr></table>';
-						echo $ret;
+						$ret .= '<td>'.$item.'</td>';
 					}
+					$ret .= '</tr></table>';
+					echo $ret;
 				}
 			}
 		}
+	}
+	if($_POST["action"] == "completed_table")
+	{
+		if(mysqli_num_rows($rsCompleted) == 0)
+		{
+			$ret = '<table id="completedTable"><thead><tr>';
+			while($rowNum0 = mysqli_fetch_assoc($rsHeaders))
+			{
+				foreach($rowNum0 as $header)
+				{
+					$fixedHeader = str_replace("_"," ",$header);
+					$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
+				}
+			}
+			$ret .= '</tr></thead></table>';
+			echo $ret;
+		}
+		else
+		{
+			while($rowCompleted = mysqli_fetch_assoc($rsCompleted))
+			{
+				if($rowCompleted["application_status"] == "submitted")
+				{
+					$ret = '<table id="submittedTable"><tr>';
+					for($i=0;$i<mysqli_num_fields($rs);$i++)
+					{
+						$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
+						$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
+					}
+					$ret .= '</tr></thead>';
+					$ret .= '<tr>';
+					foreach($rowCompleted as $key => $item)
+					{
+						$ret .= '<td>'.$item.'</td>';
+					}
+					$ret .= '</tr></table>';
+					echo $ret;
+				}
+			}
+		}
+	}
 	if($_POST["action"] == "initiate_application")
 	{
 		$name = $_POST["first_name"].' '.$_POST["last_name"];

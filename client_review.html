@@ -45,7 +45,10 @@ function submitApplication()
 		{
 			if(data == "success")
 			{
-				Swal.fire({html:'Application Has Been Submitted.<br>You will recieve an email shortly.', icon:'success'});
+				Swal.fire({html:'Application Has Been Submitted.<br>You will recieve an email shortly.', icon:'success'}).then(function()
+				{
+					location.reload();
+				});
 			}
 		}
 	});

@@ -1,6 +1,7 @@
 <?php
-$conn = mysqli_connect('localhost', 'damien', 'Oimadi*1', 'application_management');
+use PHPMailer\PHPMailer\PHPMailer;
 require('fpdf.php');
+$conn = mysqli_connect('localhost', 'damien', 'Oimadi*1', 'application_management');
 if(!$conn)
 {
 	echo 'Connection ERRROR';
@@ -440,77 +441,74 @@ else
 				$counter++;
 				$referenceNumber = substr($tempReferenceNumber, $counter);	
 			}
-			else
-			{
-				$referenceNumber = $tempReferenceNumber;
-			}
 		}
-		$updateSQL = "UPDATE application_main SET application_status =?,reference_number =? WHERE application_id =?;";
-		$updateSTMT = mysqli_stmt_init($conn);
-		mysqli_stmt_prepare($updateSTMT, $updateSQL);
-		if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
-		{
-			echo "SQL ERROR";
-		}
-		else
-		{
-			mysqli_stmt_bind_param($updateSTMT, "sii",$status,$referenceNumber,$_POST["application_id"]);
-			mysqli_stmt_execute($updateSTMT);
+		if($referenceNumber ==
+		error_log($referenceNumber);
+		// $updateSQL = "UPDATE application_main SET application_status =?,reference_number =? WHERE application_id =?;";
+		// $updateSTMT = mysqli_stmt_init($conn);
+		// mysqli_stmt_prepare($updateSTMT, $updateSQL);
+		// if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
+		// {
+			// echo "SQL ERROR";
+		// }
+		// else
+		// {
+			// mysqli_stmt_bind_param($updateSTMT, "sii",$status,$referenceNumber,$_POST["application_id"]);
+			// mysqli_stmt_execute($updateSTMT);
 			
-			$sql = "SELECT * FROM application_main where application_id =?;";
-			$stmt = mysqli_stmt_init($conn);
-			mysqli_stmt_prepare($stmt, $sql);
-			if(!mysqli_stmt_prepare($stmt, $sql))
-			{
-				echo "SQL ERROR";
-			}
-			else
-			{
-				mysqli_stmt_bind_param($stmt, "i",$_POST["application_id"]);
-				mysqli_stmt_execute($stmt);
-				$result = mysqli_stmt_get_result($stmt);
+			// $sql = "SELECT * FROM application_main where application_id =?;";
+			// $stmt = mysqli_stmt_init($conn);
+			// mysqli_stmt_prepare($stmt, $sql);
+			// if(!mysqli_stmt_prepare($stmt, $sql))
+			// {
+				// echo "SQL ERROR";
+			// }
+			// else
+			// {
+				// mysqli_stmt_bind_param($stmt, "i",$_POST["application_id"]);
+				// mysqli_stmt_execute($stmt);
+				// $result = mysqli_stmt_get_result($stmt);
 				
-				// Email Sent to Client After Application Has Been Submitted//
-				require_once "PHPMailer/PHPMailer.php";
-				require_once "PHPMailer/SMTP.php";
-				require_once "PHPMailer/Exception.php";
+				// require_once "PHPMailer/PHPMailer.php";
+				// require_once "PHPMailer/SMTP.php";
+				// require_once "PHPMailer/Exception.php";
 
-				$mail = new PHPMailer();
+				// $mail = new PHPMailer();
 
-				// smtp settings
-				$mail->isSMTP();
-				$mail->Host = "smtp.gmail.com";
-				$mail->SMTPAuth = true;
-				$mail->Username = "mota.damien@gmail.com";
-				$mail->Password = 'damienab';
-				$mail->Port = 465;
-				$mail->SMTPSecure = "ssl";
-				// email settings
-				while($rowEmail = mysqli_fetch_assoc($result))
-				{
-					$find = array("[name]","[reference_number]");
-					$repl = array($rowEmail["name"],$rowEmail["reference_number"]);
-					$body = str_replace($find,$repl,file_get_contents("submitted_email.html"));
+				// $mail->isSMTP();
+				// $mail->Host = "smtp.gmail.com";
+				// $mail->SMTPAuth = true;
+				// $mail->Username = "mota.damien@gmail.com";
+				// $mail->Password = 'damienab';
+				// $mail->Port = 465;
+				// $mail->SMTPSecure = "ssl";
+				
+				// while($rowEmail = mysqli_fetch_assoc($result))
+				// {
+					// $find = array("[name]","[reference_number]");
+					// $repl = array($rowEmail["name"],$rowEmail["reference_number"]);
+					// $body = str_replace($find,$repl,file_get_contents("submitted_email.html"));
 					
-					$mail->isHTML(true);
-					$mail->setFrom($rowEmail["primary_email"], $rowEmail["name"]);
-					$mail->addAddress($rowEmail["primary_email"]);
-					$mail->Subject = ("Application Submitted for: ".$rowEmail["name"]);
-					$mail->Body = $body;
-
-					if($mail->send()){
-						$status = "success";
-						$response = "Email is sent!";
-					}
-					else
-					{
-						$status = "failed";
-						$response = "Something is wrong: <br>" . $mail->ErrorInfo;
-					}
-					echo $status;
-				}
-			}
-		}
+					// $mail->isHTML(true);
+					// $mail->setFrom($rowEmail["primary_email"], $rowEmail["name"]);
+					// $mail->addAddress($rowEmail["primary_email"]);
+					// $mail->Subject = ("Application Submitted for: ".$rowEmail["name"]);
+					// $mail->Body = $body;
+					
+					// $status = "";
+					// if($mail->send()){
+						// $status = "success";
+						// $response = "Email is sent!";
+					// }
+					// else
+					// {
+						// $status = "failed";
+						// $response = "Something is wrong: <br>" . $mail->ErrorInfo;
+					// }
+					// echo $status;
+				// }
+			// }
+		// }
 	}
 }
 ?>
