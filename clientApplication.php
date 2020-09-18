@@ -428,6 +428,23 @@ else
 	}
 	if(isset($_POST["action"]) && $_POST["action"] == "submit_application")
 	{
+		$status = "submitted";
+		$tempReferenceNumber = "000".$_POST["application_id"];
+		$referenceNumber = "";
+		$counter = 0;
+		
+		for($x = 0; $x <= 4; $x++)
+		{
+			if($x > 1)
+			{
+				$counter++;
+				$referenceNumber = substr($tempReferenceNumber, $counter);	
+			}
+			else
+			{
+				$referenceNumber = $tempReferenceNumber;
+			}
+		}
 		$updateSQL = "UPDATE application_main SET application_status =?,reference_number =? WHERE application_id =?;";
 		$updateSTMT = mysqli_stmt_init($conn);
 		mysqli_stmt_prepare($updateSTMT, $updateSQL);
@@ -437,7 +454,7 @@ else
 		}
 		else
 		{
-			mysqli_stmt_bind_param($updateSTMT, "ssi","submitted",000$_POST["application_id"],$_POST["application_id"]);
+			mysqli_stmt_bind_param($updateSTMT, "sii",$status,$referenceNumber,$_POST["application_id"]);
 			mysqli_stmt_execute($updateSTMT);
 			
 			$sql = "SELECT * FROM application_main where application_id =?;";
@@ -453,14 +470,14 @@ else
 				mysqli_stmt_execute($stmt);
 				$result = mysqli_stmt_get_result($stmt);
 				
-				//Email Sent to Client After Application Has Been Submitted//
+				// Email Sent to Client After Application Has Been Submitted//
 				require_once "PHPMailer/PHPMailer.php";
 				require_once "PHPMailer/SMTP.php";
 				require_once "PHPMailer/Exception.php";
 
 				$mail = new PHPMailer();
 
-				//smtp settings
+				// smtp settings
 				$mail->isSMTP();
 				$mail->Host = "smtp.gmail.com";
 				$mail->SMTPAuth = true;
@@ -468,10 +485,13 @@ else
 				$mail->Password = 'damienab';
 				$mail->Port = 465;
 				$mail->SMTPSecure = "ssl";
-
-				//email settings
+				// email settings
 				while($rowEmail = mysqli_fetch_assoc($result))
 				{
+					$find = array("[name]","[reference_number]");
+					$repl = array($rowEmail["name"],$rowEmail["reference_number"]);
+					$body = str_replace($find,$repl,file_get_contents("submitted_email.html"));
+					
 					$mail->isHTML(true);
 					$mail->setFrom($rowEmail["primary_email"], $rowEmail["name"]);
 					$mail->addAddress($rowEmail["primary_email"]);
@@ -487,6 +507,7 @@ else
 						$status = "failed";
 						$response = "Something is wrong: <br>" . $mail->ErrorInfo;
 					}
+					echo $status;
 				}
 			}
 		}
