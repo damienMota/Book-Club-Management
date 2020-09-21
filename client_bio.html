@@ -24,7 +24,7 @@
 	 <div style="float: left; width: 224px;"><b>Phone Number:</b></div>
 	</div><br>
 	<div id="eci">[emergency_contact_info]</div>
-	<div style="text-align:center;"><button onclick="submit();">Submit</button></div>
+	<div style="text-align:center;"><button onclick="save();">Save</button></div>
 	<input type="hidden" id="application_id" value="[application_id]">
 	</div>
 </body>
@@ -43,7 +43,7 @@ $(document).ready(function()
 		$(this).parent().remove();
 	});
 });
-function submit()
+function save()
 {
 	var err = "";
 	if($("#name").val() == "")

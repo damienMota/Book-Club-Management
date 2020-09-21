@@ -9,7 +9,7 @@ if(!$conn)
 else
 {
 	//NEED to figure how to check if someones messing with the URL
-	$url = explode("?page=",$_SERVER["REQUEST_URI"]);
+	$url = explode("?page=bio",$_SERVER["REQUEST_URI"]);
 	$sql = "SELECT * FROM application_main where client_URN =?;";
 	$stmt = mysqli_stmt_init($conn);
 	mysqli_stmt_prepare($stmt, $sql);
@@ -38,9 +38,10 @@ else
 				mysqli_stmt_bind_param($signatorStmt, "i",$row["application_id"]);
 				mysqli_stmt_execute($signatorStmt);
 				$signatorResult = mysqli_stmt_get_result($signatorStmt);
+				$test = "true";
 				while($rowSig = mysqli_fetch_assoc($signatorResult))
 				{
-					if($row["name"] == "" || $row["primary_email"] == "" || $row["primary_phone_number"] == "" || $row["business_name"] == "" || $row["client_education"] == "" || $row["about_me"] == "")
+					if($test == "true" || $row["name"] == "" || $row["primary_email"] == "" || $row["primary_phone_number"] == "" || $row["business_name"] == "" || $row["client_education"] == "" || $row["about_me"] == "")
 					{
 						if($row["client_education"] == "")
 						{
@@ -142,7 +143,7 @@ else
 							$find = array("[application_id]","[signedDate]","[signatorName]","[signatorDecision]","[base64]");
 							$return = str_replace($find,$replClientAgreement,file_get_contents("client_agreement.html"));
 					}
-					else
+					elseif($row["application_status"] == "pending")
 					{
 						$pdf = new FPDF();
 						$pdf->AddPage();
@@ -327,6 +328,29 @@ else
 						$repl = array($row["application_id"]);
 						$return = str_replace($find,$repl,file_get_contents("client_review.html"));
 					}
+					elseif($row["application_status"] == "submitted")
+					{
+						$tempReferenceNumber = "000".$row["reference_number"];
+						$referenceNumber = "";
+						$counter = 0;
+						
+						for($x = 0; $x <= 4; $x++)
+						{
+							if($x > 1)
+							{
+								$counter++;
+								$referenceNumber = substr($tempReferenceNumber, $counter);
+							}
+							else
+							{
+								$referenceNumber = $tempReferenceNumber;
+								break;
+							}
+						}
+							$find = array("[reference_number]");
+							$repl = array($referenceNumber);
+							$return = str_replace($find,$repl,file_get_contents("client_completion.html"));
+						}
 					echo $return;
 				}
 			}
@@ -430,85 +454,88 @@ else
 	if(isset($_POST["action"]) && $_POST["action"] == "submit_application")
 	{
 		$status = "submitted";
-		$tempReferenceNumber = "000".$_POST["application_id"];
-		$referenceNumber = "";
-		$counter = 0;
-		
-		for($x = 0; $x <= 4; $x++)
+		$updateSQL = "UPDATE application_main SET application_status =?,reference_number =? WHERE application_id =?;";
+		$updateSTMT = mysqli_stmt_init($conn);
+		mysqli_stmt_prepare($updateSTMT, $updateSQL);
+		if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
 		{
-			if($x > 1)
+			echo "SQL ERROR";
+		}
+		else
+		{
+			mysqli_stmt_bind_param($updateSTMT, "sii",$status,$_POST["application_id"],$_POST["application_id"]);
+			mysqli_stmt_execute($updateSTMT);
+			
+			$sql = "SELECT * FROM application_main where application_id =?;";
+			$stmt = mysqli_stmt_init($conn);
+			mysqli_stmt_prepare($stmt, $sql);
+			if(!mysqli_stmt_prepare($stmt, $sql))
 			{
-				$counter++;
-				$referenceNumber = substr($tempReferenceNumber, $counter);	
+				echo "SQL ERROR";
+			}
+			else
+			{
+				mysqli_stmt_bind_param($stmt, "i",$_POST["application_id"]);
+				mysqli_stmt_execute($stmt);
+				$result = mysqli_stmt_get_result($stmt);
+				
+				require_once "PHPMailer/PHPMailer.php";
+				require_once "PHPMailer/SMTP.php";
+				require_once "PHPMailer/Exception.php";
+
+				$mail = new PHPMailer();
+
+				$mail->isSMTP();
+				$mail->Host = "smtp.gmail.com";
+				$mail->SMTPAuth = true;
+				$mail->Username = "mota.damien@gmail.com";
+				$mail->Password = 'damienab';
+				$mail->Port = 465;
+				$mail->SMTPSecure = "ssl";
+				
+				while($rowEmail = mysqli_fetch_assoc($result))
+				{
+					$tempReferenceNumber = "000".$rowEmail["reference_number"];
+					$referenceNumber = "";
+					$counter = 0;
+					
+					for($x = 0; $x <= 4; $x++)
+					{
+						if($x > 1)
+						{
+							$counter++;
+							$referenceNumber = substr($tempReferenceNumber, $counter);
+						}
+						else
+						{
+							$referenceNumber = $tempReferenceNumber;
+							break;
+						}
+					}
+					$find = array("[name]","[reference_number]");
+					$repl = array($rowEmail["name"],$referenceNumber);
+					$body = str_replace($find,$repl,file_get_contents("submitted_email.html"));
+					
+					$mail->isHTML(true);
+					$mail->setFrom($rowEmail["primary_email"], $rowEmail["name"]);
+					$mail->addAddress($rowEmail["primary_email"]);
+					$mail->Subject = ("Application Submitted for: ".$rowEmail["name"]);
+					$mail->Body = $body;
+					
+					$status = "";
+					if($mail->send()){
+						$status = "success";
+						$response = "Email is sent!";
+					}
+					else
+					{
+						$status = "failed";
+						$response = "Something is wrong: <br>" . $mail->ErrorInfo;
+					}
+					echo $status;
+				}
 			}
 		}
-		if($referenceNumber ==
-		error_log($referenceNumber);
-		// $updateSQL = "UPDATE application_main SET application_status =?,reference_number =? WHERE application_id =?;";
-		// $updateSTMT = mysqli_stmt_init($conn);
-		// mysqli_stmt_prepare($updateSTMT, $updateSQL);
-		// if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
-		// {
-			// echo "SQL ERROR";
-		// }
-		// else
-		// {
-			// mysqli_stmt_bind_param($updateSTMT, "sii",$status,$referenceNumber,$_POST["application_id"]);
-			// mysqli_stmt_execute($updateSTMT);
-			
-			// $sql = "SELECT * FROM application_main where application_id =?;";
-			// $stmt = mysqli_stmt_init($conn);
-			// mysqli_stmt_prepare($stmt, $sql);
-			// if(!mysqli_stmt_prepare($stmt, $sql))
-			// {
-				// echo "SQL ERROR";
-			// }
-			// else
-			// {
-				// mysqli_stmt_bind_param($stmt, "i",$_POST["application_id"]);
-				// mysqli_stmt_execute($stmt);
-				// $result = mysqli_stmt_get_result($stmt);
-				
-				// require_once "PHPMailer/PHPMailer.php";
-				// require_once "PHPMailer/SMTP.php";
-				// require_once "PHPMailer/Exception.php";
-
-				// $mail = new PHPMailer();
-
-				// $mail->isSMTP();
-				// $mail->Host = "smtp.gmail.com";
-				// $mail->SMTPAuth = true;
-				// $mail->Username = "mota.damien@gmail.com";
-				// $mail->Password = 'damienab';
-				// $mail->Port = 465;
-				// $mail->SMTPSecure = "ssl";
-				
-				// while($rowEmail = mysqli_fetch_assoc($result))
-				// {
-					// $find = array("[name]","[reference_number]");
-					// $repl = array($rowEmail["name"],$rowEmail["reference_number"]);
-					// $body = str_replace($find,$repl,file_get_contents("submitted_email.html"));
-					
-					// $mail->isHTML(true);
-					// $mail->setFrom($rowEmail["primary_email"], $rowEmail["name"]);
-					// $mail->addAddress($rowEmail["primary_email"]);
-					// $mail->Subject = ("Application Submitted for: ".$rowEmail["name"]);
-					// $mail->Body = $body;
-					
-					// $status = "";
-					// if($mail->send()){
-						// $status = "success";
-						// $response = "Email is sent!";
-					// }
-					// else
-					// {
-						// $status = "failed";
-						// $response = "Something is wrong: <br>" . $mail->ErrorInfo;
-					// }
-					// echo $status;
-				// }
-			// }
-		// }
 	}
 }
 ?>
