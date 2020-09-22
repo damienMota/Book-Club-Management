@@ -329,4 +329,185 @@
 			}
 		}
 	}
+	if(isset($_POST["action"]) && $_POST["action"] == "submit_bio")
+	{
+		$name = mysqli_real_escape_string($conn, $_POST["name"]);
+		$phone = mysqli_real_escape_string($conn, $_POST["primary_phone_number"]);
+		$email = mysqli_real_escape_string($conn, $_POST["primary_email"]);
+		$businessName = mysqli_real_escape_string($conn, $_POST["busines_name"]);
+		$education = mysqli_real_escape_string($conn, $_POST["client_education"]);
+		$aboutMe = mysqli_real_escape_string($conn, $_POST["about_me"]);
+		//UPDATE//
+		$updateSQL = "UPDATE application_main SET name =?,primary_phone_number =?,primary_email =?,business_name =?,client_education =?,about_me =? WHERE application_id =?;";
+		$updateSTMT = mysqli_stmt_init($conn);
+		mysqli_stmt_prepare($updateSTMT, $updateSQL);
+		if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
+		{
+			echo "SQL ERROR";
+		}
+		else
+		{
+			mysqli_stmt_bind_param($updateSTMT, "ssssssi",$name,$phone,$email,$businessName,$education,$aboutMe,$_POST["application_id"]);
+			mysqli_stmt_execute($updateSTMT);
+		}
+		
+		$deleteSQL = "DELETE FROM emergency_contact_info WHERE eci_application_id = ?;";
+		$deleteSTMT = mysqli_stmt_init($conn);
+		mysqli_stmt_prepare($deleteSTMT, $deleteSQL);
+		if(!mysqli_stmt_prepare($deleteSTMT, $deleteSQL))
+		{
+			echo "SQL ERROR";
+		}
+		else
+		{
+			mysqli_stmt_bind_param($deleteSTMT, "i",$_POST["application_id"]);
+			mysqli_stmt_execute($deleteSTMT);
+			$err = count($_POST["eci_name"]);	
+			$counter =  $err - 1;
+
+			for($x = 0; $x <= $counter; $x++)
+			{			
+				$insertSQL = "INSERT INTO emergency_contact_info (eci_name,eci_phone_number,eci_email,eci_application_id)
+				VALUES (?, ?, ?, ?);";
+				$insertSTMT = mysqli_stmt_init($conn);
+				mysqli_stmt_prepare($insertSTMT, $insertSQL);
+				
+				
+				
+				if(!mysqli_stmt_prepare($insertSTMT, $insertSQL))
+				{
+					echo "SQL ERROR";
+				}
+				else
+				{
+					mysqli_stmt_bind_param($insertSTMT, "sssi",$_POST["eci_name"][$x],$_POST["eci_phone_number"][$x],$_POST["eci_email"][$x],$_POST["application_id"]);
+					mysqli_stmt_execute($insertSTMT);
+					echo 'succes';
+				}
+			}
+			
+		}
+	}
+	if(isset($_POST["action"]) && $_POST["action"] == "submit_agreement")
+	{
+		$signatorName = mysqli_real_escape_string($conn, $_POST["signatorName"]);
+		$signatorDate = mysqli_real_escape_string($conn, $_POST["signedDate"]);
+		$signatorDecision = mysqli_real_escape_string($conn, $_POST["signatorDecision"]);
+		if($_POST["signatorDecision"] == "signNow")
+		{
+			$updateSQL = "UPDATE signator_info SET signatorName =?,signedDate =?,signatorBase64 =?,signatorDecision =? WHERE application_id =?;";
+			$updateSTMT = mysqli_stmt_init($conn);
+			mysqli_stmt_prepare($updateSTMT, $updateSQL);
+			if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
+			{
+				echo "SQL ERROR";
+			}
+			else
+			{
+				mysqli_stmt_bind_param($updateSTMT, "ssssi",$signatorName,$signatorDate,$_POST["signatorBase64"],$signatorDecision,$_POST["application_id"]);
+				mysqli_stmt_execute($updateSTMT);
+			}
+		}
+		if($_POST["signatorDecision"] == "printSignLater")
+		{
+			$updateSQL = "UPDATE signator_info SET signatorName =?,signedDate =?,signatorDecision =? WHERE application_id =?;";
+			$updateSTMT = mysqli_stmt_init($conn);
+			mysqli_stmt_prepare($updateSTMT, $updateSQL);
+			if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
+			{
+				echo "SQL ERROR";
+			}
+			else
+			{
+				mysqli_stmt_bind_param($updateSTMT, "sssi",$signatorName,$signatorDate,$signatorDecision,$_POST["application_id"]);
+				mysqli_stmt_execute($updateSTMT);
+			}
+		}
+	}
+	if(isset($_POST["action"]) && $_POST["action"] == "submit_application")
+	{
+		$status = "submitted";
+		$updateSQL = "UPDATE application_main SET application_status =?,reference_number =? WHERE application_id =?;";
+		$updateSTMT = mysqli_stmt_init($conn);
+		mysqli_stmt_prepare($updateSTMT, $updateSQL);
+		if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
+		{
+			echo "SQL ERROR";
+		}
+		else
+		{
+			mysqli_stmt_bind_param($updateSTMT, "sii",$status,$_POST["application_id"],$_POST["application_id"]);
+			mysqli_stmt_execute($updateSTMT);
+			
+			$sql = "SELECT * FROM application_main where application_id =?;";
+			$stmt = mysqli_stmt_init($conn);
+			mysqli_stmt_prepare($stmt, $sql);
+			if(!mysqli_stmt_prepare($stmt, $sql))
+			{
+				echo "SQL ERROR";
+			}
+			else
+			{
+				mysqli_stmt_bind_param($stmt, "i",$_POST["application_id"]);
+				mysqli_stmt_execute($stmt);
+				$result = mysqli_stmt_get_result($stmt);
+				
+				require_once "PHPMailer/PHPMailer.php";
+				require_once "PHPMailer/SMTP.php";
+				require_once "PHPMailer/Exception.php";
+
+				$mail = new PHPMailer();
+
+				$mail->isSMTP();
+				$mail->Host = "smtp.gmail.com";
+				$mail->SMTPAuth = true;
+				$mail->Username = "mota.damien@gmail.com";
+				$mail->Password = 'damienab';
+				$mail->Port = 465;
+				$mail->SMTPSecure = "ssl";
+				
+				while($rowEmail = mysqli_fetch_assoc($result))
+				{
+					$tempReferenceNumber = "000".$rowEmail["reference_number"];
+					$referenceNumber = "";
+					$counter = 0;
+					
+					for($x = 0; $x <= 4; $x++)
+					{
+						if($x > 1)
+						{
+							$counter++;
+							$referenceNumber = substr($tempReferenceNumber, $counter);
+						}
+						else
+						{
+							$referenceNumber = $tempReferenceNumber;
+							break;
+						}
+					}
+					$find = array("[name]","[reference_number]");
+					$repl = array($rowEmail["name"],$referenceNumber);
+					$body = str_replace($find,$repl,file_get_contents("submitted_email.html"));
+					
+					$mail->isHTML(true);
+					$mail->setFrom($rowEmail["primary_email"], $rowEmail["name"]);
+					$mail->addAddress($rowEmail["primary_email"]);
+					$mail->Subject = ("Application Submitted for: ".$rowEmail["name"]);
+					$mail->Body = $body;
+					
+					$status = "";
+					if($mail->send()){
+						$status = "success";
+						$response = "Email is sent!";
+					}
+					else
+					{
+						$status = "failed";
+						$response = "Something is wrong: <br>" . $mail->ErrorInfo;
+					}
+					echo $status;
+				}
+			}
+		}
+	}
 ?>
