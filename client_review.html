@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 </head>
 <body>
+	<div id="header"></div>
 	<div style="font-size:25px;margin-top:60px;text-align:center;"><b><u>Client Application Review</u></b></div>
 	<div style="font-size:13px;margin-top:40px;text-align:center;color:red;"><b>*Please Note if you've checked "Print Sign Later" on the Agreement Form you are responsible for downloading your Application and emailing it "mota.damien@gmail.com".</b></div>
 	<div style="text-align:center;margin-top:40px;"><embed style="border:solid black 1px;" src="downloads/clientAppReview_[application_id].pdf" width="1000px" height="400px" /></div>
@@ -19,7 +20,7 @@
 <script>
 $(document).ready(function()
 {
-	
+	$("#header").load("header.html"); 
 });
 function reviewApplication()
 {

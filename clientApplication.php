@@ -9,7 +9,10 @@ if(!$conn)
 else
 {
 	//NEED to figure how to check if someones messing with the URL
-	$url = explode("?page=",$_SERVER["REQUEST_URI"]);
+	$tempUrl = explode("?page=",$_SERVER["REQUEST_URI"]);
+	$url = explode(substr($tempUrl[1],0,3),$tempUrl[1]);
+	$page = substr($tempUrl[1],0,3);
+	
 	$sql = "SELECT * FROM application_main where client_URN =?;";
 	$stmt = mysqli_stmt_init($conn);
 	mysqli_stmt_prepare($stmt, $sql);
@@ -23,7 +26,7 @@ else
 		mysqli_stmt_execute($stmt);
 		$result = mysqli_stmt_get_result($stmt);
 		$clientEducation = "<select id='client_education'><option id=0 value=0>Please select an option</option>";
-		$test = 'false';
+		
 		while($row = mysqli_fetch_assoc($result))
 		{
 			$signatorSql = "SELECT * FROM signator_info where application_id =?;";
@@ -39,10 +42,10 @@ else
 				mysqli_stmt_execute($signatorStmt);
 				$signatorResult = mysqli_stmt_get_result($signatorStmt);
 				$test = "true";
-					error_log("hello");
+
 				while($rowSig = mysqli_fetch_assoc($signatorResult))
 				{
-					if($test == "true" || $row["name"] == "" || $row["primary_email"] == "" || $row["primary_phone_number"] == "" || $row["business_name"] == "" || $row["client_education"] == "" || $row["about_me"] == "")
+					if($row["name"] == "" || $row["primary_email"] == "" || $row["primary_phone_number"] == "" || $row["business_name"] == "" || $row["client_education"] == "" || $row["about_me"] == ""|| (isset($page) && $page == 'bio'))
 					{
 						if($row["client_education"] == "")
 						{
@@ -121,7 +124,7 @@ else
 						$repl = array($row["application_id"],$row["name"],$row["primary_phone_number"],$row["primary_email"],$row["business_name"],$clientEducation,$row["about_me"],$emergencyContactInfo);
 						$return = str_replace($find,$repl,file_get_contents("client_bio.html"));
 					}
-					elseif($rowSig["signedDate"] == "" || $rowSig["signatorName"] == "" || $rowSig["signatorDecision"] == "")
+					elseif($rowSig["signedDate"] == "" || $rowSig["signatorName"] == "" || $rowSig["signatorDecision"] == "" || (isset($page) && $page == 'agr'))
 					{
 							if($rowSig["signatorDecision"] == "")
 							{
@@ -144,7 +147,7 @@ else
 							$find = array("[application_id]","[signedDate]","[signatorName]","[signatorDecision]","[base64]");
 							$return = str_replace($find,$replClientAgreement,file_get_contents("client_agreement.html"));
 					}
-					elseif($row["application_status"] == "pending")
+					elseif($row["application_status"] == "pending" || (isset($page) && $page == 'rev'))
 					{
 						$pdf = new FPDF();
 						$pdf->AddPage();

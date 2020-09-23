@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 </head>
 <body>
+	<div id="header"></div>
 	<div style="text-align:center;margin-top:50px;">
 	<div style="font-size:25px;margin-bottom:10px;"><b><u>Agreement Form</u></b></div>
 	<div style="width:600px;height:300px;overflow:auto;border:1px solid black;margin-left:473px;padding:15px;text-align:left;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ut lacinia risus. Proin sed elit ipsum. Mauris et mollis augue. Cras tellus nunc, luctus vel varius sit amet, faucibus eu ligula. Nulla sollicitudin, lorem id dictum congue, libero tortor rutrum libero, ac lobortis magna ante ut tellus. Suspendisse quis efficitur lorem. Fusce fermentum faucibus nisi, elementum egestas libero varius quis. Morbi convallis quam eget interdum consectetur. Suspendisse sapien elit, pretium nec ante ac, rhoncus dictum risus. Nunc dictum quis urna quis finibus. Aliquam nec massa magna.
@@ -59,6 +60,7 @@
 <script>
 $(document).ready(function()
 {
+	$("#header").load("header.html"); 
 	canvas();
 	drawImage();
 	if($('input[type=radio][id=signNow]').is(':checked'))
