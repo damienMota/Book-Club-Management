@@ -16,7 +16,8 @@ function bio()
 	var url = window.location.href;
 	var splitURL = url.split("?page=");
 	var page = splitURL[1].substring(0,3);
-	var newUrl = url.replace("?page=" + page, "?page=bio");
+
+	newUrl = url.replace("?page=" + page, "?page=bio");
 	window.history.pushState('', '', newUrl);
 	location.reload();
 }
@@ -25,18 +26,20 @@ function agreement()
 	var url = window.location.href;
 	var splitURL = url.split("?page=");
 	var page = splitURL[1].substring(0,3);
-	var newUrl = url.replace("?page=" + page, "?page=agr");
+	
+	newUrl = url.replace("?page=" + page, "?page=agr");
 	window.history.pushState('', '', newUrl);
 	location.reload();
-	
 }
 function review()
 {
 	var url = window.location.href;
 	var splitURL = url.split("?page=");
 	var page = splitURL[1].substring(0,3);
-	var newUrl = url.replace("?page=" + page, "?page=rev");
+	
+	newUrl = url.replace("?page=" + page, "?page=rev");
 	window.history.pushState('', '', newUrl);
 	location.reload();
 }
+
 </script>

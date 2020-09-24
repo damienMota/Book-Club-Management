@@ -9,10 +9,19 @@ if(!$conn)
 else
 {
 	//NEED to figure how to check if someones messing with the URL
-	$tempUrl = explode("?page=",$_SERVER["REQUEST_URI"]);
-	$url = explode(substr($tempUrl[1],0,3),$tempUrl[1]);
+	$tempUrl = explode("?page=",$_SERVER["REQUEST_URI"]); //url if not selected from navigation bar
+	$tempUrl2 = explode(substr($tempUrl[1],0,3),$tempUrl[1]); //url selected if selected from navigation bar
 	$page = substr($tempUrl[1],0,3);
-	
+	$url = '';
+
+	if($page != "bio" && $page != "agr" && $page != "rev")
+	{
+		$url = $tempUrl[1];
+	}
+	else
+	{
+		$url = $tempUrl2[1];
+	}
 	$sql = "SELECT * FROM application_main where client_URN =?;";
 	$stmt = mysqli_stmt_init($conn);
 	mysqli_stmt_prepare($stmt, $sql);
@@ -22,7 +31,7 @@ else
 	}
 	else
 	{
-		mysqli_stmt_bind_param($stmt, "s",$url[1]);
+		mysqli_stmt_bind_param($stmt, "s",$url);
 		mysqli_stmt_execute($stmt);
 		$result = mysqli_stmt_get_result($stmt);
 		$clientEducation = "<select id='client_education'><option id=0 value=0>Please select an option</option>";
@@ -45,7 +54,7 @@ else
 
 				while($rowSig = mysqli_fetch_assoc($signatorResult))
 				{
-					if($row["name"] == "" || $row["primary_email"] == "" || $row["primary_phone_number"] == "" || $row["business_name"] == "" || $row["client_education"] == "" || $row["about_me"] == ""|| (isset($page) && $page == 'bio'))
+					if($row["name"] == "" || $row["primary_email"] == "" || $row["primary_phone_number"] == "" || $row["business_name"] == "" || $row["client_education"] == "" || $row["about_me"] == "" || (isset($page) && $page == 'bio'))
 					{
 						if($row["client_education"] == "")
 						{

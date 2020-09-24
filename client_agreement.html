@@ -60,7 +60,19 @@
 <script>
 $(document).ready(function()
 {
-	$("#header").load("header.html"); 
+	$("#header").load("header.html");
+	
+	var url = window.location.href;
+	var splitURL = url.split("?page=");
+	var page = splitURL[1].substring(0,3);
+	var newURL = "";
+	if(page != "agr")
+	{
+		//don't replace, append
+		newUrl = splitURL[0] + "?page=agr" + splitURL[1];
+		window.history.pushState('', '', newUrl);
+	}
+	
 	canvas();
 	drawImage();
 	if($('input[type=radio][id=signNow]').is(':checked'))

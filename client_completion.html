@@ -9,7 +9,6 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 </head>
 <body>
-	<div><button onclick="getPage(bio);">Click Me for Bio!</button></div>
 	<div style="margin-top:60px;text-align:center;font-size:25px;"><b>Thank you for completing the Application.<br> Please keep a copy of your Reference Number:</b>
 	<span style="color:red;font-size:25px;"><b>[reference_number]</b></span></div>
 	<input type="hidden" id="reference_number" value="[reference_number]">
@@ -18,20 +17,7 @@
 <script>
 $(document).ready(function()
 {
-	
 });
-function getPage(location)
-{	
-	$.ajax
-	({
-		type: "POST",
-		url: "clientApplication.php",
-		data: location:"bio",
-		success: function(data)
-		{
-			location.reload();
-		}
-	});
-}
+
 
 </script>
