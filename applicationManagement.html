@@ -64,7 +64,27 @@ function pendingTable()
 		success: function(data)
 		{
 			$("#pendingApplicationsTable").append(data);
-			$("#pendingTable").DataTable();
+			console.log(data);
+			$("#pendingTable").DataTable({
+				"columnDefs": [
+				{
+					"targets": [6],
+					"visible": false,
+				},
+				{
+					"targets": [8],
+					"visible": false,
+				},
+				{
+					"targets": [9],
+					"visible": false,
+				},
+				{
+					"targets": [10],
+					"visible": false,
+				},
+			]
+			});
 		}
 	});
 }
@@ -78,7 +98,22 @@ function submittedTable()
 		success: function(data)
 		{
 			$("#submittedApplicationsTable").append(data);
-			$("#submittedTable").DataTable();
+			$("#submittedTable").DataTable({
+				"columnDefs": [
+				{
+					"targets": [8],
+					"visible": false,
+				},
+				{
+					"targets": [9],
+					"visible": false,
+				},
+				{
+					"targets": [10],
+					"visible": false,
+				},
+			]
+			});
 		}
 	});
 }
@@ -92,7 +127,22 @@ function completedTable()
 		success: function(data)
 		{
 			$("#completedApplicationsTable").append(data);
-			$("#completedTable").DataTable();
+			$("#completedTable").DataTable({
+				"columnDefs": [
+				{
+					"targets": [8],
+					"visible": false,
+				},
+				{
+					"targets": [9],
+					"visible": false,
+				},
+				{
+					"targets": [10],
+					"visible": false,
+				},
+			]
+			});
 		}
 	});
 }

@@ -37,14 +37,14 @@
 			{
 				if($rowPending["application_status"] == "pending")
 				{
-					$ret = '<table id="pendingTable">';
+					$ret = '<table id="pendingTable"><thead><tr>';
 					for($i=0;$i<mysqli_num_fields($rs);$i++)
 					{
 						$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
 						$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
 					}
 					$ret .= '</tr></thead>';
-						$ret .= '<tr>';
+					$ret .= '<tr>';
 					foreach($rowPending as $key => $item)
 					{
 						$ret .= '<td>'.$item.'</td>';
@@ -77,7 +77,7 @@
 			{
 				if($rowSubmitted["application_status"] == "submitted")
 				{
-					$ret = '<table id="submittedTable"><tr>';
+					$ret = '<table id="submittedTable"><thead><tr>';
 					for($i=0;$i<mysqli_num_fields($rs);$i++)
 					{
 						$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
@@ -87,7 +87,29 @@
 					$ret .= '<tr>';
 					foreach($rowSubmitted as $key => $item)
 					{
-						$ret .= '<td>'.$item.'</td>';
+						if($key == 'reference_number')
+						{
+							if(strlen($item) == 1)
+							{
+								$ret .= '<td>000'.$item.'</td>';
+							}
+							if(strlen($item) == 2)
+							{
+								$ret .= '<td>00'.$item.'</td>';
+							}
+							if(strlen($item) == 3)
+							{
+								$ret .= '<td>0'.$item.'</td>';
+							}
+							if(strlen($item) == 4)
+							{
+								$ret .= '<td>'.$item.'</td>';
+							}
+						}
+						else
+						{
+							$ret .= '<td>'.$item.'</td>';
+						}
 					}
 					$ret .= '</tr></table>';
 					echo $ret;
@@ -127,7 +149,29 @@
 					$ret .= '<tr>';
 					foreach($rowCompleted as $key => $item)
 					{
-						$ret .= '<td>'.$item.'</td>';
+						if($key == 'reference_number')
+						{
+							if(strlen($item) == 1)
+							{
+								$ret .= '<td>000'.$item.'</td>';
+							}
+							if(strlen($item) == 2)
+							{
+								$ret .= '<td>00'.$item.'</td>';
+							}
+							if(strlen($item) == 3)
+							{
+								$ret .= '<td>0'.$item.'</td>';
+							}
+							if(strlen($item) == 4)
+							{
+								$ret .= '<td>'.$item.'</td>';
+							}
+						}
+						else
+						{
+							$ret .= '<td>'.$item.'</td>';
+						}
 					}
 					$ret .= '</tr></table>';
 					echo $ret;
