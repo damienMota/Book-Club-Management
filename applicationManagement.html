@@ -22,11 +22,25 @@
 </div>
 <div id="initiatePage">
 	<div style="text-align:center;font-size:35px;">Initiate Application</div>
-	<div style="text-align:right;margin-top:50px;width:58%;"><label style="margin-right:10px;">First Name</label><input id="first_name" type="text"></div>
-	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;">Last Name</label><input id="last_name" type="text"></div>
-	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;">Phone Number</label><input id="primary_phone_number" type="text">		</div>
-	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;">Email</label><input id="primary_email" type="text"></div>
+	<div style="text-align:right;margin-top:50px;width:58%;"><label style="margin-right:10px;"><b>First Name:</b></label><input id="first_name" type="text"></div>
+	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Last Name:</b></label><input id="last_name" type="text"></div>
+	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Phone Number:</b></label><input id="primary_phone_number" type="text">		</div>
+	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Email:</b></label><input id="primary_email" type="text"></div>
 	<div style="text-align:center;margin-top:20px"><button onclick="initiateNewApplicant();">Initiate</button></div>
+	<div style="text-align:center;margin-top:20px"><button id="cancel">Cancel</button></div>
+</div>
+<div id="editPage">
+	<div style="text-align:center;font-size:35px;">Edit Application</div>
+	<div style="text-align:right;margin-top:50px;width:58%;"><label style="margin-right:10px;"><b>Name:</b></label><input id="edit_name" type="text"></div>
+	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Phone Number:</b></label><input id="edit_primary_phone_number" type="text"></div>
+	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Email:</b></label><input id="edit_primary_email" type="text"></div>
+	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Business Name:</b></label><input id="edit_business_name" type="text"></div>
+	<div style="text-align:center;margin-top:40px;"><embed style="border:solid black 1px;" src="downloads/clientAppReview_9.pdf" width="1000px" height="400px" /></div>
+	
+	<div style="text-align:center;">
+	<div style="text-align:center;margin-top:20px;display:inline-block;"><button onclick="saveApplication();">Save Application</button></div>
+	<div style="text-align:center;margin-top:20px;display:inline-block;"><button onclick="markApplicationComplete();">Mark Complete</button></div>
+	</div>
 	<div style="text-align:center;margin-top:20px"><button id="cancel">Cancel</button></div>
 </div>
 </body>
@@ -40,6 +54,15 @@ th,td
 {
 	width:100px;
 }
+.editUser
+{
+	background: #b8d1f3 !important;
+}
+.editUser:hover 
+{
+	background-color: #ffff99 !important;
+	cursor: pointer;
+}
 </style>
 <script>
 $(document).ready(function()
@@ -48,6 +71,7 @@ $(document).ready(function()
 	submittedTable();
 	completedTable();
 	$("#initiatePage").hide();
+	$("#editPage").hide();
 	$("#cancel").click(function()
   	{
 		$("#initiatePage").hide();
@@ -64,8 +88,7 @@ function pendingTable()
 		success: function(data)
 		{
 			$("#pendingApplicationsTable").append(data);
-			console.log(data);
-			$("#pendingTable").DataTable({
+			var dataTable = $("#pendingTable").DataTable({
 				"columnDefs": [
 				{
 					"targets": [6],
@@ -98,7 +121,7 @@ function submittedTable()
 		success: function(data)
 		{
 			$("#submittedApplicationsTable").append(data);
-			$("#submittedTable").DataTable({
+			var dataTable = $("#submittedTable").DataTable({
 				"columnDefs": [
 				{
 					"targets": [8],
@@ -113,6 +136,11 @@ function submittedTable()
 					"visible": false,
 				},
 			]
+			});
+			$('.editUser').click(function()
+			{
+				var userInfo = dataTable.row(this).data();
+				editUser(userInfo);
 			});
 		}
 	});
@@ -150,6 +178,31 @@ function initiateApplication()
 {
 	$("#initiatePage").show();
 	$("#landingPage").hide();
+}
+function editUser(userInfo)
+{
+	$("#editPage").show();
+	$("#landingPage").hide();
+	
+	console.log(userInfo)
+	$("#edit_name").val(userInfo[1]);
+	$("#edit_primary_phone_number").val(userInfo[2]);
+	$("#edit_primary_email").val(userInfo[3]);
+	$("#edit_business_name").val(userInfo[5]);
+	
+	<!-- $.ajax -->
+	<!-- ({ -->
+		<!-- type: "POST", -->
+		<!-- url: "applicationManagement.php", -->
+		<!-- data:{action:"getApplicationPDF",application_id:userInfo[0]}, -->
+		<!-- success: function(data) -->
+		<!-- { -->
+
+		<!-- } -->
+	<!-- });	 -->
+}
+function saveApplication()
+{
 }
 function initiateNewApplicant()
 {
