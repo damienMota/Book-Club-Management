@@ -35,11 +35,15 @@
 	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Phone Number:</b></label><input id="edit_primary_phone_number" type="text"></div>
 	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Email:</b></label><input id="edit_primary_email" type="text"></div>
 	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Business Name:</b></label><input id="edit_business_name" type="text"></div>
-	<div style="text-align:center;margin-top:40px;"><embed style="border:solid black 1px;" src="downloads/clientAppReview_9.pdf" width="1000px" height="400px" /></div>
-	
+	<div id="applicationPDF"></div>
+	<div id="resendPopup" style="display:none;margin-left:550px;margin-top:250px">
+		<div>Please Enter The Email and Phone Number Provided for this Account</div><br>
+		<div style="text-align:center;margin-top:10px;"><button onclick="resendVerificationCode()">Submit</button><button style="margin-left:10px;" id="cancelResend">Cancel</button></div>
+	</div>
 	<div style="text-align:center;">
 	<div style="text-align:center;margin-top:20px;display:inline-block;"><button onclick="saveApplication();">Save Application</button></div>
 	<div style="text-align:center;margin-top:20px;display:inline-block;"><button onclick="markApplicationComplete();">Mark Complete</button></div>
+	<div style="text-align:center;margin-top:20px;display:inline-block;"><button id="returnApplication" onclick="returnApplication();">Return Application</button></div>
 	</div>
 	<div style="text-align:center;margin-top:20px"><button id="cancel">Cancel</button></div>
 </div>
@@ -62,6 +66,13 @@ th,td
 {
 	background-color: #ffff99 !important;
 	cursor: pointer;
+}
+#resendPopup {
+  width: 300px !important; 
+  border: 1px solid black !important;
+  padding: 50px !important;
+  margin: 20px !important;
+  position: absolute !important;
 }
 </style>
 <script>
@@ -184,22 +195,37 @@ function editUser(userInfo)
 	$("#editPage").show();
 	$("#landingPage").hide();
 	
-	console.log(userInfo)
 	$("#edit_name").val(userInfo[1]);
 	$("#edit_primary_phone_number").val(userInfo[2]);
 	$("#edit_primary_email").val(userInfo[3]);
 	$("#edit_business_name").val(userInfo[5]);
+	$.ajax
+	({
+		type: "POST",
+		url: "applicationManagement.php",
+		data:{action:"getApplicationPDF",application_id:userInfo[0]},
+		success: function(data)
+		{
+			$("#applicationPDF").append(data);
+		}
+	});	
+}
+function returnApplication()
+{
+	$('#editPage > *:not(#resendPopup)').css({
+	"filter" : "blur(5px)"
+	}).appendTo(document.body);
 	
-	<!-- $.ajax -->
-	<!-- ({ -->
-		<!-- type: "POST", -->
-		<!-- url: "applicationManagement.php", -->
-		<!-- data:{action:"getApplicationPDF",application_id:userInfo[0]}, -->
-		<!-- success: function(data) -->
-		<!-- { -->
-
-		<!-- } -->
-	<!-- });	 -->
+	$("#resendPopup").show();
+	
+	$("#cancelResend").click(function()
+	{
+		$('body > *:not(#resendPopup)').css({
+		"filter" : "blur(0px)"
+		}).appendTo(document.body);
+	
+		$('#resendPopup').hide();
+	});
 }
 function saveApplication()
 {

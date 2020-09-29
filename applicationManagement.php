@@ -1,6 +1,6 @@
 <?php
 	use PHPMailer\PHPMailer\PHPMailer;
-	
+	require('fpdf.php');
 	$conn = mysqli_connect('localhost', 'damien', 'Oimadi*1', 'application_management');
 	$sql = "SELECT * FROM application_main;";
 	$sqlHeaders = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'application_main';";
@@ -33,26 +33,26 @@
 		}
 		else
 		{
+			$ret = '<table id="pendingTable"><thead><tr>';
+			for($i=0;$i<mysqli_num_fields($rs);$i++)
+			{
+				$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
+				$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
+			}
+			$ret .= '</tr></thead>';
 			while($rowPending = mysqli_fetch_assoc($rsPending))
 			{
 				if($rowPending["application_status"] == "pending")
 				{
-					$ret = '<table id="pendingTable"><thead><tr>';
-					for($i=0;$i<mysqli_num_fields($rs);$i++)
-					{
-						$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
-						$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
-					}
-					$ret .= '</tr></thead>';
 					$ret .= '<tr>';
 					foreach($rowPending as $key => $item)
 					{
 						$ret .= '<td>'.$item.'</td>';
 					}
-					$ret .= '</tr></table>';
-					echo $ret;
 				}
 			}
+			$ret .= '</tr></table>';
+			echo $ret;
 		}
 	}
 	if($_POST["action"] == "submitted_table")
@@ -73,17 +73,17 @@
 		}
 		else
 		{
+			$ret = '<table id="submittedTable"><thead><tr>';
+			for($i=0;$i<mysqli_num_fields($rs);$i++)
+			{
+				$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
+				$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
+			}
+			$ret .= '</tr></thead>';
 			while($rowSubmitted = mysqli_fetch_assoc($rsSubmitted))
 			{
 				if($rowSubmitted["application_status"] == "submitted")
 				{
-					$ret = '<table id="submittedTable"><thead><tr>';
-					for($i=0;$i<mysqli_num_fields($rs);$i++)
-					{
-						$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
-						$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
-					}
-					$ret .= '</tr></thead>';
 					$ret .= '<tr class="editUser">';
 					foreach($rowSubmitted as $key => $item)
 					{
@@ -111,10 +111,10 @@
 							$ret .= '<td>'.$item.'</td>';
 						}
 					}
-					$ret .= '</tr></table>';
-					echo $ret;
 				}
 			}
+			$ret .= '</tr></table>';
+			echo $ret;
 		}
 	}
 	if($_POST["action"] == "completed_table")
@@ -135,17 +135,17 @@
 		}
 		else
 		{
+			$ret = '<table id="submittedTable"><thead><tr>';
+			for($i=0;$i<mysqli_num_fields($rs);$i++)
+			{
+				$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
+				$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
+			}
+			$ret .= '</tr></thead>';
 			while($rowCompleted = mysqli_fetch_assoc($rsCompleted))
 			{
 				if($rowCompleted["application_status"] == "submitted")
 				{
-					$ret = '<table id="submittedTable"><tr>';
-					for($i=0;$i<mysqli_num_fields($rs);$i++)
-					{
-						$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
-						$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
-					}
-					$ret .= '</tr></thead>';
 					$ret .= '<tr class="editUser">';
 					foreach($rowCompleted as $key => $item)
 					{
@@ -173,10 +173,10 @@
 							$ret .= '<td>'.$item.'</td>';
 						}
 					}
-					$ret .= '</tr></table>';
-					echo $ret;
 				}
 			}
+			$ret .= '</tr></table>';
+			echo $ret;
 		}
 	}
 	if($_POST["action"] == "initiate_application")
@@ -748,10 +748,7 @@
 				}
 				
 				$pdf->Output('downloads/clientAppReview_'.$row["application_id"].'.pdf','F');
-				
-				$find = array("[application_id]");
-				$repl = array($row["application_id"]);
-				$return = str_replace($find,$repl,file_get_contents("applicationManagement.html"));
+				echo '<div style="text-align:center;margin-top:40px;"><embed style="border:solid black 1px;" src="downloads/clientAppReview_'.$row["application_id"].'.pdf" width="1000px" height="400px" /></div>';
 			}
 		}
 	}	
