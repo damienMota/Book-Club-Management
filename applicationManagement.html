@@ -42,11 +42,9 @@
 	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Phone Number:</b></label><input id="edit_primary_phone_number" type="text"></div>
 	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Email:</b></label><input id="edit_primary_email" type="text"></div>
 	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Business Name:</b></label><input id="edit_business_name" type="text"></div>
+	<input type="hidden" id="client_URN">
+	<input type="hidden" id="application_id">
 	<div id="applicationPDF"></div>
-	<div id="resendPopup" style="display:none;margin-left:550px;margin-top:250px">
-		<textarea id="message" rows="4" cols="50"></textarea><br>
-		<div style="text-align:center;margin-top:10px;"><button onclick="returnToClient()">Submit</button><button onclick="cancelResend();" style="margin-left:10px;">Cancel</button></div>
-	</div>
 	<div style="text-align:center;">
 	<div style="text-align:center;margin-top:20px;display:inline-block;"><button onclick="saveApplication();">Save Application</button></div>
 	<div style="text-align:center;margin-top:20px;display:inline-block;"><button onclick="markApplicationComplete();">Mark Complete</button></div>
@@ -68,9 +66,17 @@
         <div class="modal-footer">
 			<div style="float:left;"><b>Prepared Statements:</b></div><br>
 			<button style="float:left;margin-right:10px;" id="returnBio">Bio</button>
-			<button style="float:left;" id="returnAgreement">Agreement</button><br>
+			<div id="returnAgreementDiv" style="display:inline-block;float:left;">
+				<button id="returnAgreementBut">Agreement</button>
+				<select id="returnAgreementSel" style="display:none;">
+					<option id="0">Please select a <b>Section</b> for the Client to Review</option>
+					<option>Please review Section 1 of the Agreement Form.</option>
+					<option>Please review Section 2 of the Agreement Form.</option>
+					<option>Please review Section 3 of the Agreement Form.</option>
+				</select>
+			</div><br>
 			
-			<button class="btn btn-default" id="submitReturn">Submit</button>
+			<button class="btn btn-default" onclick="submitReturn();">Submit</button>
 			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
       </div>
@@ -82,12 +88,6 @@
 </body>
 </html>
 <style>
-#resendPopup {
-  width: 300px !important; 
-  border: 1px solid black !important;
-  padding: 50px !important;
-  margin: 20px !important;
-}
 table, th, td 
 {
   border: 1px solid black;
@@ -122,7 +122,19 @@ $(document).ready(function()
 	$("#returnBio").click(function()
 	{
 		$("#returnAppMessage").val("");
-		$("#returnAppMessage").val("Please review the Bio section in Bio.");
+		$("#returnAppMessage").val('Please review " " in Bio section.');
+	});
+	$("#returnAgreementBut").click(function()
+	{
+		$("#returnAppMessage").val("");
+		$("#returnAgreementBut").hide();
+		$("#returnAgreementSel").show();
+	});
+	$('#returnAgreementSel').change(function()
+	{
+		$("#0").attr('disabled','disabled');
+		$("#returnAppMessage").val("");
+		$("#returnAppMessage").val($(this).val());
 	});
 });
 function pendingTable()
@@ -231,10 +243,13 @@ function editUser(userInfo)
 	$("#editPage").show();
 	$("#landingPage").hide();
 	
+	
 	$("#edit_name").val(userInfo[1]);
 	$("#edit_primary_phone_number").val(userInfo[2]);
 	$("#edit_primary_email").val(userInfo[3]);
 	$("#edit_business_name").val(userInfo[5]);
+	$("#client_URN").val(userInfo[8]);
+	$("#application_id").val(userInfo[0]);
 	$.ajax
 	({
 		type: "POST",
@@ -246,25 +261,28 @@ function editUser(userInfo)
 		}
 	});	
 }
-function returnApplication()
+function submitReturn()
 {
-	<!-- $('#editPage > *:not(#resendPopup)').css({ -->
-	<!-- "filter" : "blur(5px)" -->
-	<!-- }).appendTo("#editPage"); -->
-	
-	<!-- $("#resendPopup").show(); -->
-	$("#test").show();
-}
-function cancelResend()
-{
-	$('#editPage > *:not(#resendPopup)').css({
-	"filter" : "blur(0px)"
-	}).appendTo("#editPage");
-	
-	$('#resendPopup').hide();
-}
-function saveApplication()
-{
+	if($("#returnAppMessage").val() == "")
+	{
+		Swal.fire({html:'Please provide a valid message to send to the client.', icon:'warning'});
+	}
+	else
+	{
+		$.ajax
+		({
+			type: "POST",
+			url: "applicationManagement.php",
+			data:{action:"returnAppMessage",returnAppMessage:$("#returnAppMessage").val(),name:$("#edit_name").val(),email:$("#edit_primary_email").val(),clientURN:$("#client_URN").val(),application_id:$("#application_id").val()},
+			success: function(data)
+			{
+				if(data == "success")
+				{
+					Swal.fire({html:'Email has been sent.', icon:'success'});
+				}
+			}
+		});
+	}
 }
 function initiateNewApplicant()
 {

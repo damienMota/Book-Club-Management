@@ -275,19 +275,23 @@
 			mysqli_stmt_bind_param($stmt, "i",$validationCode);
 			mysqli_stmt_execute($stmt);
 			$result = mysqli_stmt_get_result($stmt);
+			$numRows = mysqli_num_rows($result);
+			$clientURN = "";
 			while($row = mysqli_fetch_assoc($result))
 			{
-				if(isset($row["application_id"]) && $row["application_id"] != "")
+				$clientURN = $row["client_URN"];
+			}
+				if($numRows != 0)
 				{
-					$return[] = $row["client_URN"];
+					$return[] = $clientURN;
 					$return[] = "Success";
 					echo json_encode($return);
 				}
 				else
 				{
-					echo "Error";
+					
+					echo json_encode("Error");
 				}
-			}
 		}
 	}
 	if($_POST["action"] == "resend_verification_code")
@@ -768,5 +772,69 @@
 				echo '<div style="text-align:center;margin-top:40px;"><embed style="border:solid black 1px;" src="downloads/clientAppReview_'.$row["application_id"].'.pdf" width="1000px" height="400px" /></div>';
 			}
 		}
-	}	
+	}
+	if(isset($_POST["action"]) && $_POST["action"] == "returnAppMessage")
+	{
+		$name = $_POST["name"];
+		$email = $_POST["email"];
+		$subject = 'Returning Application';
+		$validation_code = mt_rand(100000, 999999); 
+		$client_URN = $_POST["clientURN"];
+		//Building Prepared Statement for Insert into table application_main//
+		
+		$applicationStatus = mysqli_real_escape_string($conn, "pending");
+	
+		$updateSQL = "UPDATE application_main set validation_code =?, application_status =? where application_id =?;";
+		$stmt = mysqli_stmt_init($conn);
+		if(!mysqli_stmt_prepare($stmt, $updateSQL))
+		{
+			echo "SQL ERROR";
+		}
+		else
+		{
+			mysqli_stmt_bind_param($stmt, "isi", $validation_code,$applicationStatus,$_POST["application_id"]);
+			mysqli_stmt_execute($stmt);
+		}
+		
+		//Formatting for PHP Mailer//		
+		$find = array("[validation_code]","[client_URN]","[return_app_message]","[name]");
+		$appId = mysqli_insert_id($conn);
+		
+		$repl = array($validation_code,$client_URN,$_POST["returnAppMessage"],$_POST["name"]);
+		$fixedTemplate = str_replace($find,$repl,file_get_contents("return_application_email.html"));
+		$body = $fixedTemplate;
+		
+		require_once "PHPMailer/PHPMailer.php";
+		require_once "PHPMailer/SMTP.php";
+		require_once "PHPMailer/Exception.php";
+
+		$mail = new PHPMailer();
+
+		//smtp settings
+		$mail->isSMTP();
+		$mail->Host = "smtp.gmail.com";
+		$mail->SMTPAuth = true;
+		$mail->Username = "mota.damien@gmail.com";
+		$mail->Password = 'damienab';
+		$mail->Port = 465;
+		$mail->SMTPSecure = "ssl";
+
+		//email settings
+		$mail->isHTML(true);
+		$mail->setFrom($email, $name);
+		$mail->addAddress($email);
+		$mail->Subject = ("Application Returned for: ".$name);
+		$mail->Body = $body;
+
+		if($mail->send()){
+			$status = "success";
+			$response = "Email is sent!";
+		}
+		else
+		{
+			$status = "failed";
+			$response = "Something is wrong: <br>" . $mail->ErrorInfo;
+		}
+		echo $status;
+	}
 ?>
