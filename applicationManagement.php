@@ -38,6 +38,10 @@
 			{
 				$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
 				$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
+				if($fixedHeader == "primary email")
+				{
+					$ret .= '<th>Activity Log</th>';
+				}
 			}
 			$ret .= '</tr></thead>';
 			while($rowPending = mysqli_fetch_assoc($rsPending))
@@ -48,6 +52,10 @@
 					foreach($rowPending as $key => $item)
 					{
 						$ret .= '<td>'.$item.'</td>';
+						if($key == "primary_email")
+						{
+							$ret .= '<td><button type="button" data-toggle="modal" data-target="#activityLog">Log</button></td>';
+						}
 					}
 				}
 			}
@@ -66,6 +74,10 @@
 				{
 					$fixedHeader = str_replace("_"," ",$header);
 					$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
+					if($fixedHeader == "primary email")
+					{
+						$ret .= '<th>Activity Log</th>';
+					}
 				}
 			}
 			$ret .= '</tr></thead></table>';
@@ -78,6 +90,10 @@
 			{
 				$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
 				$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
+				if($fixedHeader == "primary email")
+				{
+					$ret .= '<th>Activity Log</th>';
+				}
 			}
 			$ret .= '</tr></thead>';
 			while($rowSubmitted = mysqli_fetch_assoc($rsSubmitted))
@@ -109,6 +125,10 @@
 						else
 						{
 							$ret .= '<td>'.$item.'</td>';
+							if($key == "primary_email")
+							{
+								$ret .= '<td><button onclick="activityLog();">Log</button></td>';
+							}
 						}
 					}
 				}
@@ -128,6 +148,10 @@
 				{
 					$fixedHeader = str_replace("_"," ",$header);
 					$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
+					if($fixedHeader == "primary email")
+					{
+						$ret .= '<th>Activity Log</th>';
+					}
 				}
 			}
 			$ret .= '</tr></thead></table>';
@@ -140,6 +164,10 @@
 			{
 				$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
 				$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
+				if($fixedHeader == "primary email")
+				{
+					$ret .= '<th>Activity Log</th>';
+				}
 			}
 			$ret .= '</tr></thead>';
 			while($rowCompleted = mysqli_fetch_assoc($rsCompleted))
@@ -171,6 +199,10 @@
 						else
 						{
 							$ret .= '<td>'.$item.'</td>';
+							if($key == "primary_email")
+							{
+								$ret .= '<td><button onclick="activityLog();">Log</button></td>';
+							}
 						}
 					}
 				}
@@ -474,89 +506,107 @@
 	}
 	if(isset($_POST["action"]) && $_POST["action"] == "submit_application")
 	{
-		$status = "submitted";
-		$updateSQL = "UPDATE application_main SET application_status =?,reference_number =? WHERE application_id =?;";
-		$updateSTMT = mysqli_stmt_init($conn);
-		mysqli_stmt_prepare($updateSTMT, $updateSQL);
-		if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
-		{
-			echo "SQL ERROR";
-		}
-		else
-		{
-			mysqli_stmt_bind_param($updateSTMT, "sii",$status,$_POST["application_id"],$_POST["application_id"]);
-			mysqli_stmt_execute($updateSTMT);
+		$date = date("F j, Y, g:i a");
+		error_log($date);
+		// $action = "Submitted Application";
+		// $description = "";
+		
+		// $sql = "INSERT INTO activity_log (application_id,action,desription,time)
+				// VALUES (?,?,?,?);";
+		// $stmt = mysqli_stmt_init($conn);
+		// if(!mysqli_stmt_prepare($stmt,$sql))
+		// {
+			// echo "SQL ERROR";
+		// }
+		// else
+		// {
+			// mysqli_stmt_bind_param($stmt, "iss",$_POST["application_id"],$action,$description);
+			// mysqli_stmt_execute($stmt);
 			
-			$sql = "SELECT * FROM application_main where application_id =?;";
-			$stmt = mysqli_stmt_init($conn);
-			mysqli_stmt_prepare($stmt, $sql);
-			if(!mysqli_stmt_prepare($stmt, $sql))
-			{
-				echo "SQL ERROR";
-			}
-			else
-			{
-				mysqli_stmt_bind_param($stmt, "i",$_POST["application_id"]);
-				mysqli_stmt_execute($stmt);
-				$result = mysqli_stmt_get_result($stmt);
+			// $status = "submitted";
+			// $updateSQL = "UPDATE application_main SET application_status =?,reference_number =? WHERE application_id =?;";
+			// $updateSTMT = mysqli_stmt_init($conn);
+			// mysqli_stmt_prepare($updateSTMT, $updateSQL);
+			// if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
+			// {
+				// echo "SQL ERROR";
+			// }
+			// else
+			// {
+				// mysqli_stmt_bind_param($updateSTMT, "sii",$status,$_POST["application_id"],$_POST["application_id"]);
+				// mysqli_stmt_execute($updateSTMT);
 				
-				require_once "PHPMailer/PHPMailer.php";
-				require_once "PHPMailer/SMTP.php";
-				require_once "PHPMailer/Exception.php";
+				// $sql = "SELECT * FROM application_main where application_id =?;";
+				// $stmt = mysqli_stmt_init($conn);
+				// mysqli_stmt_prepare($stmt, $sql);
+				// if(!mysqli_stmt_prepare($stmt, $sql))
+				// {
+					// echo "SQL ERROR";
+				// }
+				// else
+				// {
+					// mysqli_stmt_bind_param($stmt, "i",$_POST["application_id"]);
+					// mysqli_stmt_execute($stmt);
+					// $result = mysqli_stmt_get_result($stmt);
+					
+					// require_once "PHPMailer/PHPMailer.php";
+					// require_once "PHPMailer/SMTP.php";
+					// require_once "PHPMailer/Exception.php";
 
-				$mail = new PHPMailer();
+					// $mail = new PHPMailer();
 
-				$mail->isSMTP();
-				$mail->Host = "smtp.gmail.com";
-				$mail->SMTPAuth = true;
-				$mail->Username = "mota.damien@gmail.com";
-				$mail->Password = 'damienab';
-				$mail->Port = 465;
-				$mail->SMTPSecure = "ssl";
-				
-				while($rowEmail = mysqli_fetch_assoc($result))
-				{
-					$tempReferenceNumber = "000".$rowEmail["reference_number"];
-					$referenceNumber = "";
-					$counter = 0;
+					// $mail->isSMTP();
+					// $mail->Host = "smtp.gmail.com";
+					// $mail->SMTPAuth = true;
+					// $mail->Username = "mota.damien@gmail.com";
+					// $mail->Password = 'damienab';
+					// $mail->Port = 465;
+					// $mail->SMTPSecure = "ssl";
 					
-					for($x = 0; $x <= 4; $x++)
-					{
-						if($x > 1)
-						{
-							$counter++;
-							$referenceNumber = substr($tempReferenceNumber, $counter);
-						}
-						else
-						{
-							$referenceNumber = $tempReferenceNumber;
-							break;
-						}
-					}
-					$find = array("[name]","[reference_number]");
-					$repl = array($rowEmail["name"],$referenceNumber);
-					$body = str_replace($find,$repl,file_get_contents("submitted_email.html"));
-					
-					$mail->isHTML(true);
-					$mail->setFrom($rowEmail["primary_email"], $rowEmail["name"]);
-					$mail->addAddress($rowEmail["primary_email"]);
-					$mail->Subject = ("Application Submitted for: ".$rowEmail["name"]);
-					$mail->Body = $body;
-					
-					$status = "";
-					if($mail->send()){
-						$status = "success";
-						$response = "Email is sent!";
-					}
-					else
-					{
-						$status = "failed";
-						$response = "Something is wrong: <br>" . $mail->ErrorInfo;
-					}
-					echo $status;
-				}
-			}
-		}
+					// while($rowEmail = mysqli_fetch_assoc($result))
+					// {
+						// $tempReferenceNumber = "000".$rowEmail["reference_number"];
+						// $referenceNumber = "";
+						// $counter = 0;
+						
+						// for($x = 0; $x <= 4; $x++)
+						// {
+							// if($x > 1)
+							// {
+								// $counter++;
+								// $referenceNumber = substr($tempReferenceNumber, $counter);
+							// }
+							// else
+							// {
+								// $referenceNumber = $tempReferenceNumber;
+								// break;
+							// }
+						// }
+						// $find = array("[name]","[reference_number]");
+						// $repl = array($rowEmail["name"],$referenceNumber);
+						// $body = str_replace($find,$repl,file_get_contents("submitted_email.html"));
+						
+						// $mail->isHTML(true);
+						// $mail->setFrom($rowEmail["primary_email"], $rowEmail["name"]);
+						// $mail->addAddress($rowEmail["primary_email"]);
+						// $mail->Subject = ("Application Submitted for: ".$rowEmail["name"]);
+						// $mail->Body = $body;
+						
+						// $status = "";
+						// if($mail->send()){
+							// $status = "success";
+							// $response = "Email is sent!";
+						// }
+						// else
+						// {
+							// $status = "failed";
+							// $response = "Something is wrong: <br>" . $mail->ErrorInfo;
+						// }
+						// echo $status;
+					// }
+				// }
+			// }
+		// }
 	}
 	if(isset($_POST["action"]) && $_POST["action"] == "getApplicationPDF")
 	{
