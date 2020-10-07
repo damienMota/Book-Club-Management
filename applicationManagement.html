@@ -128,7 +128,6 @@ $(document).ready(function()
 	pendingTable();
 	submittedTable();
 	completedTable();
-	activityLog();
 	$("#initiatePage").hide();
 	$("#editPage").hide();
 	$("#cancel").click(function()
@@ -252,16 +251,18 @@ function completedTable()
 }
 function activityLog(applicationId)
 {
-	<!-- $.ajax -->
-	<!-- ({ -->
-		<!-- type: "POST", -->
-		<!-- url: "applicationManagement.php", -->
-		<!-- data:{action:"activityLog"}, -->
-		<!-- success: function(data) -->
-		<!-- { -->
-			
-		<!-- } -->
-	<!-- }); -->
+	event.stopPropagation();
+	$('#activityLog').modal('show')
+	$.ajax
+	({
+		type: "POST",
+		url: "applicationManagement.php",
+		data:{action:"activity_log",application_id:applicationId},
+		success: function(data)
+		{
+			console.log(data);
+		}
+	});
 }
 function initiateApplication()
 {
@@ -272,7 +273,6 @@ function editUser(userInfo)
 {
 	$("#editPage").show();
 	$("#landingPage").hide();
-	
 	
 	$("#edit_name").val(userInfo[1]);
 	$("#edit_primary_phone_number").val(userInfo[2]);

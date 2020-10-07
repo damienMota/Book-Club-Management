@@ -104,6 +104,10 @@
 					$application_id = "";
 					foreach($rowSubmitted as $key => $item)
 					{
+						if($key == 'application_id')
+						{
+							$application_id = $item;
+						}
 						if($key == 'reference_number')
 						{
 							if(strlen($item) == 1)
@@ -128,7 +132,7 @@
 							$ret .= '<td>'.$item.'</td>';
 							if($key == "primary_email")
 							{
-								$ret .= '<td><button type="button" onclick=activityLog('.$application_id.') class="activityLog" data-toggle="modal" data-target="#activityLog">Log</button></td>';
+								$ret .= '<td><button onclick="activityLog('.$application_id.');" type="button">Log</button></td>';
 							}
 						}
 					}
@@ -214,7 +218,39 @@
 	}
 	if($_POST["action"] == "activity_log")
 	{
-		
+		$sql = "SELECT * FROM activity_log where application_id =?;";
+		$alSQL = "SELECT * FROM activity_log;";
+		$rs = mysqli_query($conn,$alSQL);
+		$stmt = mysqli_stmt_init($conn);
+		mysqli_stmt_prepare($stmt, $sql);
+		if(!mysqli_stmt_prepare($stmt, $sql))
+		{
+			echo "SQL ERROR";
+		}
+		else
+		{
+			mysqli_stmt_bind_param($stmt, "i",$_POST["application_id"]);
+			mysqli_stmt_execute($stmt);
+			$result = mysqli_stmt_get_result($stmt);
+			
+			$ret = '<table id="activityLogTable"><thead><tr>';
+			for($i=0;$i<mysqli_num_fields($rs);$i++)
+			{
+				$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
+				$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
+			}
+			$ret .= '</tr></thead>';
+			while($row = mysqli_fetch_assoc($result))
+			{
+				$ret .= '<tr>';
+				foreach($row as $key => $item)
+				{
+					$ret .= '<td>'.$item.'</td>';
+				}
+			}
+			$ret .= '</tr></table>';
+			echo $ret;
+		}
 	}
 	if($_POST["action"] == "initiate_application")
 	{
