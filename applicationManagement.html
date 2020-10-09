@@ -34,11 +34,12 @@
   <!-- Modal content-->
   <div class="modal-content" style="margin-top:100px;">
 	<div class="modal-header">
-	  <button type="button" class="close" data-dismiss="modal">&times;</button>
+	  <button type="button" class="close closeModal">&times;</button>
 	  <h4 class="modal-title">Activity Log:</h4>
 	</div>
+	<div id="activityLogTable"></div>
 	<div class="modal-footer">
-		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		<button type="button" class="btn btn-default closeModal">Close</button>
 	</div>
   </div> 
 </div>
@@ -67,7 +68,7 @@
 	<!-- Trigger the modal with a button -->
 	<div style="text-align:center;margin-top:20px;display:inline-block;"><button id="returnApplication" type="button" data-toggle="modal" data-target="#myModal">Return Application</button></div>
 	</div>
-	<div style="text-align:center;margin-top:20px"><button id="cancel">Cancel</button></div>
+	<div style="text-align:center;margin-top:20px"><button id="cancelEdit">Cancel</button></div>
 	<!-- Modal -->
 	<div class="modal fade" id="myModal" role="dialog">
 	<div class="modal-dialog">
@@ -121,6 +122,10 @@ th,td
 	background-color: #ffff99 !important;
 	cursor: pointer;
 }
+#activityTable_wrapper
+{
+	padding:5px;
+}
 </style>
 <script>
 $(document).ready(function()
@@ -133,6 +138,12 @@ $(document).ready(function()
 	$("#cancel").click(function()
   	{
 		$("#initiatePage").hide();
+		$("#landingPage").show();
+	});
+	$("#cancelEdit").click(function()
+  	{
+		$("#applicationEmbedded").remove();
+		$("#editPage").hide();
 		$("#landingPage").show();
 	});
 	$("#returnBio").click(function()
@@ -210,6 +221,10 @@ function submittedTable()
 					"targets": [10],
 					"visible": false,
 				},
+				{
+					"targets": [11],
+					"visible": false,
+				},
 			]
 			});
 			$('.editUser').click(function()
@@ -252,7 +267,7 @@ function completedTable()
 function activityLog(applicationId)
 {
 	event.stopPropagation();
-	$('#activityLog').modal('show')
+	$('#activityLog').modal('show');
 	$.ajax
 	({
 		type: "POST",
@@ -260,7 +275,15 @@ function activityLog(applicationId)
 		data:{action:"activity_log",application_id:applicationId},
 		success: function(data)
 		{
-			console.log(data);
+			$("#activityLogTable").append(data);
+			var dataTable = $("#activityTable").DataTable({
+			});
+			$(".closeModal").click(function()
+			{
+				$('#activityLog').modal('hide');
+				dataTable.destroy();
+				$("#activityTable").remove();
+			});
 		}
 	});
 }
@@ -274,10 +297,11 @@ function editUser(userInfo)
 	$("#editPage").show();
 	$("#landingPage").hide();
 	
+	console.log(userInfo);
 	$("#edit_name").val(userInfo[1]);
 	$("#edit_primary_phone_number").val(userInfo[2]);
 	$("#edit_primary_email").val(userInfo[3]);
-	$("#edit_business_name").val(userInfo[5]);
+	$("#edit_business_name").val(userInfo[6]);
 	$("#client_URN").val(userInfo[8]);
 	$("#application_id").val(userInfo[0]);
 	$.ajax
@@ -290,6 +314,92 @@ function editUser(userInfo)
 			$("#applicationPDF").append(data);
 		}
 	});	
+}
+function saveApplication()
+{
+	var err = "";
+	if($("#edit_name").val() == "")
+	{
+		err+= "<br><b>Name</b>";
+	}
+	if($("#edit_primary_phone_number").val() == "")
+	{
+		err+= "<br><b>Phone number</b>";
+	}
+	if($("#edit_primary_email").val() == "")
+	{
+		err+= "<br><b>Phone number</b>";
+	}
+	if($("#edit_business_name").val() == "")
+	{
+		err+= "<br><b>Phone number</b>";
+	}
+	if(err != "")
+	{
+		Swal.fire({html:'The following text fields are required:', icon:'warning'});
+	}
+	else
+	{
+		$.ajax
+		({
+			type: "POST",
+			url: "applicationManagement.php",
+			data:{action:"saveApplication",application_id:$("#application_id").val(),name:$("#edit_name").val(),primary_phone_number:$("#edit_primary_phone_number").val(),primary_email:$("#edit_primary_email").val(),business_name:$("#edit_business_name").val()},
+			success: function(data)
+			{
+				if(data == "success")
+				{
+					Swal.fire({html:'Application Saved.', icon:'success'}).then(function()
+					{
+						location.reload();
+					});
+				}
+			}
+		});
+	}
+}
+function markApplicationComplete()
+{
+	var err = "";
+	if($("#edit_name").val() == "")
+	{
+		err+= "<br><b>Name</b>";
+	}
+	if($("#edit_primary_phone_number").val() == "")
+	{
+		err+= "<br><b>Phone number</b>";
+	}
+	if($("#edit_primary_email").val() == "")
+	{
+		err+= "<br><b>Phone number</b>";
+	}
+	if($("#edit_business_name").val() == "")
+	{
+		err+= "<br><b>Phone number</b>";
+	}
+	if(err != "")
+	{
+		Swal.fire({html:'The following text fields are required:', icon:'warning'});
+	}
+	else
+	{
+		$.ajax
+		({
+			type: "POST",
+			url: "applicationManagement.php",
+			data:{action:"markApplicationComplete",application_id:$("#application_id").val()},
+			success: function(data)
+			{
+				if(data == "success")
+				{
+					Swal.fire({html:'Application Marked Complete.', icon:'success'}).then(function()
+					{
+						location.reload();
+					});
+				}
+			}
+		});
+	}
 }
 function submitReturn()
 {
