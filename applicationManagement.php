@@ -49,12 +49,17 @@
 				if($rowPending["application_status"] == "pending")
 				{
 					$ret .= '<tr>';
+					$application_id = "";
 					foreach($rowPending as $key => $item)
 					{
 						$ret .= '<td>'.$item.'</td>';
+						if($key == 'application_id')
+						{
+							$application_id = $item;
+						}
 						if($key == "primary_email")
 						{
-							$ret .= '<td><button type="button" class="activityLog" data-toggle="modal" data-target="#activityLog">Log</button></td>';
+							$ret .= '<td><button onclick="activityLog('.$application_id.');" type="button">Log</button></td>';
 						}
 					}
 				}
@@ -164,7 +169,7 @@
 		}
 		else
 		{
-			$ret = '<table id="submittedTable"><thead><tr>';
+			$ret = '<table id="completedTable"><thead><tr>';
 			for($i=0;$i<mysqli_num_fields($rs);$i++)
 			{
 				$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
@@ -177,11 +182,16 @@
 			$ret .= '</tr></thead>';
 			while($rowCompleted = mysqli_fetch_assoc($rsCompleted))
 			{
-				if($rowCompleted["application_status"] == "submitted")
+				if($rowCompleted["application_status"] == "completed")
 				{
 					$ret .= '<tr class="editUser">';
+					$application_id = "";
 					foreach($rowCompleted as $key => $item)
 					{
+						if($key == 'application_id')
+						{
+							$application_id = $item;
+						}
 						if($key == 'reference_number')
 						{
 							if(strlen($item) == 1)
@@ -206,7 +216,7 @@
 							$ret .= '<td>'.$item.'</td>';
 							if($key == "primary_email")
 							{
-								$ret .= '<td><button type="button" data-toggle="modal" data-target="#activityLog">Log</button></td>';
+								$ret .= '<td><button onclick="activityLog('.$application_id.');" type="button">Log</button></td>';
 							}
 						}
 					}
@@ -1046,7 +1056,7 @@
 	if(isset($_POST["action"]) && $_POST["action"] == "markApplicationComplete")
 	{
 		$status = "completed";
-		$updateSQL = "UPDATE application_main set status =? WHERE application_id =?;";
+		$updateSQL = "UPDATE application_main set application_status =? WHERE application_id =?;";
 		$stmt = mysqli_stmt_init($conn);
 		if(!mysqli_stmt_prepare($stmt, $updateSQL))
 		{
@@ -1058,6 +1068,36 @@
 			mysqli_stmt_execute($stmt);
 			
 			$action = "Marked Complete";
+			$insertSQL = "INSERT INTO activity_log (application_id,action)
+			VALUES (?,?);";
+			$insertSTMT = mysqli_stmt_init($conn);
+			if(!mysqli_stmt_prepare($insertSTMT,$insertSQL))
+			{
+				echo "SQL ERROR";
+			}
+			else
+			{
+				mysqli_stmt_bind_param($insertSTMT, "is",$_POST["application_id"],$action);
+				mysqli_stmt_execute($insertSTMT);
+				echo 'success';
+			}
+		}
+	}
+	if(isset($_POST["action"]) && $_POST["action"] == "markApplicationIncomplete")
+	{
+		$status = "submitted";
+		$updateSQL = "UPDATE application_main set application_status =? WHERE application_id =?;";
+		$stmt = mysqli_stmt_init($conn);
+		if(!mysqli_stmt_prepare($stmt, $updateSQL))
+		{
+			echo "SQL ERROR";
+		}
+		else
+		{
+			mysqli_stmt_bind_param($stmt, "si",$status,$_POST["application_id"]);
+			mysqli_stmt_execute($stmt);
+			
+			$action = "Marked Incomplete";
 			$insertSQL = "INSERT INTO activity_log (application_id,action)
 			VALUES (?,?);";
 			$insertSTMT = mysqli_stmt_init($conn);

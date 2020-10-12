@@ -358,7 +358,7 @@ else
 						$repl = array($row["application_id"]);
 						$return = str_replace($find,$repl,file_get_contents("client_review.html"));
 					}
-					elseif($row["application_status"] == "submitted")
+					elseif($row["application_status"] == "submitted" || $row["application_status"] == "completed")
 					{
 						$tempReferenceNumber = "000".$row["reference_number"];
 						$referenceNumber = "";

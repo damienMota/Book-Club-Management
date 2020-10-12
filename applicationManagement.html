@@ -64,7 +64,8 @@
 	<div id="applicationPDF"></div>
 	<div style="text-align:center;">
 	<div style="text-align:center;margin-top:20px;display:inline-block;"><button onclick="saveApplication();">Save Application</button></div>
-	<div style="text-align:center;margin-top:20px;display:inline-block;"><button onclick="markApplicationComplete();">Mark Complete</button></div>
+	<div style="text-align:center;margin-top:20px;display:inline-block;" id="markAppComp"><button onclick="markApplicationComplete();">Mark Complete</button></div>
+	<div style="text-align:center;margin-top:20px;display:inline-block;" id="markAppIncomp"><button onclick="markApplicationIncomplete();">Mark Incomplete</button></div>
 	<!-- Trigger the modal with a button -->
 	<div style="text-align:center;margin-top:20px;display:inline-block;"><button id="returnApplication" type="button" data-toggle="modal" data-target="#myModal">Return Application</button></div>
 	</div>
@@ -245,7 +246,7 @@ function completedTable()
 		success: function(data)
 		{
 			$("#completedApplicationsTable").append(data);
-			$("#completedTable").DataTable({
+			var dataTable = $("#completedTable").DataTable({
 				"columnDefs": [
 				{
 					"targets": [8],
@@ -260,6 +261,11 @@ function completedTable()
 					"visible": false,
 				},
 			]
+			});
+			$('.editUser').click(function()
+			{
+				var userInfo = dataTable.row(this).data();
+				editUser(userInfo);
 			});
 		}
 	});
@@ -277,6 +283,7 @@ function activityLog(applicationId)
 		{
 			$("#activityLogTable").append(data);
 			var dataTable = $("#activityTable").DataTable({
+				"order": [[ 2, 'desc' ]],
 			});
 			$(".closeModal").click(function()
 			{
@@ -294,10 +301,20 @@ function initiateApplication()
 }
 function editUser(userInfo)
 {
+	console.log("do");
 	$("#editPage").show();
 	$("#landingPage").hide();
 	
-	console.log(userInfo);
+	if(userInfo[5] == "completed")
+	{
+		$("#markAppComp").hide();
+		$("#markAppIncomp").show();
+	}
+	if(userInfo[5] == "submitted")
+	{
+		$("#markAppComp").show();
+		$("#markAppIncomp").hide();
+	}
 	$("#edit_name").val(userInfo[1]);
 	$("#edit_primary_phone_number").val(userInfo[2]);
 	$("#edit_primary_email").val(userInfo[3]);
@@ -393,6 +410,49 @@ function markApplicationComplete()
 				if(data == "success")
 				{
 					Swal.fire({html:'Application Marked Complete.', icon:'success'}).then(function()
+					{
+						location.reload();
+					});
+				}
+			}
+		});
+	}
+}
+function markApplicationIncomplete()
+{
+	var err = "";
+	if($("#edit_name").val() == "")
+	{
+		err+= "<br><b>Name</b>";
+	}
+	if($("#edit_primary_phone_number").val() == "")
+	{
+		err+= "<br><b>Phone number</b>";
+	}
+	if($("#edit_primary_email").val() == "")
+	{
+		err+= "<br><b>Phone number</b>";
+	}
+	if($("#edit_business_name").val() == "")
+	{
+		err+= "<br><b>Phone number</b>";
+	}
+	if(err != "")
+	{
+		Swal.fire({html:'The following text fields are required:', icon:'warning'});
+	}
+	else
+	{
+		$.ajax
+		({
+			type: "POST",
+			url: "applicationManagement.php",
+			data:{action:"markApplicationIncomplete",application_id:$("#application_id").val()},
+			success: function(data)
+			{
+				if(data == "success")
+				{
+					Swal.fire({html:'Application Marked Incomplete.', icon:'success'}).then(function()
 					{
 						location.reload();
 					});
