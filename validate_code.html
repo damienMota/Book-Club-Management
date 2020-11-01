@@ -15,10 +15,10 @@
 
 </head>
 <body>
-	<div style="text-align:center;font-size:35px;margin-top:100px;"><b>Please Enter Validation Code</b></div>
+	<div style="text-align:center;font-size:35px;margin-top:100px;"><b>Please Enter Verification Code</b></div>
 	<div style="text-align:center;margin-top:20px;border-radius:25px;"><input type="text" id="verification_code"></div>
-	<div style="text-align:center;margin-top:20px;"><button onclick="submitVerificationCode();" id="submitVerificationCode">Submit Validation Code</button></div>
-	<div style="text-align:center;margin-top:20px;"><button id="validateEmailPhone">Resend Validation Code</button></div>
+	<div style="text-align:center;margin-top:20px;"><button style="border: 1px solid #827f7f;" class="btn btn-light" onclick="submitVerificationCode();" id="submitVerificationCode">Submit Verification Code</button></div>
+	<div style="text-align:center;margin-top:20px;"><button style="border: 1px solid #827f7f;" class="btn btn-light" id="validateEmailPhone">Resend Verification Code</button></div>
 	<div class="modal fade" id="resendValCode" role="dialog">
 	<div class="modal-dialog">
 
@@ -26,12 +26,12 @@
 	  <div class="modal-content" style="margin-top:100px;padding:5px;">
 		<div class="modal-header">
 		  <button type="button" class="close closeModal">&times;</button>
-		  <h4 class="modal-title">Resend Validation Code:</h4>
+		  <h4 class="modal-title">Resend Verification Code:</h4>
 		</div>
 		<div id="activityLogTable"></div>
 		<div>Please Enter The Email and Phone Number Provided for this Account</div><br>
 		<div style="width:90%;text-align:left;">
-			<div style="display:inline-block;width:53.6%;text-align:right;">Email:<input style="margin-left:4px;" id="email" type="text" ></div><br>
+			<div style="display:inline-block;width:51.6%;text-align:right;">Email:<input style="margin-left:4px;" id="email" type="text" ></div><br>
 			<div style="display:inline-block;margin-top:8px;">Phone Number:<input style="margin-left:4px;" id="phone" type="text" ></div>
 		</div>
 		<div class="modal-footer">
@@ -48,6 +48,13 @@
 </body>
 </html>
 <style>
+body
+{
+	background-image: url('images/thought-catalog-o0Qqw21-0NI-unsplash.jpg');
+	background-repeat: no-repeat;
+	background-size: 100%;
+	font-family:serif;
+}
 #resendPopup {
   width: 300px;
   border: 1px solid black;

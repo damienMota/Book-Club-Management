@@ -377,8 +377,8 @@ else
 								break;
 							}
 						}
-							$find = array("[reference_number]");
-							$repl = array($referenceNumber);
+							$find = array("[reference_number]","[name]");
+							$repl = array($referenceNumber,$row["name"]);
 							$return = str_replace($find,$repl,file_get_contents("client_completion.html"));
 					}
 					echo $return;

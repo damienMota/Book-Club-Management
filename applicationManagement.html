@@ -17,18 +17,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredericka+the+Great&display=swap" rel="stylesheet">
 </head>
 <body>
-<!-- <img src="images\alfons-morales-YLSwjSy7stw-unsplash.jpg" alt="demo"> -->
 
 <div id="landingPage">
-	<div style="float:right;"><button onclick="initiateApplication();">Initiate Application</button></div><br>
+	<div style="float:right;padding-top:20px;padding-right:55px;"><button type="button" style="border: 1px solid #827f7f;" class="btn btn-light" onclick="initiateApplication();">Initiate Application</button></div><br>
 	<div id="pendingApplicationsTable" style="margin-top:35px;">
-		<div style="text-align:center;font-size:35px;" class="header">Pending Applications</div>	
+		<div style="text-align:center;font-family:serif;font-size:35px;">Pending Applications</div>	
 	</div>
 	<div id="submittedApplicationsTable" style="margin-top:35px;">
-		<div style="text-align:center;font-size:35px;" class="header">Submitted Applications</div>	
+		<div style="text-align:center;font-family:serif;font-size:35px;">Submitted Applications</div>	
 	</div>
 	<div id="completedApplicationsTable" style="margin-top:35px;">
-		<div style="text-align:center;font-size:35px;" class="header">Completed Applications</div>	
+		<div style="text-align:center;font-family:serif;font-size:35px;">Completed Applications</div>	
 	</div>
 </div>
 <!-- Modal -->
@@ -54,8 +53,8 @@
 	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Last Name:</b></label><input id="last_name" type="text"></div>
 	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Phone Number:</b></label><input id="primary_phone_number" type="text">		</div>
 	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Email:</b></label><input id="primary_email" type="text"></div>
-	<div style="text-align:center;margin-top:20px"><button onclick="initiateNewApplicant();">Initiate</button></div>
-	<div style="text-align:center;margin-top:20px"><button id="cancel">Cancel</button></div>
+	<div style="text-align:center;margin-top:20px"><button class="btn btn-light" onclick="initiateNewApplicant();">Initiate</button></div>
+	<div style="text-align:center;margin-top:20px"><button class="btn btn-light" id="cancel">Cancel</button></div>
 </div>
 <div id="editPage">
 	<div style="text-align:center;font-size:35px;">Edit Application</div>
@@ -112,23 +111,19 @@
 <style>
 body
 {
-	background-image: url('images/alfons-morales-YLSwjSy7stw-unsplash.jpg');
+	background-image: url('images/sincerely-media-_-hjiem5TqI-unsplash.jpg');
 	background-repeat: no-repeat;
-	background-attachment: fixed; 
-	background-size: 100% 100%;
+	background-size: 100%;
+	font-family:serif;
 }
 table, th, td 
 {
-  border: 1px solid black;
+  border: 1px solid #827f7f;
 }
 th,td
 {
 	width:100px;
-}
-.header
-{
-	color:white;
-	font-family: 'Fredericka the Great', cursive;
+	text-align:center;
 }
 .editUser
 {

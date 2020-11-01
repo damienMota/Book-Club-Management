@@ -19,7 +19,7 @@
 	{
 		if(mysqli_num_rows($rsPending) == 0)
 		{
-			$ret = '<table id="pendingTable"><thead><tr>';
+			$ret = '<table style="width:100%;" id="pendingTable"><thead style="background-color:#D9DEDE;"><tr>';
 			while($rowNum0 = mysqli_fetch_assoc($rsHeaders))
 			{
 				foreach($rowNum0 as $header)
@@ -33,7 +33,7 @@
 		}
 		else
 		{
-			$ret = '<table id="pendingTable"><thead><tr>';
+			$ret = '<table style="width:100%;" id="pendingTable"><thead style="background-color:#D9DEDE;"><tr>';
 			for($i=0;$i<mysqli_num_fields($rs);$i++)
 			{
 				$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
@@ -48,7 +48,7 @@
 			{
 				if($rowPending["application_status"] == "pending")
 				{
-					$ret .= '<tr>';
+					$ret .= '<tr style="font-size:16px;">';
 					$application_id = "";
 					foreach($rowPending as $key => $item)
 					{
@@ -72,7 +72,7 @@
 	{
 		if(mysqli_num_rows($rsSubmitted) == 0)
 		{
-			$ret = '<table id="submittedTable"><thead><tr>';
+			$ret = '<table style="width:100%;" id="submittedTable"><thead style="background-color:#D9DEDE;"><tr>';
 			while($rowNum0 = mysqli_fetch_assoc($rsHeaders))
 			{
 				foreach($rowNum0 as $header)
@@ -90,7 +90,7 @@
 		}
 		else
 		{
-			$ret = '<table id="submittedTable"><thead><tr>';
+			$ret = '<table style="width:100%;" id="submittedTable"><thead style="background-color:#D9DEDE;"><tr>';
 			for($i=0;$i<mysqli_num_fields($rs);$i++)
 			{
 				$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
@@ -105,7 +105,7 @@
 			{
 				if($rowSubmitted["application_status"] == "submitted")
 				{
-					$ret .= '<tr class="editUser">';
+					$ret .= '<tr style="font-family:16px;" class="editUser">';
 					$application_id = "";
 					foreach($rowSubmitted as $key => $item)
 					{
@@ -151,7 +151,7 @@
 	{
 		if(mysqli_num_rows($rsCompleted) == 0)
 		{
-			$ret = '<table id="completedTable"><thead><tr>';
+			$ret = '<table style="width:100%;" id="completedTable"><thead style="background-color:#D9DEDE;"><tr>';
 			while($rowNum0 = mysqli_fetch_assoc($rsHeaders))
 			{
 				foreach($rowNum0 as $header)
@@ -169,7 +169,7 @@
 		}
 		else
 		{
-			$ret = '<table id="completedTable"><thead><tr>';
+			$ret = '<table style="width:100%;" id="completedTable"><thead style="background-color:#D9DEDE;"><tr>';
 			for($i=0;$i<mysqli_num_fields($rs);$i++)
 			{
 				$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
@@ -184,7 +184,7 @@
 			{
 				if($rowCompleted["application_status"] == "completed")
 				{
-					$ret .= '<tr class="editUser">';
+					$ret .= '<tr style="font-family:16px;" class="editUser">';
 					$application_id = "";
 					foreach($rowCompleted as $key => $item)
 					{
@@ -243,7 +243,7 @@
 			mysqli_stmt_execute($stmt);
 			$result = mysqli_stmt_get_result($stmt);
 			
-			$ret = '<table id="activityTable" style="width:95%;"><thead><tr>';
+			$ret = '<table style="width:100%;" id="activityTable" style="width:95%;"><thead><tr>';
 			for($i=0;$i<mysqli_num_fields($rs);$i++)
 			{
 				if(mysqli_fetch_field_direct($rs,$i)->name == "application_id")

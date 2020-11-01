@@ -10,14 +10,14 @@
 </head>
 <body>
 	<div id="header"></div>
-	<div style="text-align:center;margin-top:50px;">
+	<div style="text-align:center;margin-top:30px;">
 	<div style="font-size:25px;margin-bottom:10px;"><b><u>Bio</u></b></div>
 	<div style="width:57%;text-align:right;margin-bottom:10px;"><b>Name:</b><input placeholder="name" style="margin-left:5px;" type="text" id="name" value="[name]"></div>
 	<div style="width:57%;text-align:right;margin-bottom:10px;"><b>Phone Number:</b><input placeholder="Phone Number" style="margin-left:5px;" type="text" id="primary_phone_number" value="[primary_phone_number]"></div>
 	<div style="width:57%;text-align:right;margin-bottom:10px;"><b>Email Address:</b><input placeholder="Email Address" style="margin-left:5px;" type="text" id="primary_email" value="[primary_email]"></div>
 	<div style="width:57%;text-align:right;margin-bottom:10px;"><b>Business Name:</b><input placeholder="Business Name" style="margin-left:5px;" type="text" id="business_name" value="[business_name]"></div>
 	<div style="width:57%;text-align:right;margin-bottom:10px;"><b>Education:</b><div placeholder="Education" style="display:inline-block;margin-left:5px;">[education]</div></div>
-	<div style="text-align:center;margin-bottom:10px;"><b>About Me:</b><br><textarea id="about_me" rows="4" cols="50">[about_me]</textarea></div>
+	<div style="text-align:center;margin-bottom:10px;"><b>About Me:</b><br><textarea style="border-radius:7px;"id="about_me" rows="4" cols="50">[about_me]</textarea></div>
 	<div style="margin-bottom:10px;"><b>Emergency Contact Info:</b></div>
 	<div style="margin-left:30%;">
 	 <div style="float: left; width: 200px;"><b>Name:</b></div>
@@ -25,12 +25,20 @@
 	 <div style="float: left; width: 224px;"><b>Phone Number:</b></div>
 	</div><br>
 	<div id="eci">[emergency_contact_info]</div>
-	<div style="text-align:center;"><button onclick="save();">Save</button></div>
+	<div style="text-align:center;"><button style="border: 1px solid #827f7f;" class="btn btn-light" onclick="save();">Save</button></div>
 	<input type="hidden" id="application_id" value="[application_id]">
 	</div>
 </body>
 </html>
 <style>
+body
+{
+	background-image: url('images/olia-gozha-J4kK8b9Fgj8-unsplash.jpg');
+	background-repeat: no-repeat;
+	background-size: 100%;
+	font-family:serif;
+	font-size:16px;
+}
 .eci_row
 {
 	margin-bottom:5px;

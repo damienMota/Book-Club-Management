@@ -39,7 +39,7 @@
 		</div>
 		<div class="row">
 			<div class="col-md-12">
-				<button class="btn btn-default" id="sig-clearBtn">Clear Signature</button>
+				<button style="border: 1px solid #827f7f;" class="btn btn-light" id="sig-clearBtn">Clear Signature</button>
 			</div>
 		</div>
 		<br/>
@@ -52,16 +52,25 @@
 			<br/>
 		</div>
 	</div>
-	<button style="margin-top:15px;"class="btn btn-primary" id="sig-submitBtn">Submit</button>
+	<button style="margin-top:15px;border: 1px solid #827f7f;" class="btn btn-light" id="sig-submitBtn">Submit</button>
 	
 </body>
 </html>
 <style>
+body
+{
+	background-image: url('images/sincerely-media-iNyIdlLC0o8-unsplash.jpg');
+	background-repeat: no-repeat;
+	background-size: 100%;
+	font-family:serif;
+	font-size:16px;
+}
 #sig-canvas
 {
   border: 2px dotted #CCCCCC;
   border-radius: 15px;
   cursor: crosshair;
+  background: #efefef;
 }
 </style>
 <script>
