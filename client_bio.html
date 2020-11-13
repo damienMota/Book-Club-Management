@@ -25,7 +25,7 @@
 	 <div style="float: left; width: 224px;"><b>Phone Number:</b></div>
 	</div><br>
 	<div id="eci">[emergency_contact_info]</div>
-	<div style="text-align:center;"><button style="border: 1px solid #827f7f;" class="btn btn-light" onclick="save();">Save</button></div>
+	<div style="text-align:center;margin-top:20px;"><button style="border: 1px solid #827f7f;" class="btn btn-light" onclick="save();">Save</button></div>
 	<input type="hidden" id="application_id" value="[application_id]">
 	</div>
 </body>
@@ -166,7 +166,13 @@ function save()
 			data:{action:"submit_bio",application_id:$("#application_id").val(),name:$("#name").val(),primary_phone_number:$("#primary_phone_number").val(),primary_email:$("#primary_email").val(),busines_name:$("#business_name").val(),client_education:client_education_info,about_me:$("#about_me").val(),eci_name:client_eci_name,eci_email:client_eci_email,eci_phone_number:client_eci_phone_number},
 			success: function(data)
 			{
-				Swal.fire({html:'Bio Updated', icon:'success'});
+				Swal.fire({html:'Application Saved Successfully.', icon:'success'}).then(function()
+				{
+					var url = window.location.href;
+					newUrl = url.replace("?page=bio", "?page=agr");
+					window.history.pushState('', '', newUrl);
+					location.reload();	
+				});
 			}
 		});
 	}

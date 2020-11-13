@@ -47,16 +47,16 @@
   </div> 
 </div>
 </div>
-<div id="initiatePage">
+<div id="initiatePage" style="font-size:16px;">
 	<div style="text-align:center;font-size:35px;">Initiate Application</div>
 	<div style="text-align:right;margin-top:50px;width:58%;"><label style="margin-right:10px;"><b>First Name:</b></label><input id="first_name" type="text"></div>
 	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Last Name:</b></label><input id="last_name" type="text"></div>
 	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Phone Number:</b></label><input id="primary_phone_number" type="text">		</div>
 	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Email:</b></label><input id="primary_email" type="text"></div>
-	<div style="text-align:center;margin-top:20px"><button class="btn btn-light" onclick="initiateNewApplicant();">Initiate</button></div>
-	<div style="text-align:center;margin-top:20px"><button class="btn btn-light" id="cancel">Cancel</button></div>
+	<div style="text-align:center;margin-top:20px"><button style="font-size:16px;" class="btn btn-light" onclick="initiateNewApplicant();">Initiate</button></div>
+	<div style="text-align:center;margin-top:20px"><button style="font-size:16px;" class="btn btn-light" id="cancel">Cancel</button></div>
 </div>
-<div id="editPage">
+<div id="editPage" style="font-size:16px;">
 	<div style="text-align:center;font-size:35px;">Edit Application</div>
 	<div style="text-align:right;margin-top:50px;width:58%;"><label style="margin-right:10px;"><b>Name:</b></label><input id="edit_name" type="text"></div>
 	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Phone Number:</b></label><input id="edit_primary_phone_number" type="text"></div>
@@ -66,13 +66,13 @@
 	<input type="hidden" id="application_id">
 	<div id="applicationPDF"></div>
 	<div style="text-align:center;">
-	<div style="text-align:center;margin-top:20px;display:inline-block;"><button onclick="saveApplication();">Save Application</button></div>
-	<div style="text-align:center;margin-top:20px;display:inline-block;" id="markAppComp"><button onclick="markApplicationComplete();">Mark Complete</button></div>
-	<div style="text-align:center;margin-top:20px;display:inline-block;" id="markAppIncomp"><button onclick="markApplicationIncomplete();">Mark Incomplete</button></div>
+	<div style="text-align:center;margin-top:20px;display:inline-block;"><button style="font-size:16px;" onclick="saveApplication();">Save Application</button></div>
+	<div style="text-align:center;margin-top:20px;display:inline-block;" id="markAppComp"><button style="font-size:16px;"onclick="markApplicationComplete();">Mark Complete</button></div>
+	<div style="text-align:center;margin-top:20px;display:inline-block;" id="markAppIncomp"><button style="font-size:16px;" onclick="markApplicationIncomplete();">Mark Incomplete</button></div>
 	<!-- Trigger the modal with a button -->
-	<div style="text-align:center;margin-top:20px;display:inline-block;"><button id="returnApplication" type="button" data-toggle="modal" data-target="#myModal">Return Application</button></div>
+	<div style="text-align:center;margin-top:20px;display:inline-block;"><button style="font-size:16px;" id="returnApplication" type="button" data-toggle="modal" data-target="#myModal">Return Application</button></div>
 	</div>
-	<div style="text-align:center;margin-top:20px"><button id="cancelEdit">Cancel</button></div>
+	<div style="text-align:center;margin-top:20px;padding-bottom:30px;"><button style="font-size:16px;" id="cancelEdit">Cancel</button></div>
 	<!-- Modal -->
 	<div class="modal fade" id="myModal" role="dialog">
 	<div class="modal-dialog">
@@ -115,6 +115,7 @@ body
 	background-repeat: no-repeat;
 	background-size: 100%;
 	font-family:serif;
+
 }
 table, th, td 
 {
@@ -125,11 +126,11 @@ th,td
 	width:100px;
 	text-align:center;
 }
-.editUser
+[class^="editUser"]
 {
 	background: #b8d1f3 !important;
 }
-.editUser:hover 
+[class^="editUser"]:hover 
 {
 	background-color: #ffff99 !important;
 	cursor: pointer;
@@ -239,7 +240,7 @@ function submittedTable()
 				},
 			]
 			});
-			$('.editUser').click(function()
+			$('.editUser_S').click(function()
 			{
 				var userInfo = dataTable.row(this).data();
 				editUser(userInfo);
@@ -271,9 +272,13 @@ function completedTable()
 					"targets": [10],
 					"visible": false,
 				},
+				{
+					"targets": [11],
+					"visible": false,
+				},
 			]
 			});
-			$('.editUser').click(function()
+			$('.editUser_C').click(function()
 			{
 				var userInfo = dataTable.row(this).data();
 				editUser(userInfo);
@@ -312,7 +317,7 @@ function initiateApplication()
 }
 function editUser(userInfo)
 {
-	console.log("do");
+	console.log("hello");
 	$("#editPage").show();
 	$("#landingPage").hide();
 	
@@ -330,7 +335,7 @@ function editUser(userInfo)
 	$("#edit_primary_phone_number").val(userInfo[2]);
 	$("#edit_primary_email").val(userInfo[3]);
 	$("#edit_business_name").val(userInfo[6]);
-	$("#client_URN").val(userInfo[8]);
+	$("#client_URN").val(userInfo[9]);
 	$("#application_id").val(userInfo[0]);
 	$.ajax
 	({

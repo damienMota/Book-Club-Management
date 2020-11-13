@@ -12,6 +12,7 @@ else
 	$tempUrl = explode("?page=",$_SERVER["REQUEST_URI"]); //url if not selected from navigation bar
 	$tempUrl2 = explode(substr($tempUrl[1],0,3),$tempUrl[1]); //url selected if selected from navigation bar
 	$page = substr($tempUrl[1],0,3);
+	error_log($page);
 	$url = '';
 
 	if($page != "bio" && $page != "agr" && $page != "rev")
@@ -358,8 +359,9 @@ else
 						$repl = array($row["application_id"]);
 						$return = str_replace($find,$repl,file_get_contents("client_review.html"));
 					}
-					elseif($row["application_status"] == "submitted" || $row["application_status"] == "completed")
+					else
 					{
+						error_log("1");
 						$tempReferenceNumber = "000".$row["reference_number"];
 						$referenceNumber = "";
 						$counter = 0;

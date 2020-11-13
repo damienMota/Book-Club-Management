@@ -52,7 +52,7 @@
 			<br/>
 		</div>
 	</div>
-	<button style="margin-top:15px;border: 1px solid #827f7f;" class="btn btn-light" id="sig-submitBtn">Submit</button>
+	<div style="padding-bottom:30px;"><button style="margin-top:15px;border: 1px solid #827f7f;" class="btn btn-light" id="sig-submitBtn">Submit</button></div>
 	
 </body>
 </html>
@@ -149,7 +149,13 @@ function submit(base64)
 				data:{action:"submit_agreement",application_id:$("#application_id").val(),signatorName:$("#signatorName").val(),signedDate:$("#signedDate").val(),signatorBase64:signatorDataUrl[1],signatorDecision:"signNow"},
 				success: function(data)
 				{
-					location.reload();
+					Swal.fire({html:'Application Saved Successfully.', icon:'success'}).then(function()
+					{
+						var url = window.location.href;
+						newUrl = url.replace("?page=agr", "?page=rev");
+						window.history.pushState('', '', newUrl);
+						location.reload();	
+					});
 				}
 			});
 		}
@@ -162,7 +168,13 @@ function submit(base64)
 				data:{action:"submit_agreement",application_id:$("#application_id").val(),signatorName:$("#signatorName").val(),signedDate:$("#signedDate").val(),signatorDecision:"printSignLater"},
 				success: function(data)
 				{
-					location.reload();
+					Swal.fire({html:'Application Saved Successfully.', icon:'success'}).then(function()
+					{
+						var url = window.location.href;
+						newUrl = url.replace("?page=agr", "?page=rev");
+						window.history.pushState('', '', newUrl);
+						location.reload();	
+					});
 				}
 			});
 		}

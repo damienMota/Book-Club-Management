@@ -105,7 +105,7 @@
 			{
 				if($rowSubmitted["application_status"] == "submitted")
 				{
-					$ret .= '<tr style="font-family:16px;" class="editUser">';
+					$ret .= '<tr style="font-family:16px;" class="editUser_S">';
 					$application_id = "";
 					foreach($rowSubmitted as $key => $item)
 					{
@@ -184,7 +184,7 @@
 			{
 				if($rowCompleted["application_status"] == "completed")
 				{
-					$ret .= '<tr style="font-family:16px;" class="editUser">';
+					$ret .= '<tr style="font-family:16px;" class="editUser_C">';
 					$application_id = "";
 					foreach($rowCompleted as $key => $item)
 					{
@@ -297,7 +297,7 @@
 			$email = $_POST["primary_email"];
 			$subject = 'Test Subject';
 			$validation_code = mt_rand(100000, 999999); 
-			$client_URN = substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()'),1,16);
+			$client_URN = substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'),1,16);
 			//Building Prepared Statement for Insert into table application_main//
 			$insertName = mysqli_real_escape_string($conn, $name);
 			$insertPrimaryPhone = mysqli_real_escape_string($conn, $_POST["primary_phone_number"]);
