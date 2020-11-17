@@ -1,0 +1,16 @@
+//Initiating Application & Returning an Application// (Test)
+- client URN is being tampered with. Need to figure out if Mysqli can't take certain characters or whats breaking the URN. 
+	4lhfWQsYue%5ERv5P9 --> email
+	4lhfWQsYue^Rv5P9 --> database
+	4lhfWQsYue^Rv5P9 --> edit page
+
+///Edit Page/// (Tested && Ready)
+- I believe the edit page is getting triggered twice anytime it loads.
+
+///Finalized Page/// (Completed)
+- Need to add some quote.
+
+///Client Application/// (Test)
+- Need to add a function that reloactes client pages to the following pages.
+//Application Submission/// (Test)
+- After submitting an application the review page needs to turn into the reference number page.
