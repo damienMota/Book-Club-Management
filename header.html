@@ -7,9 +7,9 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 </head>
 <div style="text-align:center;padding-top:20px;">
-	<div style="display:inline-block;"><button style="width:100px;border: 1px solid #d9d9d9;border-radius:15px;" class="btn btn-outline-light" onclick="bio()">Bio</button></div><div style="margin-left:5px;width:50px;display:inline-block;border-bottom:1px solid #d9d9d9;"></div>
-	<div style="display:inline-block;"><button style="width:100px;border: 1px solid #d9d9d9;border-radius:15px;" class="btn btn-outline-light" onclick="agreement()">Agreement</button></div><div style="margin-left:5px;width:50px;display:inline-block;border-bottom:1px solid #d9d9d9;"></div>
-	<div style="display:inline-block;"><button style="width:100px;border: 1px solid #d9d9d9;border-radius:15px;" class="btn btn-outline-light" onclick="review()">Review</button></div>
+	<div style="display:inline-block;"><button id="bio" style="width:100px;border: 1px solid #d9d9d9;border-radius:15px;" class="btn btn-outline-light" onclick="bio()">Bio</button></div><div style="margin-left:5px;width:50px;display:inline-block;border-bottom:1px solid #d9d9d9;"></div>
+	<div style="display:inline-block;"><button id="agr" style="width:100px;border: 1px solid #d9d9d9;border-radius:15px;" class="btn btn-outline-light" onclick="agreement()">Agreement</button></div><div style="margin-left:5px;width:50px;display:inline-block;border-bottom:1px solid #d9d9d9;"></div>
+	<div style="display:inline-block;"><button id="rev" style="width:100px;border: 1px solid #d9d9d9;border-radius:15px;" class="btn btn-outline-light" onclick="review()">Review</button></div>
 </div>
 <style>
 button:hover{
@@ -19,7 +19,33 @@ button:hover{
 <script>
 $(document).ready(function()
 {
-
+	var url = window.location.href;
+	var splitURL = url.split("?page=");
+	var client_URN = splitURL[1].substring(3)
+	$.ajax
+	({
+		type: "POST",
+		url: "applicationManagement.php",
+		data:{action:"header_validation",client_URN:client_URN},
+		success: function(data)
+		{
+			var data = JSON.parse(data);
+			console.log(data);
+			data.forEach(iterate);
+			
+			function iterate(page)
+			{
+				if(page == "agr")
+				{
+					$('#agr').prop('disabled', true);
+				}
+				if(page == "rev")
+				{
+					$('#rev').prop('disabled', true);
+				}
+			}
+		}
+	});
 });
 function bio()
 {

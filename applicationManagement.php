@@ -445,8 +445,8 @@
 						
 						$email = $row["primary_email"];
 						$name = $row["name"];
-						$find = array("[validation_code]");
-						$repl = array($validation_code);
+						$find = array("[validation_code]","[client_URN]");
+						$repl = array($validation_code,$row["client_URN"]);
 						$fixedTemplate = str_replace($find,$repl,file_get_contents("initiation_email.html"));
 						$body = $fixedTemplate;
 						
@@ -716,35 +716,35 @@
 				$pdf->Cell(15,5,'Name:',0,1,'R');
 				$pdf->SetFont('Arial','',12);
 				$pdf->setXY(86,35);
-				$pdf->Cell(47,5,$row["name"],1,1,'C');
+				$pdf->Cell(55,5,$row["name"],1,1,'C');
 				
 				$pdf->SetFont('Arial','B',12);
 				$pdf->setXY(70,43);
 				$pdf->Cell(15,5,'Phone Number:',0,1,'R');
 				$pdf->SetFont('Arial','',12);
 				$pdf->setXY(86,43);
-				$pdf->Cell(47,5,$row["primary_phone_number"],1,1,'C');
+				$pdf->Cell(55,5,$row["primary_phone_number"],1,1,'C');
 				
 				$pdf->SetFont('Arial','B',12);
 				$pdf->setXY(70,51);
 				$pdf->Cell(15,5,'Email Address:',0,1,'R');
 				$pdf->SetFont('Arial','',12);
 				$pdf->setXY(86,51);
-				$pdf->Cell(47,5,$row["primary_email"],1,1,'L');
+				$pdf->Cell(55,5,$row["primary_email"],1,1,'C');
 				
 				$pdf->SetFont('Arial','B',12);
 				$pdf->setXY(70,59);
 				$pdf->Cell(15,5,'Business Name:',0,1,'R');
 				$pdf->SetFont('Arial','',12);
 				$pdf->setXY(86,59);
-				$pdf->Cell(47,5,$row["business_name"],1,1,'C');
+				$pdf->Cell(55,5,$row["business_name"],1,1,'C');
 				
 				$pdf->SetFont('Arial','B',12);
 				$pdf->setXY(70,67);
 				$pdf->Cell(15,5,'Education:',0,1,'R');
 				$pdf->SetFont('Arial','',12);
 				$pdf->setXY(86,67);
-				$pdf->Cell(47,5,$row["client_education"],1,1,'C');
+				$pdf->Cell(55,5,$row["client_education"],1,1,'C');
 				
 				$pdf->SetFont('Arial','B',12);
 				$pdf->setXY(105,75);
@@ -1110,6 +1110,56 @@
 				mysqli_stmt_bind_param($insertSTMT, "is",$_POST["application_id"],$action);
 				mysqli_stmt_execute($insertSTMT);
 				echo 'success';
+			}
+		}
+	}
+	if(isset($_POST["action"]) && $_POST["action"] == "header_validation")
+	{
+		$sql = "SELECT * FROM application_main where client_URN =?;";
+		$stmt = mysqli_stmt_init($conn);
+		mysqli_stmt_prepare($stmt, $sql);
+		if(!mysqli_stmt_prepare($stmt, $sql))
+		{
+			echo "SQL ERROR";
+		}
+		else
+		{
+			mysqli_stmt_bind_param($stmt, "s",$_POST["client_URN"]);
+			mysqli_stmt_execute($stmt);
+			$result = mysqli_stmt_get_result($stmt);
+					
+			while($row = mysqli_fetch_assoc($result))
+			{
+				$signatorSql = "SELECT * FROM signator_info where application_id =?;";
+				$signatorStmt = mysqli_stmt_init($conn);
+				mysqli_stmt_prepare($signatorStmt, $signatorSql);
+				if(!mysqli_stmt_prepare($signatorStmt, $signatorSql))
+				{
+					echo "SQL ERROR";
+				}
+				else
+				{
+					mysqli_stmt_bind_param($signatorStmt, "i",$row["application_id"]);
+					mysqli_stmt_execute($signatorStmt);
+					$signatorResult = mysqli_stmt_get_result($signatorStmt);
+					
+					while($rowSig = mysqli_fetch_assoc($signatorResult))
+					{
+						if($row["name"] == "" || $row["primary_email"] == "" || $row["primary_phone_number"] == "" || $row["business_name"] == "" || $row["client_education"] == "" || $row["about_me"] == "")
+						{
+							$ret = array("agr","rev");
+						}
+						elseif($rowSig["signedDate"] == "" || $rowSig["signatorName"] == "" || $rowSig["signatorDecision"] == "")
+						{
+							$ret = array("rev");
+						}
+						else
+						{
+							$ret = array("success");
+						}
+						echo json_encode($ret);
+					}
+				}
 			}
 		}
 	}

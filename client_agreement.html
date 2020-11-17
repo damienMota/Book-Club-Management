@@ -34,7 +34,7 @@
 		 		<canvas id="sig-canvas" width="620" height="160">
 		 			Get a better browser, bro.
 		 		</canvas>
-				<img style="display:none;" id="sig-image" src="[base64]" alt="Your signature will go here!"/>
+				<img style="display:none;" id="sig-image" src="[base64]" alt="Image goes here"/>
 		 	</div>
 		</div>
 		<div class="row">
@@ -52,7 +52,7 @@
 			<br/>
 		</div>
 	</div>
-	<div style="padding-bottom:30px;"><button style="margin-top:15px;border: 1px solid #827f7f;" class="btn btn-light" id="sig-submitBtn">Submit</button></div>
+	<div style="padding-bottom:30px;"><button style="margin-top:15px;border: 1px solid #827f7f;" class="btn btn-light" id="sig-submitBtn">Save Application</button></div>
 	
 </body>
 </html>
@@ -91,7 +91,10 @@ $(document).ready(function()
 	}
 	
 	canvas();
-	drawImage();
+	if($("#sig-image").attr("src") != "//:0")
+	{
+		drawImage();
+	}
 	if($('input[type=radio][id=signNow]').is(':checked'))
 	{
 		$("#canvasContainer").show();
@@ -118,9 +121,40 @@ function drawImage()
     var ctx = canvas.getContext("2d");
     ctx.drawImage(document.getElementById('sig-image'),0,0);
 }
+function isCanvasBlank(canvas) 
+{
+  const context = canvas.getContext('2d');
+
+  const pixelBuffer = new Uint32Array(
+    context.getImageData(0, 0, canvas.width, canvas.height).data.buffer
+  );
+
+  return !pixelBuffer.some(color => color !== 0);
+}
 function submit(base64)
 {
 	var err = "";
+	canvas = document.getElementById('sig-canvas');
+	$('input[type=text]').each(function()
+	{
+		if($(this).val() == "")
+		{
+			$(this).css("border", "2px solid red");
+		}
+		else
+		{
+			$(this).css("border", "1px solid black");
+		}
+	});
+	if($("input:radio[name='signatorDecision']").is(":checked"))
+	{
+	   $("input:radio[name='signatorDecision']").css("outline", "");
+	}
+	else 
+	{
+	  $("input:radio[name='signatorDecision']").css("outline", "2px solid red");
+	}
+		
 	if($("#signedDate").val() == "")
 	{
 		err += "<br>Signed Date"
@@ -132,6 +166,15 @@ function submit(base64)
 	if(!$('input[type=radio][name=signatorDecision]').is(':checked'))
 	{
 		err += "<br>Signator Decison";
+	}
+	if($('input[name="signatorDecision"]:checked').attr("id") == "signNow" && isCanvasBlank(canvas) == true)
+	{
+		err += "<br> Blank Canvas";
+		$("#sig-canvas").css("border", "2px dotted red");
+	}
+	else
+	{
+		$("#sig-canvas").css("border", "2px dotted #CCCCCC");
 	}
 	if(err != "")
 	{

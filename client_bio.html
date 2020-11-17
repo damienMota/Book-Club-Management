@@ -25,7 +25,7 @@
 	 <div style="float: left; width: 224px;"><b>Phone Number:</b></div>
 	</div><br>
 	<div id="eci">[emergency_contact_info]</div>
-	<div style="text-align:center;margin-top:20px;"><button style="border: 1px solid #827f7f;" class="btn btn-light" onclick="save();">Save</button></div>
+	<div style="text-align:center;margin-top:20px;"><button style="border: 1px solid #827f7f;" class="btn btn-light" onclick="save();">Save Application</button></div>
 	<input type="hidden" id="application_id" value="[application_id]">
 	</div>
 </body>
@@ -88,15 +88,18 @@ function save()
 	{
 		err += '<br>About Me';
 	}
-	if($(".eci_name").val() == "" || $(".eci_email").val() == "" || $(".eci_phone_number").val() == "")
-	{
-		console.log("empty");
-	}
+	
+	// HIGHLIGHT MISSING TEXT FIELDS IN RED //
 	$("#client_education").each(function()
 	{
 		if($(this).val() == 0)
 		{
+			$(this).css("border", "2px solid red");
 			err += '<br>Education';
+		}
+		else
+		{
+			$(this).css("border", "1px solid black");
 		}
 	});
 	var err2 = "";
@@ -107,6 +110,10 @@ function save()
 			$(this).css("border", "2px solid red");
 			err2 += 'err';
 		}
+		else
+		{
+			$(this).css("border", "1px solid black");
+		}
 	});
 	$(".eci_email").each(function()
 	{
@@ -114,6 +121,10 @@ function save()
 		{
 			$(this).css("border", "2px solid red");
 			err2 += 'err';
+		}
+		else
+		{
+			$(this).css("border", "1px solid black");
 		}
 	});
 	$(".eci_phone_number").each(function()
@@ -123,10 +134,34 @@ function save()
 			$(this).css("border", "2px solid red");
 			err2 += 'err';
 		}
+		else
+		{
+			$(this).css("border", "1px solid black");
+		}
 	});
+	$('input[type=text]').each(function()
+	{
+		if($(this).val() == "")
+		{
+			$(this).css("border", "2px solid red");
+		}
+		else
+		{
+			$(this).css("border", "1px solid black");
+		}
+	});
+	if($("#about_me").val() == "")
+	{
+		$("#about_me").css("border", "2px solid red");
+	}
+	else
+	{
+		$("#about_me").css("border", "1px solid black");
+	}
+	
 	if(err2 != '')
 	{
-		err += 'Emergency Contact';
+		err += '<br>Emergency Contact';
 	}
 	if(err != '')
 	{

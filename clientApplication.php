@@ -12,7 +12,6 @@ else
 	$tempUrl = explode("?page=",$_SERVER["REQUEST_URI"]); //url if not selected from navigation bar
 	$tempUrl2 = explode(substr($tempUrl[1],0,3),$tempUrl[1]); //url selected if selected from navigation bar
 	$page = substr($tempUrl[1],0,3);
-	error_log($page);
 	$url = '';
 
 	if($page != "bio" && $page != "agr" && $page != "rev")
@@ -152,7 +151,14 @@ else
 							$replClientAgreement[] = $rowSig["signedDate"];
 							$replClientAgreement[] = $rowSig["signatorName"];
 							$replClientAgreement[] = $signatorDecision;
-							$replClientAgreement[] = 'data:image/png;base64,'.$rowSig["signatorBase64"];
+							if($rowSig["signatorBase64"] == "")
+							{
+								$replClientAgreement[] = "//:0";
+							}
+							else
+							{
+								$replClientAgreement[] = 'data:image/png;base64,'.$rowSig["signatorBase64"];
+							}
 							
 							$find = array("[application_id]","[signedDate]","[signatorName]","[signatorDecision]","[base64]");
 							$return = str_replace($find,$replClientAgreement,file_get_contents("client_agreement.html"));
@@ -171,35 +177,35 @@ else
 						$pdf->Cell(15,5,'Name:',0,1,'R');
 						$pdf->SetFont('Arial','',12);
 						$pdf->setXY(86,35);
-						$pdf->Cell(47,5,$row["name"],1,1,'C');
+						$pdf->Cell(55,5,$row["name"],1,1,'C');
 						
 						$pdf->SetFont('Arial','B',12);
 						$pdf->setXY(70,43);
 						$pdf->Cell(15,5,'Phone Number:',0,1,'R');
 						$pdf->SetFont('Arial','',12);
 						$pdf->setXY(86,43);
-						$pdf->Cell(47,5,$row["primary_phone_number"],1,1,'C');
+						$pdf->Cell(55,5,$row["primary_phone_number"],1,1,'C');
 						
 						$pdf->SetFont('Arial','B',12);
 						$pdf->setXY(70,51);
 						$pdf->Cell(15,5,'Email Address:',0,1,'R');
 						$pdf->SetFont('Arial','',12);
 						$pdf->setXY(86,51);
-						$pdf->Cell(47,5,$row["primary_email"],1,1,'L');
+						$pdf->Cell(55,5,$row["primary_email"],1,1,'C');
 						
 						$pdf->SetFont('Arial','B',12);
 						$pdf->setXY(70,59);
 						$pdf->Cell(15,5,'Business Name:',0,1,'R');
 						$pdf->SetFont('Arial','',12);
 						$pdf->setXY(86,59);
-						$pdf->Cell(47,5,$row["business_name"],1,1,'C');
+						$pdf->Cell(55,5,$row["business_name"],1,1,'C');
 						
 						$pdf->SetFont('Arial','B',12);
 						$pdf->setXY(70,67);
 						$pdf->Cell(15,5,'Education:',0,1,'R');
 						$pdf->SetFont('Arial','',12);
 						$pdf->setXY(86,67);
-						$pdf->Cell(47,5,$row["client_education"],1,1,'C');
+						$pdf->Cell(55,5,$row["client_education"],1,1,'C');
 						
 						$pdf->SetFont('Arial','B',12);
 						$pdf->setXY(105,75);
@@ -361,7 +367,6 @@ else
 					}
 					else
 					{
-						error_log("1");
 						$tempReferenceNumber = "000".$row["reference_number"];
 						$referenceNumber = "";
 						$counter = 0;

@@ -122,9 +122,9 @@ function resendVerificationCode()
 		{
 			if(data == "success")
 			{
-				Swal.fire({html:'Email has been sent out with a new verification code.', icon:'success'}).then(function()
+				Swal.fire({html:'An email has been sent out with a new verification code.', icon:'success'}).then(function()
 				{
-					return;
+					location.reload();
 				});
 			}
 			else
