@@ -31,5 +31,6 @@
  1) Initiate Application still doesn't insert anything on activity log.
  2) Resend Verification Code is now working properly
 		- I believe the issue was that there was other applications with the same info. Going to add a swal to prevent in future cases.
- 3) 
+ 3)Loading the landing page takes about 12 seconds to load. 
+ 4)Activity Log takes about 7 seconds to load.
 

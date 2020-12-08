@@ -187,26 +187,7 @@ function pendingTable()
 		success: function(data)
 		{
 			$("#pendingApplicationsTable").append(data);
-			var dataTable = $("#pendingTable").DataTable({
-				"columnDefs": [
-				{
-					"targets": [7],
-					"visible": false,
-				},
-				{
-					"targets": [9],
-					"visible": false,
-				},
-				{
-					"targets": [10],
-					"visible": false,
-				},
-				{
-					"targets": [11],
-					"visible": false,
-				},
-			]
-			});
+			var dataTable = $("#pendingTable").DataTable();
 		}
 	});
 }
@@ -220,26 +201,7 @@ function submittedTable()
 		success: function(data)
 		{
 			$("#submittedApplicationsTable").append(data);
-			var dataTable = $("#submittedTable").DataTable({
-				"columnDefs": [
-				{
-					"targets": [8],
-					"visible": false,
-				},
-				{
-					"targets": [9],
-					"visible": false,
-				},
-				{
-					"targets": [10],
-					"visible": false,
-				},
-				{
-					"targets": [11],
-					"visible": false,
-				},
-			]
-			});
+			var dataTable = $("#submittedTable").DataTable();
 			$('.editUser_S').click(function()
 			{
 				var userInfo = dataTable.row(this).data();
@@ -258,26 +220,7 @@ function completedTable()
 		success: function(data)
 		{
 			$("#completedApplicationsTable").append(data);
-			var dataTable = $("#completedTable").DataTable({
-				"columnDefs": [
-				{
-					"targets": [8],
-					"visible": false,
-				},
-				{
-					"targets": [9],
-					"visible": false,
-				},
-				{
-					"targets": [10],
-					"visible": false,
-				},
-				{
-					"targets": [11],
-					"visible": false,
-				},
-			]
-			});
+			var dataTable = $("#completedTable").DataTable();
 			$('.editUser_C').click(function()
 			{
 				var userInfo = dataTable.row(this).data();
@@ -300,10 +243,18 @@ function activityLog(applicationId)
 			$("#activityLogTable").append(data);
 			var dataTable = $("#activityTable").DataTable({
 				"order": [[ 2, 'desc' ]],
+				"scrollY": "200px",
+				"scrollCollapse": true,
+				"paging":false,
 			});
 			$(".closeModal").click(function()
 			{
 				$('#activityLog').modal('hide');
+				dataTable.destroy();
+				$("#activityTable").remove();
+			});
+			$('#activityLog').on('hidden.bs.modal', function () 
+			{
 				dataTable.destroy();
 				$("#activityTable").remove();
 			});
@@ -534,11 +485,18 @@ function initiateNewApplicant()
 			data:{action:"initiate_application",first_name:$("#first_name").val(),last_name:$("#last_name").val(),primary_phone_number:$("#primary_phone_number").val(),primary_email:$("#primary_email").val()},
 			success: function(data)
 			{
-				console.log(data);
-				<!-- Swal.fire({html:'Application Initiated', icon:'success'}).then(function() -->
-				<!-- { -->
-					<!-- location.reload(); -->
-				<!-- }); -->
+				if(data == "Error")
+				{
+					Swal.fire({html:'Applicant has an existing application. <br>Please try again. ', icon:'error'});
+				}
+				else
+				{
+					Swal.fire({html:'Application Initiated', icon:'success'}).then(function()
+					{
+						location.reload();
+					});
+				}
+
 			}
 		});	
 	}	

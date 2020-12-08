@@ -3,30 +3,29 @@
 	require('fpdf.php');
 	$conn = mysqli_connect('localhost', 'damien', 'Oimadi*1', 'application_management');
 	$sql = "SELECT * FROM application_main;";
-	$sqlHeaders = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'application_main';";
+	
 	//Pending Table//
-	$sqlPending = "SELECT * FROM application_main where application_status = 'pending';";
+	$sqlPending = "SELECT application_id,name,primary_phone_number,primary_email,application_status,business_name,validation_code
+	FROM application_main where application_status = 'pending';";
 	$rsPending = mysqli_query($conn,$sqlPending);
 	//Submitted Table//
-	$sqlSubmitted = "SELECT * FROM application_main where application_status = 'submitted';";
+	$sqlSubmitted = "SELECT application_id,name,primary_phone_number,primary_email,application_status,business_name,reference_number
+	FROM application_main where application_status = 'submitted';";
 	$rsSubmitted = mysqli_query($conn,$sqlSubmitted);
 	//Completed Table//
-	$sqlCompleted = "SELECT * FROM application_main where application_status = 'completed';";
+	$sqlCompleted = "SELECT application_id,name,primary_phone_number,primary_email,application_status,business_name,reference_number
+	FROM application_main where application_status = 'completed';";
 	$rsCompleted = mysqli_query($conn,$sqlCompleted);
-	$rs = mysqli_query($conn,$sql);
-	$rsHeaders = mysqli_query($conn,$sqlHeaders);
+	
 	if($_POST["action"] == "pending_table")
 	{
+		$header = array("application id","name","primary phone number","primary email","activity log","application status","business name","validation code");
 		if(mysqli_num_rows($rsPending) == 0)
 		{
 			$ret = '<table style="width:100%;" id="pendingTable"><thead style="background-color:#D9DEDE;"><tr>';
-			while($rowNum0 = mysqli_fetch_assoc($rsHeaders))
+			foreach($header as $fixedHeader)
 			{
-				foreach($rowNum0 as $header)
-				{
-					$fixedHeader = str_replace("_"," ",$header);
-					$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
-				}
+				$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
 			}
 			$ret .= '</tr></thead></table>';
 			echo $ret;
@@ -34,15 +33,12 @@
 		else
 		{
 			$ret = '<table style="width:100%;" id="pendingTable"><thead style="background-color:#D9DEDE;"><tr>';
-			for($i=0;$i<mysqli_num_fields($rs);$i++)
+	
+			foreach($header as $fixedHeader)
 			{
-				$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
 				$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
-				if($fixedHeader == "primary email")
-				{
-					$ret .= '<th>Activity Log</th>';
-				}
 			}
+
 			$ret .= '</tr></thead>';
 			while($rowPending = mysqli_fetch_assoc($rsPending))
 			{
@@ -70,20 +66,13 @@
 	}
 	if($_POST["action"] == "submitted_table")
 	{
+		$header = array("application id","name","primary phone number","primary email","activity log","application status","business name","reference number");
 		if(mysqli_num_rows($rsSubmitted) == 0)
 		{
 			$ret = '<table style="width:100%;" id="submittedTable"><thead style="background-color:#D9DEDE;"><tr>';
-			while($rowNum0 = mysqli_fetch_assoc($rsHeaders))
+			foreach($header as $fixedHeader)
 			{
-				foreach($rowNum0 as $header)
-				{
-					$fixedHeader = str_replace("_"," ",$header);
-					$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
-					if($fixedHeader == "primary email")
-					{
-						$ret .= '<th>Activity Log</th>';
-					}
-				}
+				$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
 			}
 			$ret .= '</tr></thead></table>';
 			echo $ret;
@@ -91,14 +80,9 @@
 		else
 		{
 			$ret = '<table style="width:100%;" id="submittedTable"><thead style="background-color:#D9DEDE;"><tr>';
-			for($i=0;$i<mysqli_num_fields($rs);$i++)
+			foreach($header as $fixedHeader)
 			{
-				$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
 				$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
-				if($fixedHeader == "primary email")
-				{
-					$ret .= '<th>Activity Log</th>';
-				}
 			}
 			$ret .= '</tr></thead>';
 			while($rowSubmitted = mysqli_fetch_assoc($rsSubmitted))
@@ -149,20 +133,13 @@
 	}
 	if($_POST["action"] == "completed_table")
 	{
+		$header = array("application id","name","primary phone number","primary email","activity log","application status","business name","reference number");
 		if(mysqli_num_rows($rsCompleted) == 0)
 		{
 			$ret = '<table style="width:100%;" id="completedTable"><thead style="background-color:#D9DEDE;"><tr>';
-			while($rowNum0 = mysqli_fetch_assoc($rsHeaders))
+			foreach($header as $fixedHeader)
 			{
-				foreach($rowNum0 as $header)
-				{
-					$fixedHeader = str_replace("_"," ",$header);
-					$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
-					if($fixedHeader == "primary email")
-					{
-						$ret .= '<th>Activity Log</th>';
-					}
-				}
+				$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
 			}
 			$ret .= '</tr></thead></table>';
 			echo $ret;
@@ -170,14 +147,9 @@
 		else
 		{
 			$ret = '<table style="width:100%;" id="completedTable"><thead style="background-color:#D9DEDE;"><tr>';
-			for($i=0;$i<mysqli_num_fields($rs);$i++)
+			foreach($header as $fixedHeader)
 			{
-				$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
 				$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
-				if($fixedHeader == "primary email")
-				{
-					$ret .= '<th>Activity Log</th>';
-				}
 			}
 			$ret .= '</tr></thead>';
 			while($rowCompleted = mysqli_fetch_assoc($rsCompleted))
@@ -228,9 +200,8 @@
 	}
 	if($_POST["action"] == "activity_log")
 	{
-		$sql = "SELECT * FROM activity_log where application_id =?;";
-		$alSQL = "SELECT * FROM activity_log;";
-		$rs = mysqli_query($conn,$alSQL);
+		$sql = "SELECT action,description,time
+		FROM activity_log where application_id =?;";
 		$stmt = mysqli_stmt_init($conn);
 		mysqli_stmt_prepare($stmt, $sql);
 		if(!mysqli_stmt_prepare($stmt, $sql))
@@ -244,17 +215,10 @@
 			$result = mysqli_stmt_get_result($stmt);
 			
 			$ret = '<table style="width:100%;" id="activityTable" style="width:95%;"><thead><tr>';
-			for($i=0;$i<mysqli_num_fields($rs);$i++)
+			$headers = array("action","description","time");
+			foreach($headers as $fixedHeader)
 			{
-				if(mysqli_fetch_field_direct($rs,$i)->name == "application_id")
-				{
-					continue;
-				}
-				else
-				{
-					$fixedHeader = str_replace("_"," ",mysqli_fetch_field_direct($rs,$i)->name);
-					$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
-				}
+				$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
 			}
 			$ret .= '</tr></thead>';
 			while($row = mysqli_fetch_assoc($result))
@@ -292,113 +256,109 @@
 			mysqli_stmt_bind_param($stmt, "sss",$name,$_POST["primary_phone_number"],$_POST["primary_email"]);
 			mysqli_stmt_execute($stmt);
 			$result = mysqli_stmt_get_result($stmt);
-			while($row = mysqli_fetch_assoc($result))
+			$numRows = mysqli_num_rows($result);
+			if($numRows != 0)
 			{
-				if($row["application_id"] != "")
+				$ret = "Error";
+				echo $ret;
+			}
+			else
+			{
+				$action = "Initiated Application";
+				$description = "";
+				
+				$insertSQL = "INSERT INTO activity_log (application_id,action)
+				VALUES (?,?);";
+				$insertSTMT = mysqli_stmt_init($conn);
+				if(!mysqli_stmt_prepare($insertSTMT,$insertSQL))
 				{
-					$ret = "Error the following applicant already exist".$row["application_id"];
-					echo $ret;
+					echo "SQL ERROR";
 				}
 				else
 				{
-					$ret = "No one with that info exists. New user available for creation.";
-					echo $ret;
+					mysqli_stmt_bind_param($insertSTMT, "is",$_POST["application_id"],$action);
+					mysqli_stmt_execute($insertSTMT);
+					
+					$email = $_POST["primary_email"];
+					$subject = 'Test Subject';
+					$validation_code = mt_rand(100000, 999999); 
+					$client_URN = substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'),1,16);
+					// Building Prepared Statement for Insert into table application_main//
+					$insertName = mysqli_real_escape_string($conn, $name);
+					$insertPrimaryPhone = mysqli_real_escape_string($conn, $_POST["primary_phone_number"]);
+					$insertPrimaryEmail = mysqli_real_escape_string($conn, $_POST["primary_email"]);
+					$insertApplicationStatus = mysqli_real_escape_string($conn, "pending");
+					$insertValidationCode = mysqli_real_escape_string($conn, $validation_code);
+					
+					$sql = "INSERT INTO application_main (name,primary_phone_number,primary_email,application_status,validation_code,client_URN)
+							VALUES (?, ?, ?, ?, ?, ?);";
+					$stmt = mysqli_stmt_init($conn);
+					if(!mysqli_stmt_prepare($stmt, $sql))
+					{
+						echo "SQL ERROR";
+					}
+					else
+					{
+						mysqli_stmt_bind_param($stmt, "ssssis", $insertName, $insertPrimaryPhone, $insertPrimaryEmail, $insertApplicationStatus, $insertValidationCode, $client_URN);
+						mysqli_stmt_execute($stmt);
+					}
+					
+					// Formatting for PHP Mailer//		
+					$find = array("[validation_code]","[application_id]","[client_URN]");
+					$appId = mysqli_insert_id($conn);
+					// INSERT APPLICATION ID FOR SIGNATOR_INFO TABLE
+					$sqlSI = "INSERT INTO signator_info (application_id)
+							VALUES (?);";
+					$stmtSI = mysqli_stmt_init($conn);
+					if(!mysqli_stmt_prepare($stmtSI, $sqlSI))
+					{
+						echo "SQL ERROR";
+					}
+					else
+					{
+						mysqli_stmt_bind_param($stmtSI, "i", $appId);
+						mysqli_stmt_execute($stmtSI);
+					}
+					$repl = array($validation_code,$appId,$client_URN);
+					$fixedTemplate = str_replace($find,$repl,file_get_contents("initiation_email.html"));
+					$body = $fixedTemplate;
+					
+					require_once "PHPMailer/PHPMailer.php";
+					require_once "PHPMailer/SMTP.php";
+					require_once "PHPMailer/Exception.php";
+
+					$mail = new PHPMailer();
+
+					// smtp settings
+					$mail->isSMTP();
+					$mail->Host = "smtp.gmail.com";
+					$mail->SMTPAuth = true;
+					$mail->Username = "mota.damien@gmail.com";
+					$mail->Password = 'damienab';
+					$mail->Port = 465;
+					$mail->SMTPSecure = "ssl";
+
+					// email settings
+					$mail->isHTML(true);
+					$mail->setFrom($email, $name);
+					$mail->addAddress($email);
+					$mail->Subject = ("Application Initiated for: ".$name);
+					$mail->Body = $body;
+
+					if($mail->send()){
+						$status = "success";
+						$response = "Email is sent!";
+					}
+					else
+					{
+						$status = "failed";
+						$response = "Something is wrong: <br>" . $mail->ErrorInfo;
+					}
+					echo $status;
 				}
 			}
 		}
-		// $action = "Initiated Application";
-		// $description = "";
-		
-		// $insertSQL = "INSERT INTO activity_log (application_id,action)
-		// VALUES (?,?);";
-		// $insertSTMT = mysqli_stmt_init($conn);
-		// if(!mysqli_stmt_prepare($insertSTMT,$insertSQL))
-		// {
-			// echo "SQL ERROR";
-		// }
-		// else
-		// {
-			// mysqli_stmt_bind_param($insertSTMT, "is",$_POST["application_id"],$action);
-			// mysqli_stmt_execute($insertSTMT);
-			
-			
-			// $email = $_POST["primary_email"];
-			// $subject = 'Test Subject';
-			// $validation_code = mt_rand(100000, 999999); 
-			// $client_URN = substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'),1,16);
-			// Building Prepared Statement for Insert into table application_main//
-			// $insertName = mysqli_real_escape_string($conn, $name);
-			// $insertPrimaryPhone = mysqli_real_escape_string($conn, $_POST["primary_phone_number"]);
-			// $insertPrimaryEmail = mysqli_real_escape_string($conn, $_POST["primary_email"]);
-			// $insertApplicationStatus = mysqli_real_escape_string($conn, "pending");
-			// $insertValidationCode = mysqli_real_escape_string($conn, $validation_code);
-			
-			// $sql = "INSERT INTO application_main (name,primary_phone_number,primary_email,application_status,validation_code,client_URN)
-					// VALUES (?, ?, ?, ?, ?, ?);";
-			// $stmt = mysqli_stmt_init($conn);
-			// if(!mysqli_stmt_prepare($stmt, $sql))
-			// {
-				// echo "SQL ERROR";
-			// }
-			// else
-			// {
-				// mysqli_stmt_bind_param($stmt, "ssssis", $insertName, $insertPrimaryPhone, $insertPrimaryEmail, $insertApplicationStatus, $insertValidationCode, $client_URN);
-				// mysqli_stmt_execute($stmt);
-			// }
-			
-			// Formatting for PHP Mailer//		
-			// $find = array("[validation_code]","[application_id]","[client_URN]");
-			// $appId = mysqli_insert_id($conn);
-			// INSERT APPLICATION ID FOR SIGNATOR_INFO TABLE
-			// $sqlSI = "INSERT INTO signator_info (application_id)
-					// VALUES (?);";
-			// $stmtSI = mysqli_stmt_init($conn);
-			// if(!mysqli_stmt_prepare($stmtSI, $sqlSI))
-			// {
-				// echo "SQL ERROR";
-			// }
-			// else
-			// {
-				// mysqli_stmt_bind_param($stmtSI, "i", $appId);
-				// mysqli_stmt_execute($stmtSI);
-			// }
-			// $repl = array($validation_code,$appId,$client_URN);
-			// $fixedTemplate = str_replace($find,$repl,file_get_contents("initiation_email.html"));
-			// $body = $fixedTemplate;
-			
-			// require_once "PHPMailer/PHPMailer.php";
-			// require_once "PHPMailer/SMTP.php";
-			// require_once "PHPMailer/Exception.php";
 
-			// $mail = new PHPMailer();
-
-			// smtp settings
-			// $mail->isSMTP();
-			// $mail->Host = "smtp.gmail.com";
-			// $mail->SMTPAuth = true;
-			// $mail->Username = "mota.damien@gmail.com";
-			// $mail->Password = 'damienab';
-			// $mail->Port = 465;
-			// $mail->SMTPSecure = "ssl";
-
-			// email settings
-			// $mail->isHTML(true);
-			// $mail->setFrom($email, $name);
-			// $mail->addAddress($email);
-			// $mail->Subject = ("Application Initiated for: ".$name);
-			// $mail->Body = $body;
-
-			// if($mail->send()){
-				// $status = "success";
-				// $response = "Email is sent!";
-			// }
-			// else
-			// {
-				// $status = "failed";
-				// $response = "Something is wrong: <br>" . $mail->ErrorInfo;
-			// }
-			// echo $status;
-		// }
 	}
 	if($_POST["action"] == "submit_verification_code")
 	{
