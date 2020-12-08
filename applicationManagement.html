@@ -143,6 +143,7 @@ th,td
 <script>
 $(document).ready(function()
 {
+	$("body").append('<div class="spinner-border"></div>');
 	pendingTable();
 	submittedTable();
 	completedTable();
@@ -243,9 +244,7 @@ function activityLog(applicationId)
 			$("#activityLogTable").append(data);
 			var dataTable = $("#activityTable").DataTable({
 				"order": [[ 2, 'desc' ]],
-				"scrollY": "200px",
-				"scrollCollapse": true,
-				"paging":false,
+				"pageLength": 5
 			});
 			$(".closeModal").click(function()
 			{

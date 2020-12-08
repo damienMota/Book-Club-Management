@@ -214,7 +214,7 @@
 			mysqli_stmt_execute($stmt);
 			$result = mysqli_stmt_get_result($stmt);
 			
-			$ret = '<table style="width:100%;" id="activityTable" style="width:95%;"><thead><tr>';
+			$ret = '<table id="activityTable"><thead><tr>';
 			$headers = array("action","description","time");
 			foreach($headers as $fixedHeader)
 			{
