@@ -317,7 +317,6 @@ function initiateApplication()
 }
 function editUser(userInfo)
 {
-	console.log("hello");
 	$("#editPage").show();
 	$("#landingPage").hide();
 	
@@ -535,10 +534,11 @@ function initiateNewApplicant()
 			data:{action:"initiate_application",first_name:$("#first_name").val(),last_name:$("#last_name").val(),primary_phone_number:$("#primary_phone_number").val(),primary_email:$("#primary_email").val()},
 			success: function(data)
 			{
-				Swal.fire({html:'Application Initiated', icon:'success'}).then(function()
-				{
-					location.reload();
-				});
+				console.log(data);
+				<!-- Swal.fire({html:'Application Initiated', icon:'success'}).then(function() -->
+				<!-- { -->
+					<!-- location.reload(); -->
+				<!-- }); -->
 			}
 		});	
 	}	

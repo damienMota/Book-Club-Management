@@ -278,99 +278,127 @@
 	}
 	if($_POST["action"] == "initiate_application")
 	{
-		$action = "Initiated Application";
-		$description = "";
-		
-		$insertSQL = "INSERT INTO activity_log (application_id,action)
-		VALUES (?,?);";
-		$insertSTMT = mysqli_stmt_init($conn);
-		if(!mysqli_stmt_prepare($insertSTMT,$insertSQL))
+		$name = $_POST["first_name"].' '.$_POST["last_name"];
+		$sql = "SELECT application_id FROM application_main where name=? or primary_phone_number=? or primary_email=?";
+		$rs = mysqli_query($conn,$sql);
+		$stmt = mysqli_stmt_init($conn);
+		mysqli_stmt_prepare($stmt, $sql);
+		if(!mysqli_stmt_prepare($stmt, $sql))
 		{
 			echo "SQL ERROR";
 		}
 		else
 		{
-			mysqli_stmt_bind_param($insertSTMT, "is",$_POST["application_id"],$action);
-			mysqli_stmt_execute($insertSTMT);
-			
-			$name = $_POST["first_name"].' '.$_POST["last_name"];
-			$email = $_POST["primary_email"];
-			$subject = 'Test Subject';
-			$validation_code = mt_rand(100000, 999999); 
-			$client_URN = substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'),1,16);
-			//Building Prepared Statement for Insert into table application_main//
-			$insertName = mysqli_real_escape_string($conn, $name);
-			$insertPrimaryPhone = mysqli_real_escape_string($conn, $_POST["primary_phone_number"]);
-			$insertPrimaryEmail = mysqli_real_escape_string($conn, $_POST["primary_email"]);
-			$insertApplicationStatus = mysqli_real_escape_string($conn, "pending");
-			$insertValidationCode = mysqli_real_escape_string($conn, $validation_code);
-			
-			$sql = "INSERT INTO application_main (name,primary_phone_number,primary_email,application_status,validation_code,client_URN)
-					VALUES (?, ?, ?, ?, ?, ?);";
-			$stmt = mysqli_stmt_init($conn);
-			if(!mysqli_stmt_prepare($stmt, $sql))
+			mysqli_stmt_bind_param($stmt, "sss",$name,$_POST["primary_phone_number"],$_POST["primary_email"]);
+			mysqli_stmt_execute($stmt);
+			$result = mysqli_stmt_get_result($stmt);
+			while($row = mysqli_fetch_assoc($result))
 			{
-				echo "SQL ERROR";
+				if($row["application_id"] != "")
+				{
+					$ret = "Error the following applicant already exist".$row["application_id"];
+					echo $ret;
+				}
+				else
+				{
+					$ret = "No one with that info exists. New user available for creation.";
+					echo $ret;
+				}
 			}
-			else
-			{
-				mysqli_stmt_bind_param($stmt, "ssssis", $insertName, $insertPrimaryPhone, $insertPrimaryEmail, $insertApplicationStatus, $insertValidationCode, $client_URN);
-				mysqli_stmt_execute($stmt);
-			}
-			
-			//Formatting for PHP Mailer//		
-			$find = array("[validation_code]","[application_id]","[client_URN]");
-			$appId = mysqli_insert_id($conn);
-			//INSERT APPLICATION ID FOR SIGNATOR_INFO TABLE
-			$sqlSI = "INSERT INTO signator_info (application_id)
-					VALUES (?);";
-			$stmtSI = mysqli_stmt_init($conn);
-			if(!mysqli_stmt_prepare($stmtSI, $sqlSI))
-			{
-				echo "SQL ERROR";
-			}
-			else
-			{
-				mysqli_stmt_bind_param($stmtSI, "i", $appId);
-				mysqli_stmt_execute($stmtSI);
-			}
-			$repl = array($validation_code,$appId,$client_URN);
-			$fixedTemplate = str_replace($find,$repl,file_get_contents("initiation_email.html"));
-			$body = $fixedTemplate;
-			
-			require_once "PHPMailer/PHPMailer.php";
-			require_once "PHPMailer/SMTP.php";
-			require_once "PHPMailer/Exception.php";
-
-			$mail = new PHPMailer();
-
-			//smtp settings
-			$mail->isSMTP();
-			$mail->Host = "smtp.gmail.com";
-			$mail->SMTPAuth = true;
-			$mail->Username = "mota.damien@gmail.com";
-			$mail->Password = 'damienab';
-			$mail->Port = 465;
-			$mail->SMTPSecure = "ssl";
-
-			//email settings
-			$mail->isHTML(true);
-			$mail->setFrom($email, $name);
-			$mail->addAddress($email);
-			$mail->Subject = ("Application Initiated for: ".$name);
-			$mail->Body = $body;
-
-			if($mail->send()){
-				$status = "success";
-				$response = "Email is sent!";
-			}
-			else
-			{
-				$status = "failed";
-				$response = "Something is wrong: <br>" . $mail->ErrorInfo;
-			}
-			echo $status;
 		}
+		// $action = "Initiated Application";
+		// $description = "";
+		
+		// $insertSQL = "INSERT INTO activity_log (application_id,action)
+		// VALUES (?,?);";
+		// $insertSTMT = mysqli_stmt_init($conn);
+		// if(!mysqli_stmt_prepare($insertSTMT,$insertSQL))
+		// {
+			// echo "SQL ERROR";
+		// }
+		// else
+		// {
+			// mysqli_stmt_bind_param($insertSTMT, "is",$_POST["application_id"],$action);
+			// mysqli_stmt_execute($insertSTMT);
+			
+			
+			// $email = $_POST["primary_email"];
+			// $subject = 'Test Subject';
+			// $validation_code = mt_rand(100000, 999999); 
+			// $client_URN = substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'),1,16);
+			// Building Prepared Statement for Insert into table application_main//
+			// $insertName = mysqli_real_escape_string($conn, $name);
+			// $insertPrimaryPhone = mysqli_real_escape_string($conn, $_POST["primary_phone_number"]);
+			// $insertPrimaryEmail = mysqli_real_escape_string($conn, $_POST["primary_email"]);
+			// $insertApplicationStatus = mysqli_real_escape_string($conn, "pending");
+			// $insertValidationCode = mysqli_real_escape_string($conn, $validation_code);
+			
+			// $sql = "INSERT INTO application_main (name,primary_phone_number,primary_email,application_status,validation_code,client_URN)
+					// VALUES (?, ?, ?, ?, ?, ?);";
+			// $stmt = mysqli_stmt_init($conn);
+			// if(!mysqli_stmt_prepare($stmt, $sql))
+			// {
+				// echo "SQL ERROR";
+			// }
+			// else
+			// {
+				// mysqli_stmt_bind_param($stmt, "ssssis", $insertName, $insertPrimaryPhone, $insertPrimaryEmail, $insertApplicationStatus, $insertValidationCode, $client_URN);
+				// mysqli_stmt_execute($stmt);
+			// }
+			
+			// Formatting for PHP Mailer//		
+			// $find = array("[validation_code]","[application_id]","[client_URN]");
+			// $appId = mysqli_insert_id($conn);
+			// INSERT APPLICATION ID FOR SIGNATOR_INFO TABLE
+			// $sqlSI = "INSERT INTO signator_info (application_id)
+					// VALUES (?);";
+			// $stmtSI = mysqli_stmt_init($conn);
+			// if(!mysqli_stmt_prepare($stmtSI, $sqlSI))
+			// {
+				// echo "SQL ERROR";
+			// }
+			// else
+			// {
+				// mysqli_stmt_bind_param($stmtSI, "i", $appId);
+				// mysqli_stmt_execute($stmtSI);
+			// }
+			// $repl = array($validation_code,$appId,$client_URN);
+			// $fixedTemplate = str_replace($find,$repl,file_get_contents("initiation_email.html"));
+			// $body = $fixedTemplate;
+			
+			// require_once "PHPMailer/PHPMailer.php";
+			// require_once "PHPMailer/SMTP.php";
+			// require_once "PHPMailer/Exception.php";
+
+			// $mail = new PHPMailer();
+
+			// smtp settings
+			// $mail->isSMTP();
+			// $mail->Host = "smtp.gmail.com";
+			// $mail->SMTPAuth = true;
+			// $mail->Username = "mota.damien@gmail.com";
+			// $mail->Password = 'damienab';
+			// $mail->Port = 465;
+			// $mail->SMTPSecure = "ssl";
+
+			// email settings
+			// $mail->isHTML(true);
+			// $mail->setFrom($email, $name);
+			// $mail->addAddress($email);
+			// $mail->Subject = ("Application Initiated for: ".$name);
+			// $mail->Body = $body;
+
+			// if($mail->send()){
+				// $status = "success";
+				// $response = "Email is sent!";
+			// }
+			// else
+			// {
+				// $status = "failed";
+				// $response = "Something is wrong: <br>" . $mail->ErrorInfo;
+			// }
+			// echo $status;
+		// }
 	}
 	if($_POST["action"] == "submit_verification_code")
 	{

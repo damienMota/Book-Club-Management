@@ -1,16 +1,35 @@
-//Initiating Application & Returning an Application// (Test)
-- client URN is being tampered with. Need to figure out if Mysqli can't take certain characters or whats breaking the URN. 
-	4lhfWQsYue%5ERv5P9 --> email
-	4lhfWQsYue^Rv5P9 --> database
-	4lhfWQsYue^Rv5P9 --> edit page
+///Does initiate application send out emails to non personal emails///
+ -- works on local server. Needs testing on live server.
+ 
 
-///Edit Page/// (Tested && Ready)
-- I believe the edit page is getting triggered twice anytime it loads.
+///Landing Page is very slow to load///
+- Need to add spinning wheel if I can't resolve this issue.
 
-///Finalized Page/// (Completed)
-- Need to add some quote.
 
-///Client Application/// (Test)
-- Need to add a function that reloactes client pages to the following pages.
-//Application Submission/// (Test)
-- After submitting an application the review page needs to turn into the reference number page.
+///Need to add spinning wheel on ALL saves///
+
+///Bio doesn't recognize Associates Degree. It saves but doesn't identifiy as that when page loads. ///
+- probably a spelling error.
+
+///Inserts for activity logs work///
+- Initiate doesn't work
+- Submitted Application Works
+- Return Application Works
+- Save Edit Application Works
+- Mark Complete Application Works
+
+///Return Application isn't working///
+- Queries work but nothing, but email,save don't come up.
+
+///Resened Verification Code isn't working///
+- success is returning failed.
+- why is this getting triggered twice
+- it looks like funciton is being called once in javascript. However php is getting triggered twice.
+- I think it's getting triggered twice because I have multiple accounts with the same data.
+
+==== Testing As Above on a cleared Database ======
+ 1) Initiate Application still doesn't insert anything on activity log.
+ 2) Resend Verification Code is now working properly
+		- I believe the issue was that there was other applications with the same info. Going to add a swal to prevent in future cases.
+ 3) 
+
