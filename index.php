@@ -6,6 +6,6 @@ if(!$conn)
 }
 else
 {
-	echo file_get_contents("applicationManagement.html");
+	echo file_get_contents("login.html");
 }
 ?>
