@@ -1,6 +1,10 @@
 <?php
-	use PHPMailer\PHPMailer\PHPMailer;
-	require('fpdf.php');
+session_start();
+use PHPMailer\PHPMailer\PHPMailer;
+require('fpdf.php');
+
+if(isset($_SESSION["user001auth"]) && $_SESSION["user001auth"] == "true")
+{
 	$conn = mysqli_connect('localhost', 'damien', 'Oimadi*1', 'application_management');
 	$sql = "SELECT * FROM application_main;";
 	
@@ -9,11 +13,11 @@
 	FROM application_main where application_status = 'pending';";
 	$rsPending = mysqli_query($conn,$sqlPending);
 	//Submitted Table//
-	$sqlSubmitted = "SELECT application_id,name,primary_phone_number,primary_email,application_status,business_name,reference_number
+	$sqlSubmitted = "SELECT application_id,name,primary_phone_number,primary_email,application_status,business_name,reference_number,client_URN
 	FROM application_main where application_status = 'submitted';";
 	$rsSubmitted = mysqli_query($conn,$sqlSubmitted);
 	//Completed Table//
-	$sqlCompleted = "SELECT application_id,name,primary_phone_number,primary_email,application_status,business_name,reference_number
+	$sqlCompleted = "SELECT application_id,name,primary_phone_number,primary_email,application_status,business_name,reference_number,client_URN
 	FROM application_main where application_status = 'completed';";
 	$rsCompleted = mysqli_query($conn,$sqlCompleted);
 	
@@ -66,7 +70,7 @@
 	}
 	if($_POST["action"] == "submitted_table")
 	{
-		$header = array("application id","name","primary phone number","primary email","activity log","application status","business name","reference number");
+		$header = array("application id","name","primary phone number","primary email","activity log","application status","business name","reference number","client urn");
 		if(mysqli_num_rows($rsSubmitted) == 0)
 		{
 			$ret = '<table style="width:100%;" id="submittedTable"><thead style="background-color:#D9DEDE;"><tr>';
@@ -133,7 +137,7 @@
 	}
 	if($_POST["action"] == "completed_table")
 	{
-		$header = array("application id","name","primary phone number","primary email","activity log","application status","business name","reference number");
+		$header = array("application id","name","primary phone number","primary email","activity log","application status","business name","reference number","client urn");
 		if(mysqli_num_rows($rsCompleted) == 0)
 		{
 			$ret = '<table style="width:100%;" id="completedTable"><thead style="background-color:#D9DEDE;"><tr>';
@@ -266,18 +270,6 @@
 			{
 				$action = "Initiated Application";
 				$description = "";
-				
-				$insertSQL = "INSERT INTO activity_log (application_id,action)
-				VALUES (?,?);";
-				$insertSTMT = mysqli_stmt_init($conn);
-				if(!mysqli_stmt_prepare($insertSTMT,$insertSQL))
-				{
-					echo "SQL ERROR";
-				}
-				else
-				{
-					mysqli_stmt_bind_param($insertSTMT, "is",$_POST["application_id"],$action);
-					mysqli_stmt_execute($insertSTMT);
 					
 					$email = $_POST["primary_email"];
 					$subject = 'Test Subject';
@@ -306,95 +298,71 @@
 					// Formatting for PHP Mailer//		
 					$find = array("[validation_code]","[application_id]","[client_URN]");
 					$appId = mysqli_insert_id($conn);
-					// INSERT APPLICATION ID FOR SIGNATOR_INFO TABLE
-					$sqlSI = "INSERT INTO signator_info (application_id)
-							VALUES (?);";
-					$stmtSI = mysqli_stmt_init($conn);
-					if(!mysqli_stmt_prepare($stmtSI, $sqlSI))
+					
+					$insertSQL = "INSERT INTO activity_log (application_id,action)
+					VALUES (?,?);";
+					$insertSTMT = mysqli_stmt_init($conn);
+					if(!mysqli_stmt_prepare($insertSTMT,$insertSQL))
 					{
 						echo "SQL ERROR";
 					}
 					else
 					{
-						mysqli_stmt_bind_param($stmtSI, "i", $appId);
-						mysqli_stmt_execute($stmtSI);
-					}
-					$repl = array($validation_code,$appId,$client_URN);
-					$fixedTemplate = str_replace($find,$repl,file_get_contents("initiation_email.html"));
-					$body = $fixedTemplate;
-					
-					require_once "PHPMailer/PHPMailer.php";
-					require_once "PHPMailer/SMTP.php";
-					require_once "PHPMailer/Exception.php";
+						mysqli_stmt_bind_param($insertSTMT, "is",$appId,$action);
+						mysqli_stmt_execute($insertSTMT);
+						// INSERT APPLICATION ID FOR SIGNATOR_INFO TABLE
+						$sqlSI = "INSERT INTO signator_info (application_id)
+								VALUES (?);";
+						$stmtSI = mysqli_stmt_init($conn);
+						if(!mysqli_stmt_prepare($stmtSI, $sqlSI))
+						{
+							echo "SQL ERROR";
+						}
+						else
+						{
+							mysqli_stmt_bind_param($stmtSI, "i", $appId);
+							mysqli_stmt_execute($stmtSI);
+						}
+						$repl = array($validation_code,$appId,$client_URN);
+						$fixedTemplate = str_replace($find,$repl,file_get_contents("initiation_email.html"));
+						$body = $fixedTemplate;
+						
+						require_once "PHPMailer/PHPMailer.php";
+						require_once "PHPMailer/SMTP.php";
+						require_once "PHPMailer/Exception.php";
 
-					$mail = new PHPMailer();
+						$mail = new PHPMailer();
 
-					// smtp settings
-					$mail->isSMTP();
-					$mail->Host = "smtp.gmail.com";
-					$mail->SMTPAuth = true;
-					$mail->Username = "mota.damien@gmail.com";
-					$mail->Password = 'damienab';
-					$mail->Port = 465;
-					$mail->SMTPSecure = "ssl";
+						// smtp settings
+						$mail->isSMTP();
+						$mail->Host = "smtp.gmail.com";
+						$mail->SMTPAuth = true;
+						$mail->Username = "mota.damien@gmail.com";
+						$mail->Password = 'damienab';
+						$mail->Port = 465;
+						$mail->SMTPSecure = "ssl";
 
-					// email settings
-					$mail->isHTML(true);
-					$mail->setFrom($email, $name);
-					$mail->addAddress($email);
-					$mail->Subject = ("Application Initiated for: ".$name);
-					$mail->Body = $body;
+						// email settings
+						$mail->isHTML(true);
+						$mail->setFrom($email, $name);
+						$mail->addAddress($email);
+						$mail->Subject = ("Application Initiated for: ".$name);
+						$mail->Body = $body;
 
-					if($mail->send()){
-						$status = "success";
-						$response = "Email is sent!";
-					}
-					else
-					{
-						$status = "failed";
-						$response = "Something is wrong: <br>" . $mail->ErrorInfo;
-					}
-					echo $status;
+						if($mail->send()){
+							$status = "success";
+							$response = "Email is sent!";
+						}
+						else
+						{
+							$status = "failed";
+							$response = "Something is wrong: <br>" . $mail->ErrorInfo;
+						}
+						echo $status;
 				}
 			}
 		}
 
-	}
-	if($_POST["action"] == "submit_verification_code")
-	{
-		
-		$validationCode = mysqli_real_escape_string($conn, $_POST["code"]);
-		
-		$sql = "SELECT * FROM application_main where validation_code=?;";
-		$stmt = mysqli_stmt_init($conn);
-		mysqli_stmt_prepare($stmt, $sql);
-		if(!mysqli_stmt_prepare($stmt, $sql))
-		{
-			echo "SQL ERROR";
-		}
-		else
-		{
-			mysqli_stmt_bind_param($stmt, "i",$validationCode);
-			mysqli_stmt_execute($stmt);
-			$result = mysqli_stmt_get_result($stmt);
-			$numRows = mysqli_num_rows($result);
-			$clientURN = "";
-			while($row = mysqli_fetch_assoc($result))
-			{
-				$clientURN = $row["client_URN"];
-			}
-				if($numRows != 0)
-				{
-					$return[] = $clientURN;
-					$return[] = "Success";
-					echo json_encode($return);
-				}
-				else
-				{
-					
-					echo json_encode("Error");
-				}
-		}
 	}
 	if($_POST["action"] == "resend_verification_code")
 	{
@@ -1151,4 +1119,45 @@
 			}
 		}
 	}
+	if(isset($_POST["action"]) && $_POST["action"] == "logout")
+	{
+		$_SESSION["user001auth"] = "";
+		echo "success";
+	}
+}
+if($_POST["action"] == "submit_verification_code")
+{
+	$validationCode = mysqli_real_escape_string($conn, $_POST["code"]);
+	$sql = "SELECT * FROM application_main where validation_code=?;";
+	$stmt = mysqli_stmt_init($conn);
+	mysqli_stmt_prepare($stmt, $sql);
+	if(!mysqli_stmt_prepare($stmt, $sql))
+	{
+		echo "SQL ERROR";
+		
+	}
+	else
+	{
+		mysqli_stmt_bind_param($stmt, "i",$validationCode);
+		mysqli_stmt_execute($stmt);
+		$result = mysqli_stmt_get_result($stmt);
+		$numRows = mysqli_num_rows($result);
+		$clientURN = "";
+		while($row = mysqli_fetch_assoc($result))
+		{
+			$clientURN = $row["client_URN"];
+		}
+			if($numRows != 0)
+			{
+				$_SESSION["client_application"] = "true";
+				$return[] = $clientURN;
+				$return[] = "Success";
+				echo json_encode($return);
+			}
+			else
+			{
+				echo json_encode("Error");
+			}
+	}
+}
 ?>

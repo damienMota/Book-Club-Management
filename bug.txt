@@ -36,18 +36,21 @@
 
 ===== After Second Release ======
 1) Places to add spinning wheel.
-	- When an Application is initiated.
-	- When Verification Code is getting resent.
-	- When Application is Submitted (Client Side).
-	- When Application is being returned (implementation side).
+	It looks like modal is breaking the spinning wheel.(Fixed)
+	- When an Application is initiated. (Fixed)
+	- When Verification Code is getting resent. (Fixed)
+	- When Application is Submitted (Client Side).(Fixed)
+	- When Application is being returned (implementation side). (Fixed)
 2) Activity Log
-	- Insert doesn't work on Initiate.
+	- Insert doesn't work on Initiate. (Fixed)
 3) Things to Consider
-	- Changing Business Name to something else?
-	- Anyone can access the landing page.
+	- Changing Business Name to something else? (Keeping the same)
+	- Anyone can access the landing page. (Fixed)
+	- Adding Session variables to client Application (Fixed)
+	- Adding a different photo to Login (Fixed) Ask Boo on her thoughts?
 	
-4)	Bio doesn't recognize Associates Degree. It saves but doesn't identifiy as that when page loads.
+4)	Bio doesn't recognize Associates Degree. It saves but doesn't identifiy as that when page loads.(Fixed)
 	- probably a spelling error
-5)	Add a space after "application" in the return to client email.
-6)	Link to Application portal from return Application is broken.
-7) Return Application still has link to localhost.
+5)	Add a space after "application" in the return to client email.(Fixed)
+6)	Link to Application portal from return Application is broken.(Fixed)
+7)	Return Application still has link to localhost. (Fixed)

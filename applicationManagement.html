@@ -17,9 +17,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredericka+the+Great&display=swap" rel="stylesheet">
 </head>
 <body>
-
+<!-- Spinning Wheel -->
+<div id="overlay">
+  <div class="cv-spinner">
+    <span class="spinner"></span>
+  </div>
+</div>
 <div id="landingPage">
-	<div style="float:right;padding-top:20px;padding-right:55px;"><button type="button" style="border: 1px solid #827f7f;" class="btn btn-light" onclick="initiateApplication();">Initiate Application</button></div><br>
+	<div style="float:left;padding-top:20px;padding-left:15px;"><button type="button" style="border: 1px solid #827f7f;" class="btn btn-light" onclick="logout();">Logout</button></div><br>
+	<div style="float:right;padding-right:55px;"><button type="button" style="border: 1px solid #827f7f;" class="btn btn-light" onclick="initiateApplication();">Initiate Application</button></div><br>
 	<div id="pendingApplicationsTable" style="margin-top:35px;">
 		<div style="text-align:center;font-family:serif;font-size:35px;">Pending Applications</div>	
 	</div>
@@ -109,6 +115,38 @@
 </body>
 </html>
 <style>
+#overlay{	
+  position: fixed;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  height:100%;
+  display: none; 
+  background: rgba(0,0,0,0.6);
+}
+.cv-spinner {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;  
+}
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px #ddd solid;
+  border-top: 4px #2e93e6 solid;
+  border-radius: 50%;
+  animation: sp-anime 0.8s infinite linear;
+}
+@keyframes sp-anime {
+  100% { 
+    transform: rotate(360deg); 
+  }
+}
+.is-hide{
+  display:none;
+}
+
 body
 {
 	background-image: url('images/sincerely-media-_-hjiem5TqI-unsplash.jpg');
@@ -139,10 +177,13 @@ th,td
 {
 	padding:5px;
 }
+
+
+
 </style>
 <script>
 $(document).ready(function()
-{
+{　
 	pendingTable();
 	submittedTable();
 	completedTable();
@@ -201,7 +242,15 @@ function submittedTable()
 		success: function(data)
 		{
 			$("#submittedApplicationsTable").append(data);
-			var dataTable = $("#submittedTable").DataTable();
+			var dataTable = $("#submittedTable").DataTable({
+			"columnDefs": [
+				{
+					"targets": [8],
+					"visible": false,
+					"searchable": false
+				}
+			]
+			});
 			$('.editUser_S').click(function()
 			{
 				var userInfo = dataTable.row(this).data();
@@ -220,7 +269,15 @@ function completedTable()
 		success: function(data)
 		{
 			$("#completedApplicationsTable").append(data);
-			var dataTable = $("#completedTable").DataTable();
+			var dataTable = $("#completedTable").DataTable({
+			"columnDefs": [
+				{
+					"targets": [8],
+					"visible": false,
+					"searchable": false
+				}
+			]
+			});
 			$('.editUser_C').click(function()
 			{
 				var userInfo = dataTable.row(this).data();
@@ -240,6 +297,7 @@ function activityLog(applicationId)
 		data:{action:"activity_log",application_id:applicationId},
 		success: function(data)
 		{
+			$("#overlay").fadeIn(300);
 			$("#activityLogTable").append(data);
 			var dataTable = $("#activityTable").DataTable({
 				"order": [[ 2, 'desc' ]],
@@ -283,7 +341,7 @@ function editUser(userInfo)
 	$("#edit_primary_phone_number").val(userInfo[2]);
 	$("#edit_primary_email").val(userInfo[3]);
 	$("#edit_business_name").val(userInfo[6]);
-	$("#client_URN").val(userInfo[9]);
+	$("#client_URN").val(userInfo[8]);
 	$("#application_id").val(userInfo[0]);
 	$.ajax
 	({
@@ -433,6 +491,8 @@ function submitReturn()
 	}
 	else
 	{
+		$("#overlay").fadeIn(300);
+		$("#myModal").remove();
 		$.ajax
 		({
 			type: "POST",
@@ -442,6 +502,7 @@ function submitReturn()
 			{
 				if(data == "success")
 				{
+					$("#overlay").fadeOut(300);
 					Swal.fire({html:'Email has been sent.', icon:'success'}).then(function()
 					{
 						location.reload();
@@ -453,6 +514,7 @@ function submitReturn()
 }
 function initiateNewApplicant()
 {
+	$("#overlay").fadeIn(300);　
 	var err = "";
 	if($("#first_name").val() == "")
 	{
@@ -483,6 +545,7 @@ function initiateNewApplicant()
 			data:{action:"initiate_application",first_name:$("#first_name").val(),last_name:$("#last_name").val(),primary_phone_number:$("#primary_phone_number").val(),primary_email:$("#primary_email").val()},
 			success: function(data)
 			{
+				$("#overlay").fadeOut(300);　
 				if(data == "Error")
 				{
 					Swal.fire({html:'Applicant has an existing application. <br>Please try again. ', icon:'error'});
@@ -498,5 +561,24 @@ function initiateNewApplicant()
 			}
 		});	
 	}	
+}
+function logout()
+{
+	$.ajax
+	({
+		type: "POST",
+		url: "applicationManagement.php",
+		data:{action:"logout"},
+		success: function(data)
+		{
+			Swal.fire({html:'Logout Successful', icon:'success'}).then(function()
+			{
+				var url = window.location.toString();
+				var newURL = url.replace('/home.php', '/index.php');
+				
+				window.location.href = newURL;
+			});
+		}
+	});
 }
 </script>
