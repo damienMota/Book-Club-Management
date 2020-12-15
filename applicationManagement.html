@@ -289,6 +289,7 @@ function completedTable()
 function activityLog(applicationId)
 {
 	event.stopPropagation();
+	$("#overlay").fadeIn(300);
 	$('#activityLog').modal('show');
 	$.ajax
 	({
@@ -297,7 +298,7 @@ function activityLog(applicationId)
 		data:{action:"activity_log",application_id:applicationId},
 		success: function(data)
 		{
-			$("#overlay").fadeIn(300);
+			$("#overlay").fadeOut(300);
 			$("#activityLogTable").append(data);
 			var dataTable = $("#activityTable").DataTable({
 				"order": [[ 2, 'desc' ]],

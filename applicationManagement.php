@@ -206,17 +206,12 @@ if(isset($_SESSION["user001auth"]) && $_SESSION["user001auth"] == "true")
 	{
 		$sql = "SELECT action,description,time
 		FROM activity_log where application_id =?;";
-		$stmt = mysqli_stmt_init($conn);
-		mysqli_stmt_prepare($stmt, $sql);
-		if(!mysqli_stmt_prepare($stmt, $sql))
+		
+		if ($stmt = $conn->prepare($sql)) 
 		{
-			echo "SQL ERROR";
-		}
-		else
-		{
-			mysqli_stmt_bind_param($stmt, "i",$_POST["application_id"]);
-			mysqli_stmt_execute($stmt);
-			$result = mysqli_stmt_get_result($stmt);
+			$stmt->bind_param("i",$_POST["application_id"]);
+			$stmt->execute();
+			$stmt->bind_result($action,$description,$time);
 			
 			$ret = '<table id="activityTable"><thead><tr>';
 			$headers = array("action","description","time");
@@ -225,19 +220,14 @@ if(isset($_SESSION["user001auth"]) && $_SESSION["user001auth"] == "true")
 				$ret .= '<th>'.strtoupper($fixedHeader).'</th>';
 			}
 			$ret .= '</tr></thead>';
-			while($row = mysqli_fetch_assoc($result))
+			
+			while ($stmt->fetch()) 
 			{
 				$ret .= '<tr>';
+				$row = array($action,$description,$time);
 				foreach($row as $key => $item)
 				{
-					if($key == "application_id")
-					{
-						continue;
-					}
-					else
-					{
-						$ret .= '<td>'.$item.'</td>';
-					}
+					$ret .= '<td>'.$item.'</td>';
 				}
 			}
 			$ret .= '</tr></table>';
