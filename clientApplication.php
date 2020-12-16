@@ -27,40 +27,31 @@ if(isset($_SESSION["client_application"]) && $_SESSION["client_application"] == 
 			$url = $tempUrl2[1];
 		}
 		$sql = "SELECT * FROM application_main where client_URN =?;";
-		$stmt = mysqli_stmt_init($conn);
-		mysqli_stmt_prepare($stmt, $sql);
-		if(!mysqli_stmt_prepare($stmt, $sql))
+		if($stmt = $conn->prepare($sql)) 
 		{
-			echo "SQL ERROR";
-		}
-		else
-		{
-			mysqli_stmt_bind_param($stmt, "s",$url);
-			mysqli_stmt_execute($stmt);
-			$result = mysqli_stmt_get_result($stmt);
-			$clientEducation = "<select id='client_education'><option id=0 value=0>Please select an option</option>";
+			$stmt->bind_param("s",$url);
+			$stmt->execute();
+			$stmt->bind_result($application_id,$name,$primary_phone_number,
+			$primary_email,$application_status,$business_name,$reference_number,
+			$validation_code,$client_URN,$client_education,$about_me);
 			
-			while($row = mysqli_fetch_assoc($result))
-			{
-				$signatorSql = "SELECT * FROM signator_info where application_id =?;";
-				$signatorStmt = mysqli_stmt_init($conn);
-				mysqli_stmt_prepare($signatorStmt, $signatorSql);
-				if(!mysqli_stmt_prepare($signatorStmt, $signatorSql))
+			$clientEducation = "<select id='client_education'><option id=0 value=0>Please select an option</option>";
+			$stmt->fetch();
+			$stmt->close();
+			//Normally a while loop started here.(Main Table)///
+				$signatorSql = "SELECT signedDate,signatorName,signatorDecision,signatorBase64
+				FROM signator_info where application_id =?;";
+				if($stmt = $conn->prepare($signatorSql)) 
 				{
-					echo "SQL ERROR";
-				}
-				else
-				{
-					mysqli_stmt_bind_param($signatorStmt, "i",$row["application_id"]);
-					mysqli_stmt_execute($signatorStmt);
-					$signatorResult = mysqli_stmt_get_result($signatorStmt);
-					$test = "true";
-
-					while($rowSig = mysqli_fetch_assoc($signatorResult))
-					{
-						if($row["name"] == "" || $row["primary_email"] == "" || $row["primary_phone_number"] == "" || $row["business_name"] == "" || $row["client_education"] == "" || $row["about_me"] == "" || (isset($page) && $page == 'bio'))
+					$stmt->bind_param("i",$application_id);
+					$stmt->execute();
+					$stmt->bind_result($signedDate,$signatorName,$signatorDecision,$signatorBase64);
+					$stmt->fetch();
+					$stmt->close();
+					//while loop removed here (Signator Info)//
+						if($name == "" || $primary_email == "" || $primary_phone_number == "" || $business_name == "" || $client_education == "" || $about_me == "" || (isset($page) && $page == 'bio'))
 						{
-							if($row["client_education"] == "")
+							if($client_education == "")
 							{
 								$clientEducation.= '<option id="hs" value="High School">High School graduate</option>';
 								$clientEducation.= '<option id="ad" value="Associate degree">Associate degree</option>';
@@ -70,27 +61,34 @@ if(isset($_SESSION["client_application"]) && $_SESSION["client_application"] == 
 							}
 							else
 							{
-								$clientEducation.= '<option id="hs" value="High School" '.(($row["client_education"] == 'High School')?' selected="selected"':'').'>High School graduate</option>';
-								$clientEducation.= '<option id="ad" value="Associate degree" '.(($row["client_education"] == 'Associate degree')?' selected="selected"':'').'>Associate degree</option>';
-								$clientEducation.= '<option id="bd" value="Bachelor degree" '.(($row["client_education"] == 'Bachelor degree')?' selected="selected"':'').'>Bachelor degree</option>';
-								$clientEducation.= '<option id="md" value="Master degree" '.(($row["client_education"] == 'Master degree')?' selected="selected"':'').'>Master degree</option>';
-								$clientEducation.= '<option id="dpd" value="Doctoral or Professional degree" '.(($row["client_education"] == 'Doctoral or Professional degree')?' selected="selected"':'').'>Doctoral or Professional degree</option></select>';
+								$clientEducation.= '<option id="hs" value="High School" '.(($client_education == 'High School')?' selected="selected"':'').'>High School graduate</option>';
+								$clientEducation.= '<option id="ad" value="Associate degree" '.(($client_education == 'Associate degree')?' selected="selected"':'').'>Associate degree</option>';
+								$clientEducation.= '<option id="bd" value="Bachelor degree" '.(($client_education == 'Bachelor degree')?' selected="selected"':'').'>Bachelor degree</option>';
+								$clientEducation.= '<option id="md" value="Master degree" '.(($client_education == 'Master degree')?' selected="selected"':'').'>Master degree</option>';
+								$clientEducation.= '<option id="dpd" value="Doctoral or Professional degree" '.(($client_education == 'Doctoral or Professional degree')?' selected="selected"':'').'>Doctoral or Professional degree</option></select>';
 							}
 							//CHECKING FOR EMERGENCY CONTACT//
-							$sqlECI = "SELECT * FROM emergency_contact_info where eci_application_id =?;";
-							$stmtECI = mysqli_stmt_init($conn);
-							mysqli_stmt_prepare($stmtECI, $sqlECI);
-							if(!mysqli_stmt_prepare($stmtECI, $sqlECI))
+							$sqlECI = "SELECT eci_application_id,eci_name,eci_email,eci_phone_number
+							FROM emergency_contact_info where eci_application_id =?;";
+							if($stmt = $conn->prepare($sqlECI)) 
 							{
-								echo "SQL ERROR";
-							}
-							else
-							{
-								mysqli_stmt_bind_param($stmtECI, "i",$row["application_id"]);
-								mysqli_stmt_execute($stmtECI);
-								$resultECI = mysqli_stmt_get_result($stmtECI);
+								$stmt->bind_param("i",$application_id);
+								$stmt->execute();
+								$stmt->bind_result($eci_application_id,$eci_name,$eci_email,$eci_phone_number);
+								
 								$emergencyContactInfo = '';
-								if(mysqli_num_rows($resultECI) == 0)
+								$eciNameArray = array();
+								$eciEmailArray = array();
+								$eciPhoneArray = array();
+								
+								while($stmt->fetch())
+								{
+									$eciNameArray[] = $eci_name;
+									$eciEmailArray[] = $eci_email;
+									$eciPhoneArray[] = $eci_phone_number;
+								}
+								$stmt->close();
+								if(!isset($eci_application_id))
 								{
 									$emergencyContactInfo .= '<div class="eci_row"><input placeholder="Contact Name" type="text" class="eci_name">';
 									$emergencyContactInfo .= '<input placeholder="Contact Email" style="margin-left:10px;" type="text" class="eci_email">';
@@ -100,15 +98,6 @@ if(isset($_SESSION["client_application"]) && $_SESSION["client_application"] == 
 								}
 								else
 								{
-									$eciNameArray = array();
-									$eciEmailArray = array();
-									$eciPhoneArray = array();
-									while($rowECI = mysqli_fetch_assoc($resultECI))
-									{
-										$eciNameArray[] = $rowECI["eci_name"];
-										$eciEmailArray[] = $rowECI["eci_email"];
-										$eciPhoneArray[] = $rowECI["eci_phone_number"];
-									}
 									$err = count($eciNameArray) - 1;
 									$counter = $err ;
 									for($x = 0; $x <= $counter; $x++)
@@ -132,42 +121,42 @@ if(isset($_SESSION["client_application"]) && $_SESSION["client_application"] == 
 										}
 									}
 								}
+								$find = array("[application_id]","[name]","[primary_phone_number]","[primary_email]","[business_name]","[education]","[about_me]","[emergency_contact_info]");
+								$repl = array($application_id,$name,$primary_phone_number,$primary_email,$business_name,$clientEducation,$about_me,$emergencyContactInfo);
+								$return = str_replace($find,$repl,file_get_contents("client_bio.html"));
 							}
-							$find = array("[application_id]","[name]","[primary_phone_number]","[primary_email]","[business_name]","[education]","[about_me]","[emergency_contact_info]");
-							$repl = array($row["application_id"],$row["name"],$row["primary_phone_number"],$row["primary_email"],$row["business_name"],$clientEducation,$row["about_me"],$emergencyContactInfo);
-							$return = str_replace($find,$repl,file_get_contents("client_bio.html"));
 						}
-						elseif($rowSig["signedDate"] == "" || $rowSig["signatorName"] == "" || $rowSig["signatorDecision"] == "" || (isset($page) && $page == 'agr'))
+						elseif($signedDate == "" || $signatorName == "" || $signatorDecision == "" || (isset($page) && $page == 'agr'))
 						{
-								if($rowSig["signatorDecision"] == "")
+								if($signatorDecision == "")
 								{
 									$signatorDecision = '<div style="display:inline-block;"><b>Sign Now</b><input style="margin-left:5px;"type="radio" id="signNow" name="signatorDecision"></div><div style="display:inline-block;margin-left:10px;"><b>Print & Sign Later</b><input style="margin-left:5px;" id="printSignLater" type="radio" name="signatorDecision"></div><br>';
 								}
-								if($rowSig["signatorDecision"] == "signNow")
+								if($signatorDecision == "signNow")
 								{
 									$signatorDecision = '<div style="display:inline-block;"><b>Sign Now</b><input style="margin-left:5px;" type="radio" id="signNow" checked="checked" name="signatorDecision"></div><div style="display:inline-block;margin-left:10px;"><b>Print & Sign Later</b><input style="margin-left:5px;" id="printSignLater" type="radio" name="signatorDecision"></div><br>';
 								}
-								if($rowSig["signatorDecision"] == "printSignLater")
+								if($signatorDecision == "printSignLater")
 								{
 									$signatorDecision = '<div style="display:inline-block;"><b>Sign Now</b><input style="margin-left:5px;" type="radio" id="signNow" checked="checked" name="signatorDecision"></div><div style="display:inline-block;margin-left:10px;"><b>Print & Sign Later</b><input style="margin-left:5px;" id="printSignLater" type="radio" checked="checked" name="signatorDecision"></div><br>';
 								}
-								$replClientAgreement[] = $row["application_id"];
-								$replClientAgreement[] = $rowSig["signedDate"];
-								$replClientAgreement[] = $rowSig["signatorName"];
+								$replClientAgreement[] = $application_id;
+								$replClientAgreement[] = $signedDate;
+								$replClientAgreement[] = $signatorName;
 								$replClientAgreement[] = $signatorDecision;
-								if($rowSig["signatorBase64"] == "")
+								if($signatorBase64 == "")
 								{
 									$replClientAgreement[] = "//:0";
 								}
 								else
 								{
-									$replClientAgreement[] = 'data:image/png;base64,'.$rowSig["signatorBase64"];
+									$replClientAgreement[] = 'data:image/png;base64,'.$signatorBase64;
 								}
 								
 								$find = array("[application_id]","[signedDate]","[signatorName]","[signatorDecision]","[base64]");
 								$return = str_replace($find,$replClientAgreement,file_get_contents("client_agreement.html"));
 						}
-						elseif($row["application_status"] == "pending" || (isset($page) && $page == 'rev'))
+						elseif($application_status == "pending" || (isset($page) && $page == 'rev'))
 						{
 							$pdf = new FPDF();
 							$pdf->AddPage();
@@ -181,35 +170,35 @@ if(isset($_SESSION["client_application"]) && $_SESSION["client_application"] == 
 							$pdf->Cell(15,5,'Name:',0,1,'R');
 							$pdf->SetFont('Arial','',12);
 							$pdf->setXY(86,35);
-							$pdf->Cell(55,5,$row["name"],1,1,'C');
+							$pdf->Cell(55,5,$name,1,1,'C');
 							
 							$pdf->SetFont('Arial','B',12);
 							$pdf->setXY(70,43);
 							$pdf->Cell(15,5,'Phone Number:',0,1,'R');
 							$pdf->SetFont('Arial','',12);
 							$pdf->setXY(86,43);
-							$pdf->Cell(55,5,$row["primary_phone_number"],1,1,'C');
+							$pdf->Cell(55,5,$primary_phone_number,1,1,'C');
 							
 							$pdf->SetFont('Arial','B',12);
 							$pdf->setXY(70,51);
 							$pdf->Cell(15,5,'Email Address:',0,1,'R');
 							$pdf->SetFont('Arial','',12);
 							$pdf->setXY(86,51);
-							$pdf->Cell(55,5,$row["primary_email"],1,1,'C');
+							$pdf->Cell(55,5,$primary_email,1,1,'C');
 							
 							$pdf->SetFont('Arial','B',12);
 							$pdf->setXY(70,59);
 							$pdf->Cell(15,5,'Business Name:',0,1,'R');
 							$pdf->SetFont('Arial','',12);
 							$pdf->setXY(86,59);
-							$pdf->Cell(55,5,$row["business_name"],1,1,'C');
+							$pdf->Cell(55,5,$business_name,1,1,'C');
 							
 							$pdf->SetFont('Arial','B',12);
 							$pdf->setXY(70,67);
 							$pdf->Cell(15,5,'Education:',0,1,'R');
 							$pdf->SetFont('Arial','',12);
 							$pdf->setXY(86,67);
-							$pdf->Cell(55,5,$row["client_education"],1,1,'C');
+							$pdf->Cell(55,5,$client_education,1,1,'C');
 							
 							$pdf->SetFont('Arial','B',12);
 							$pdf->setXY(105,75);
@@ -218,7 +207,7 @@ if(isset($_SESSION["client_application"]) && $_SESSION["client_application"] == 
 							$pdf->setXY(65,80);
 							$pdf->MultiCell(90,35,"",1,"L");
 							$pdf->setXY(66,81);
-							$pdf->MultiCell(90,5,$row["about_me"],0,"L");
+							$pdf->MultiCell(90,5,$about_me,0,"L");
 							
 							$pdf->SetFont('Arial','B',12);
 							$pdf->setXY(105,120);
@@ -231,28 +220,27 @@ if(isset($_SESSION["client_application"]) && $_SESSION["client_application"] == 
 							$pdf->Cell(15,5,'Phone Number:',0,1,'C');
 							$pdf->SetFont('Arial','',12);
 							
-							$sqlECI = "SELECT * FROM emergency_contact_info where eci_application_id =?;";
-							$stmtECI = mysqli_stmt_init($conn);
-							mysqli_stmt_prepare($stmtECI, $sqlECI);
-							if(!mysqli_stmt_prepare($stmtECI, $sqlECI))
+							
+							//Don't think I need this//
+							$sqlECI = "SELECT eci_application_id,eci_name,eci_email,eci_phone_number
+							FROM emergency_contact_info where eci_application_id =?;";
+							if($stmt = $conn->prepare($sqlECI)) 
 							{
-								echo "SQL ERROR";
-							}
-							else
-							{
-								mysqli_stmt_bind_param($stmtECI, "i",$row["application_id"]);
-								mysqli_stmt_execute($stmtECI);
-								$resultECI = mysqli_stmt_get_result($stmtECI);
+								$stmt->bind_param("i",$application_id);
+								$stmt->execute();
+								$stmt->bind_result($eci_application_id,$eci_name,$eci_email,$eci_phone_number);
 								
 								$eciNameArray = array();
 								$eciEmailArray = array();
 								$eciPhoneArray = array();
-								while($rowECI = mysqli_fetch_assoc($resultECI))
+								
+								while($stmt->fetch())
 								{
-									$eciNameArray[] = $rowECI["eci_name"];
-									$eciEmailArray[] = $rowECI["eci_email"];
-									$eciPhoneArray[] = $rowECI["eci_phone_number"];
+									$eciNameArray[] = $eci_name;
+									$eciEmailArray[] = $eci_email;
+									$eciPhoneArray[] = $eci_phone_number;
 								}
+								$stmt->close();
 								$err = count($eciNameArray) - 1;
 								$counter = $err ;
 								$yAxis = 140;
@@ -317,61 +305,58 @@ if(isset($_SESSION["client_application"]) && $_SESSION["client_application"] == 
 							$pdf->SetFont('Arial','',10);
 							$pdf->setXY(25,145);
 							$pdf->MultiCell(165,5,"Cras luctus ex a lacus gravida accumsan. Sed nec ultrices est, eget tincidunt ipsum. Sed pharetra viverra nisl at faucibus. Cras lobortis dignissim vulputate. Curabitur commodo commodo vulputate. Aliquam eget maximus magna. Aliquam et mattis arcu. Pellentesque semper, dui eget blandit dapibus, augue nisi mollis erat, vel imperdiet eros ipsum a tortor. Donec sagittis dapibus sem. Pellentesque nibh ante, feugiat non turpis quis, sodales fringilla purus. Ut porttitor tempus aliquam. Nullam pharetra, justo a tempor rhoncus, est arcu faucibus lectus, vestibulum sollicitudin est tortor sit amet nunc. Duis aliquet non sapien eget viverra. Duis interdum lectus urna, eget venenatis sem pharetra id. Praesent condimentum pretium blandit. Fusce dignissim efficitur posuere. Praesent maximus mauris eget felis euismod, in posuere leo pulvinar. Morbi at quam ut velit gravida lacinia ornare eget quam. Donec egestas ligula vel dapibus vehicula. Aenean ante lacus, feugiat in sapien non, congue vestibulum mi. Maecenas vehicula iaculis purus, ac blandit ante imperdiet at. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce tempor arcu ut mauris tempus euismod. In hac habitasse platea dictumst.",0,"L");
-							$signatorSql = "SELECT * FROM signator_info where application_id =?;";
-							$signatorStmt = mysqli_stmt_init($conn);
-							mysqli_stmt_prepare($signatorStmt, $signatorSql);
-							if(!mysqli_stmt_prepare($signatorStmt, $signatorSql))
+							
+							$signatorSql = "SELECT signedDate,signatorName,signatorDecision,signatorBase64
+							FROM signator_info where application_id =?;";
+							if($stmt = $conn->prepare($signatorSql))
 							{
-								echo "SQL ERROR";
-							}
-							else
-							{
-								mysqli_stmt_bind_param($signatorStmt, "i",$row["application_id"]);
-								mysqli_stmt_execute($signatorStmt);
-								$signatorResult = mysqli_stmt_get_result($signatorStmt);
-								while($rowSig = mysqli_fetch_assoc($signatorResult))
+								$stmt->bind_param("i",$application_id);
+								$stmt->execute();
+								$stmt->bind_result($signedDate,$signatorName,$signatorDecision,$signatorBase64);
+								while($stmt->fetch())
 								{
 									$pdf->setXY(60,230);
 									$pdf->SetFont('Arial','B',12);
 									$pdf->Cell(26,5,'Signed Date:',0,0,'C');
 									$pdf->SetFont('Arial','',12);
 									$pdf->setXY(90,230);
-									$pdf->Cell(47,5,$rowSig["signedDate"],1,1,'C');
+									$pdf->Cell(47,5,$signedDate,1,1,'C');
 									
 									$pdf->setXY(59,238);
 									$pdf->SetFont('Arial','B',12);
 									$pdf->Cell(26,5,'Signed Name:',0,0,'C');
 									$pdf->SetFont('Arial','',12);
 									$pdf->setXY(90,238);
-									$pdf->Cell(47,5,$rowSig["signatorName"],1,1,'C');
+									$pdf->Cell(47,5,$signatorName,1,1,'C');
 									
 									$pdf->setXY(43,265);
 									$pdf->SetFont('Arial','B',12);
 									$pdf->Cell(26,5,'Signature:',0,0,'C');
 									$pdf->setXY(67,265);
 									
-									if($rowSig["signatorDecision"] == "printSignLater")
+									if($signatorDecision == "printSignLater")
 									{
 										$pdf->Cell(73,5,'',"B",0,'C');
 									}
-									if($rowSig["signatorDecision"] == "signNow")
+									if($signatorDecision == "signNow")
 									{
-										$img = 'data:image/png;base64,'.$rowSig["signatorBase64"];
+										$img = 'data:image/png;base64,'.$signatorBase64;
 										$pdf->Image($img,70,245,100,0,'png');
 										$pdf->Cell(73,5,'',"B",0,'C');
 									}
 								}
+								$stmt->close();
 							}
 							
-							$pdf->Output('downloads/clientAppReview_'.$row["application_id"].'.pdf','F');
+							$pdf->Output('downloads/clientAppReview_'.$application_id.'.pdf','F');
 							
 							$find = array("[application_id]");
-							$repl = array($row["application_id"]);
+							$repl = array($application_id);
 							$return = str_replace($find,$repl,file_get_contents("client_review.html"));
 						}
 						else
 						{
-							$tempReferenceNumber = "000".$row["reference_number"];
+							$tempReferenceNumber = "000".$reference_number;
 							$referenceNumber = "";
 							$counter = 0;
 							
@@ -389,13 +374,11 @@ if(isset($_SESSION["client_application"]) && $_SESSION["client_application"] == 
 								}
 							}
 								$find = array("[reference_number]","[name]");
-								$repl = array($referenceNumber,$row["name"]);
+								$repl = array($referenceNumber,$name);
 								$return = str_replace($find,$repl,file_get_contents("client_completion.html"));
 						}
 						echo $return;
-					}
 				}
-			}
 		}
 	}
 }

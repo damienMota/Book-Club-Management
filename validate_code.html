@@ -110,12 +110,12 @@ $(document).ready(function()
 	$(".closeModal").click(function()
 	{
 		$('#resendValCode').modal('hide');
-		dataTable.destroy();
 	});
 });
 var err = 0;
 function submitVerificationCode()
 {
+	$("#overlay").fadeIn(300);
 	$.ajax
 	({
 		type: "POST",
@@ -125,12 +125,16 @@ function submitVerificationCode()
 		{
 			err++;
 			var data = JSON.parse(data);
+			$("#overlay").fadeOut(300);
 			if(data[1] == "Success")
 			{
-				var url = window.location.toString();
-				var newURL = url.replace('/validation.php?page=', '/clientApplication.php?page=');
-				
-				window.location.href = newURL;
+				Swal.fire({html:'Success', icon:'success'}).then(function()
+				{
+					var url = window.location.toString();
+					var newURL = url.replace('/validation.php?page=', '/clientApplication.php?page=');
+					
+					window.location.href = newURL;
+				});
 			}
 			if(data == "Error")
 			{
@@ -151,7 +155,8 @@ function submitVerificationCode()
 function resendVerificationCode()
 {
 	$("#overlay").fadeIn(300);
-	$("#resendValCode").remove();
+	$("#resendValCode").hide();
+
 	$.ajax
 	({
 		type: "POST",
@@ -160,6 +165,7 @@ function resendVerificationCode()
 		success: function(data)
 		{
 			$("#overlay").fadeOut(300);
+			$("#resendValCode").show();
 			if(data == "success")
 			{
 				Swal.fire({html:'An email has been sent out with a new verification code.', icon:'success'}).then(function()
