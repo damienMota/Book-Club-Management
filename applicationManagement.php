@@ -2,10 +2,10 @@
 session_start();
 use PHPMailer\PHPMailer\PHPMailer;
 require('fpdf.php');
-
+$conn = mysqli_connect('localhost', 'damien', 'Oimadi*1', 'application_management');
 if(isset($_SESSION["user001auth"]) && $_SESSION["user001auth"] == "true")
 {
-	$conn = mysqli_connect('localhost', 'damien', 'Oimadi*1', 'application_management');
+	
 	$sql = "SELECT * FROM application_main;";
 	
 	//Pending Table//
@@ -350,266 +350,6 @@ if(isset($_SESSION["user001auth"]) && $_SESSION["user001auth"] == "true")
 		}
 
 	}
-	if($_POST["action"] == "resend_verification_code")
-	{
-		$email = mysqli_real_escape_string($conn, $_POST["email"]);
-		$phone = mysqli_real_escape_string($conn, $_POST["phone"]);
-		
-		$sql = "SELECT application_id,name,primary_email,client_URN 
-		FROM application_main where primary_email =? and primary_phone_number =?;";
-		if($stmt = $conn->prepare($sql)) 
-		{
-			$validation_code = mt_rand(100000, 999999);
-			$stmt->bind_param("ss",$email,$phone);
-			$stmt->execute();
-			$stmt->bind_result($application_id,$name,$primary_email,$client_URN);
-			$stmt->fetch();
-			$stmt->close();
-			
-			if(isset($application_id) && $application_id != "")
-			{
-				$updateSQL = "UPDATE application_main set validation_code =? where application_id =?;";
-				if($stmt2 = $conn->prepare($updateSQL)) 
-				{
-					$stmt2->bind_param("ii",$validation_code,$application_id);
-					$stmt2->execute();
-					
-					$email = $primary_email;
-					$name = $name;
-					$find = array("[validation_code]","[client_URN]");
-					$repl = array($validation_code,$client_URN);
-					$fixedTemplate = str_replace($find,$repl,file_get_contents("initiation_email.html"));
-					$body = $fixedTemplate;
-					
-					require_once "PHPMailer/PHPMailer.php";
-					require_once "PHPMailer/SMTP.php";
-					require_once "PHPMailer/Exception.php";
-
-					$mail = new PHPMailer();
-
-					// smtp settings
-					$mail->isSMTP();
-					$mail->Host = "smtp.gmail.com";
-					$mail->SMTPAuth = true;
-					$mail->Username = "mota.damien@gmail.com";
-					$mail->Password = 'damienab';
-					$mail->Port = 465;
-					$mail->SMTPSecure = "ssl";
-
-					// email settings
-					$mail->isHTML(true);
-					$mail->setFrom($email, $name);
-					$mail->addAddress($email);
-					$mail->Subject = ("Application Initiated for: ".$name);
-					$mail->Body = $body;
-					$status = "";
-					if($mail->send()){
-						$status = "success";
-						$response = "Email is sent!";
-					}
-					else
-					{
-						$status = "failed";
-						$response = "Something is wrong: <br>" . $mail->ErrorInfo;
-					}
-					echo $status;
-				}
-			}
-			else
-			{
-				echo "Error";
-			}
-		}
-	}
-	if(isset($_POST["action"]) && $_POST["action"] == "submit_bio")
-	{
-		$name = mysqli_real_escape_string($conn, $_POST["name"]);
-		$phone = mysqli_real_escape_string($conn, $_POST["primary_phone_number"]);
-		$email = mysqli_real_escape_string($conn, $_POST["primary_email"]);
-		$businessName = mysqli_real_escape_string($conn, $_POST["busines_name"]);
-		$education = mysqli_real_escape_string($conn, $_POST["client_education"]);
-		$aboutMe = mysqli_real_escape_string($conn, $_POST["about_me"]);
-		//UPDATE//
-		$updateSQL = "UPDATE application_main SET name =?,primary_phone_number =?,primary_email =?,business_name =?,client_education =?,about_me =? WHERE application_id =?;";
-		$updateSTMT = mysqli_stmt_init($conn);
-		mysqli_stmt_prepare($updateSTMT, $updateSQL);
-		if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
-		{
-			echo "SQL ERROR";
-		}
-		else
-		{
-			mysqli_stmt_bind_param($updateSTMT, "ssssssi",$name,$phone,$email,$businessName,$education,$aboutMe,$_POST["application_id"]);
-			mysqli_stmt_execute($updateSTMT);
-		}
-		
-		$deleteSQL = "DELETE FROM emergency_contact_info WHERE eci_application_id = ?;";
-		$deleteSTMT = mysqli_stmt_init($conn);
-		mysqli_stmt_prepare($deleteSTMT, $deleteSQL);
-		if(!mysqli_stmt_prepare($deleteSTMT, $deleteSQL))
-		{
-			echo "SQL ERROR";
-		}
-		else
-		{
-			mysqli_stmt_bind_param($deleteSTMT, "i",$_POST["application_id"]);
-			mysqli_stmt_execute($deleteSTMT);
-			$err = count($_POST["eci_name"]);	
-			$counter =  $err - 1;
-
-			for($x = 0; $x <= $counter; $x++)
-			{			
-				$insertSQL = "INSERT INTO emergency_contact_info (eci_name,eci_phone_number,eci_email,eci_application_id)
-				VALUES (?, ?, ?, ?);";
-				$insertSTMT = mysqli_stmt_init($conn);
-				mysqli_stmt_prepare($insertSTMT, $insertSQL);
-				
-				
-				
-				if(!mysqli_stmt_prepare($insertSTMT, $insertSQL))
-				{
-					echo "SQL ERROR";
-				}
-				else
-				{
-					mysqli_stmt_bind_param($insertSTMT, "sssi",$_POST["eci_name"][$x],$_POST["eci_phone_number"][$x],$_POST["eci_email"][$x],$_POST["application_id"]);
-					mysqli_stmt_execute($insertSTMT);
-					echo 'succes';
-				}
-			}
-			
-		}
-	}
-	if(isset($_POST["action"]) && $_POST["action"] == "submit_agreement")
-	{
-		$signatorName = mysqli_real_escape_string($conn, $_POST["signatorName"]);
-		$signatorDate = mysqli_real_escape_string($conn, $_POST["signedDate"]);
-		$signatorDecision = mysqli_real_escape_string($conn, $_POST["signatorDecision"]);
-		if($_POST["signatorDecision"] == "signNow")
-		{
-			$updateSQL = "UPDATE signator_info SET signatorName =?,signedDate =?,signatorBase64 =?,signatorDecision =? WHERE application_id =?;";
-			$updateSTMT = mysqli_stmt_init($conn);
-			mysqli_stmt_prepare($updateSTMT, $updateSQL);
-			if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
-			{
-				echo "SQL ERROR";
-			}
-			else
-			{
-				mysqli_stmt_bind_param($updateSTMT, "ssssi",$signatorName,$signatorDate,$_POST["signatorBase64"],$signatorDecision,$_POST["application_id"]);
-				mysqli_stmt_execute($updateSTMT);
-			}
-		}
-		if($_POST["signatorDecision"] == "printSignLater")
-		{
-			$updateSQL = "UPDATE signator_info SET signatorName =?,signedDate =?,signatorDecision =? WHERE application_id =?;";
-			$updateSTMT = mysqli_stmt_init($conn);
-			mysqli_stmt_prepare($updateSTMT, $updateSQL);
-			if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
-			{
-				echo "SQL ERROR";
-			}
-			else
-			{
-				mysqli_stmt_bind_param($updateSTMT, "sssi",$signatorName,$signatorDate,$signatorDecision,$_POST["application_id"]);
-				mysqli_stmt_execute($updateSTMT);
-			}
-		}
-	}
-	if(isset($_POST["action"]) && $_POST["action"] == "submit_application")
-	{
-		$action = "Submitted Application";
-		$description = "";
-		
-		$insertSQL = "INSERT INTO activity_log (application_id,action)
-		VALUES (?,?);";
-		$insertSTMT = mysqli_stmt_init($conn);
-		if(!mysqli_stmt_prepare($insertSTMT,$insertSQL))
-		{
-			echo "SQL ERROR";
-		}
-		else
-		{
-			mysqli_stmt_bind_param($insertSTMT, "is",$_POST["application_id"],$action);
-			mysqli_stmt_execute($insertSTMT);
-			
-			$status = "submitted";
-			$updateSQL = "UPDATE application_main SET application_status =?,reference_number =? WHERE application_id =?;";
-			$updateSTMT = mysqli_stmt_init($conn);
-			mysqli_stmt_prepare($updateSTMT, $updateSQL);
-			if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
-			{
-				echo "SQL ERROR";
-			}
-			else
-			{
-				mysqli_stmt_bind_param($updateSTMT, "sii",$status,$_POST["application_id"],$_POST["application_id"]);
-				mysqli_stmt_execute($updateSTMT);
-				
-				$sql = "SELECT reference_number,name,primary_email FROM application_main where application_id =?;";
-				if($stmt = $conn->prepare($sql))
-				{
-					$stmt->bind_param("i",$_POST["application_id"]);
-					$stmt->execute();
-					$stmt->bind_result($reference_number,$name,$primary_email);
-					$stmt-fetch();
-					$stmt->close();
-					require_once "PHPMailer/PHPMailer.php";
-					require_once "PHPMailer/SMTP.php";
-					require_once "PHPMailer/Exception.php";
-
-					$mail = new PHPMailer();
-
-					$mail->isSMTP();
-					$mail->Host = "smtp.gmail.com";
-					$mail->SMTPAuth = true;
-					$mail->Username = "mota.damien@gmail.com";
-					$mail->Password = 'damienab';
-					$mail->Port = 465;
-					$mail->SMTPSecure = "ssl";
-
-					$tempReferenceNumber = "000".$reference_number;
-					$referenceNumber = "";
-					$counter = 0;
-					
-					for($x = 0; $x <= 4; $x++)
-					{
-						if($x > 1)
-						{
-							$counter++;
-							$referenceNumber = substr($tempReferenceNumber, $counter);
-						}
-						else
-						{
-							$referenceNumber = $tempReferenceNumber;
-							break;
-						}
-					}
-					$find = array("[name]","[reference_number]");
-					$repl = array($name,$referenceNumber);
-					$body = str_replace($find,$repl,file_get_contents("submitted_email.html"));
-					
-					$mail->isHTML(true);
-					$mail->setFrom($primary_email, $name);
-					$mail->addAddress($primary_email);
-					$mail->Subject = ("Application Submitted for: ".$name);
-					$mail->Body = $body;
-					
-					$status = "";
-					if($mail->send()){
-						$status = "success";
-						$response = "Email is sent!";
-					}
-					else
-					{
-						$status = "failed";
-						$response = "Something is wrong: <br>" . $mail->ErrorInfo;
-					}
-					echo $status;
-				}
-			}
-		}
-	}
 	if(isset($_POST["action"]) && $_POST["action"] == "getApplicationPDF")
 	{
 		$sql = "SELECT * FROM application_main where application_id =?;";
@@ -898,71 +638,6 @@ if(isset($_SESSION["user001auth"]) && $_SESSION["user001auth"] == "true")
 			echo $status;
 		}
 	}
-	if(isset($_POST["action"]) && $_POST["action"] == "saveApplication")
-	{
-		$selectSQL = "SELECT business_name,name,primary_phone_number,primary_email FROM application_main WHERE application_id =?;";
-		if($stmt = $conn->prepare($selectSQL))
-		{
-			$stmt->bind_param("i",$_POST["application_id"]);
-			$stmt->execute();
-			$stmt->bind_result($business_name,$name,$primary_phone_number,$primary_email);
-			$stmt->fetch();
-			$stmt->close();
-			
-			$updateSQL = "UPDATE application_main set business_name =?, name =?, primary_phone_number =?, primary_email =? WHERE application_id =?;";
-			$stmt = mysqli_stmt_init($conn);
-			if(!mysqli_stmt_prepare($stmt, $updateSQL))
-			{
-				echo "SQL ERROR";
-			}
-			else
-			{
-				mysqli_stmt_bind_param($stmt, "ssssi",$_POST["business_name"],$_POST["name"],$_POST["primary_phone_number"],$_POST["primary_email"],$_POST["application_id"]);
-				mysqli_stmt_execute($stmt);
-				
-				$err = array();
-				if($name != $_POST["name"])
-				{
-					$err[] = "Name";
-				}
-				if($primary_phone_number != $_POST["primary_phone_number"])
-				{
-					$err[] = "Phone Number";
-				}
-				if($primary_email != $_POST["primary_email"])
-				{
-					$err[] = "Primary Email";
-				}
-				if($business_name != $_POST["business_name"])
-				{
-					$err[] = "Business Name";
-				}
-				
-				$action = "Edited Application";
-				if(empty($err))
-				{
-					echo "success";
-				}
-				else
-				{
-					$description = "The following text fields have changed: ".implode(", ",$err);
-					$insertSQL = "INSERT INTO activity_log (application_id,action,description)
-					VALUES (?,?,?);";
-					$insertSTMT = mysqli_stmt_init($conn);
-					if(!mysqli_stmt_prepare($insertSTMT,$insertSQL))
-					{
-						echo "SQL ERROR";
-					}
-					else
-					{
-						mysqli_stmt_bind_param($insertSTMT, "iss",$_POST["application_id"],$action,$description);
-						mysqli_stmt_execute($insertSTMT);
-						echo 'success';
-					}
-				}
-			}
-		}
-	}
 	if(isset($_POST["action"]) && $_POST["action"] == "markApplicationComplete")
 	{
 		$status = "completed";
@@ -1023,56 +698,305 @@ if(isset($_SESSION["user001auth"]) && $_SESSION["user001auth"] == "true")
 			}
 		}
 	}
-	if(isset($_POST["action"]) && $_POST["action"] == "header_validation")
-	{
-		$sql = "SELECT * FROM application_main where client_URN =?;";
-		if($stmt = $conn->prepare($sql))
-		{
-			$stmt->bind_param("s",$_POST["client_URN"]);
-			$stmt->execute();
-			$stmt->bind_result($application_id,$name,$primary_phone_number,
-			$primary_email,$application_status,$business_name,$reference_number,
-			$validation_code,$client_URN,$client_education,$about_me);
-			
-			$stmt->fetch();
-			$stmt->close();
-
-			$signatorSql = "SELECT signedDate,signatorName,signatorDecision,signatorBase64
-			FROM signator_info where application_id =?;";
-			if($stmt = $conn->prepare($signatorSql))
-			{
-				$stmt->bind_param("i",$application_id);
-				$stmt->execute();
-				$stmt->bind_result($signedDate,$signatorName,
-				$signatorDecision,$signatorBase64);
-				$stmt->fetch();
-				$stmt->close();
-
-				if($name == "" || $primary_email == "" || $primary_phone_number == "" || $business_name == "" || $client_education == "" || $about_me == "")
-				{
-					$ret = array("agr","rev");
-				}
-				elseif($signedDate == "" || $signatorName == "" || $signatorDecision == "")
-				{
-					$ret = array("rev");
-				}
-				else
-				{
-					$ret = array("success");
-				}
-				echo json_encode($ret);
-			}
-		}
-	}
 	if(isset($_POST["action"]) && $_POST["action"] == "logout")
 	{
 		$_SESSION["user001auth"] = "";
 		echo "success";
 	}
+	if(isset($_POST["action"]) && $_POST["action"] == "saveApplication")
+    {
+    	$selectSQL = "SELECT business_name,name,primary_phone_number,primary_email FROM application_main WHERE application_id =?;";
+    	if($stmt = $conn->prepare($selectSQL))
+    	{
+    		$stmt->bind_param("i",$_POST["application_id"]);
+    		$stmt->execute();
+    		$stmt->bind_result($business_name,$name,$primary_phone_number,$primary_email);
+    		$stmt->fetch();
+    		$stmt->close();
+    		
+    		$updateSQL = "UPDATE application_main set business_name =?, name =?, primary_phone_number =?, primary_email =? WHERE application_id =?;";
+    		$stmt = mysqli_stmt_init($conn);
+    		if(!mysqli_stmt_prepare($stmt, $updateSQL))
+    		{
+    			echo "SQL ERROR";
+    		}
+    		else
+    		{
+    			mysqli_stmt_bind_param($stmt, "ssssi",$_POST["business_name"],$_POST["name"],$_POST["primary_phone_number"],$_POST["primary_email"],$_POST["application_id"]);
+    			mysqli_stmt_execute($stmt);
+    			
+    			$err = array();
+    			if($name != $_POST["name"])
+    			{
+    				$err[] = "Name";
+    			}
+    			if($primary_phone_number != $_POST["primary_phone_number"])
+    			{
+    				$err[] = "Phone Number";
+    			}
+    			if($primary_email != $_POST["primary_email"])
+    			{
+    				$err[] = "Primary Email";
+    			}
+    			if($business_name != $_POST["business_name"])
+    			{
+    				$err[] = "Business Name";
+    			}
+    			
+    			$action = "Edited Application";
+    			if(empty($err))
+    			{
+    				echo "success";
+    			}
+    			else
+    			{
+    				$description = "The following text fields have changed: ".implode(", ",$err);
+    				$insertSQL = "INSERT INTO activity_log (application_id,action,description)
+    				VALUES (?,?,?);";
+    				$insertSTMT = mysqli_stmt_init($conn);
+    				if(!mysqli_stmt_prepare($insertSTMT,$insertSQL))
+    				{
+    					echo "SQL ERROR";
+    				}
+    				else
+    				{
+    					mysqli_stmt_bind_param($insertSTMT, "iss",$_POST["application_id"],$action,$description);
+    					mysqli_stmt_execute($insertSTMT);
+    					echo 'success';
+    				}
+    			}
+    		}
+    	}
+    }
+}
+if(isset($_SESSION["client_application"]) && $_SESSION["client_application"] == "true")
+{
+    if(isset($_POST["action"]) && $_POST["action"] == "header_validation")
+    {
+    	$sql = "SELECT * FROM application_main where client_URN =?;";
+    	if($stmt = $conn->prepare($sql))
+    	{
+    		$stmt->bind_param("s",$_POST["client_URN"]);
+    		$stmt->execute();
+    		$stmt->bind_result($application_id,$name,$primary_phone_number,
+    		$primary_email,$application_status,$business_name,$reference_number,
+    		$validation_code,$client_URN,$client_education,$about_me);
+    		
+    		$stmt->fetch();
+    		$stmt->close();
+    		
+    		$signatorSql = "SELECT signedDate,signatorName,signatorDecision,signatorBase64
+    		FROM signator_info where application_id =?;";
+    		if($stmt = $conn->prepare($signatorSql))
+    		{
+    			$stmt->bind_param("i",$application_id);
+    			$stmt->execute();
+    			$stmt->bind_result($signedDate,$signatorName,
+    			$signatorDecision,$signatorBase64);
+    			$stmt->fetch();
+    			$stmt->close();
+                
+    			if($name == "" || $primary_email == "" || $primary_phone_number == "" || $business_name == "" || $client_education == "" || $about_me == "")
+    			{
+    				$ret = array("agr","rev");
+    			}
+    			elseif($signedDate == "" || $signatorName == "" || $signatorDecision == "")
+    			{
+    				$ret = array("rev");
+    			}
+    			else
+    			{
+    				$ret = array("success");
+    			}
+    			echo json_encode($ret);
+    		}
+    	}
+    }
+    if(isset($_POST["action"]) && $_POST["action"] == "submit_bio")
+    {
+    	$name = mysqli_real_escape_string($conn, $_POST["name"]);
+    	$phone = mysqli_real_escape_string($conn, $_POST["primary_phone_number"]);
+    	$email = mysqli_real_escape_string($conn, $_POST["primary_email"]);
+    	$businessName = mysqli_real_escape_string($conn, $_POST["busines_name"]);
+    	$education = mysqli_real_escape_string($conn, $_POST["client_education"]);
+    	$aboutMe = mysqli_real_escape_string($conn, $_POST["about_me"]);
+    	//UPDATE//
+    	$updateSQL = "UPDATE application_main SET name =?,primary_phone_number =?,primary_email =?,business_name =?,client_education =?,about_me =? WHERE application_id =?;";
+    	$updateSTMT = mysqli_stmt_init($conn);
+    	mysqli_stmt_prepare($updateSTMT, $updateSQL);
+    	if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
+    	{
+    		echo "SQL ERROR";
+    	}
+    	else
+    	{
+    		mysqli_stmt_bind_param($updateSTMT, "ssssssi",$name,$phone,$email,$businessName,$education,$aboutMe,$_POST["application_id"]);
+    		mysqli_stmt_execute($updateSTMT);
+    	}
+    	
+    	$deleteSQL = "DELETE FROM emergency_contact_info WHERE eci_application_id = ?;";
+    	$deleteSTMT = mysqli_stmt_init($conn);
+    	mysqli_stmt_prepare($deleteSTMT, $deleteSQL);
+    	if(!mysqli_stmt_prepare($deleteSTMT, $deleteSQL))
+    	{
+    		echo "SQL ERROR";
+    	}
+    	else
+    	{
+    		mysqli_stmt_bind_param($deleteSTMT, "i",$_POST["application_id"]);
+    		mysqli_stmt_execute($deleteSTMT);
+    		$err = count($_POST["eci_name"]);	
+    		$counter =  $err - 1;
+    
+    		for($x = 0; $x <= $counter; $x++)
+    		{			
+    			$insertSQL = "INSERT INTO emergency_contact_info (eci_name,eci_phone_number,eci_email,eci_application_id)
+    			VALUES (?, ?, ?, ?);";
+    			$insertSTMT = mysqli_stmt_init($conn);
+    			mysqli_stmt_prepare($insertSTMT, $insertSQL);
+    			
+    			
+    			
+    			if(!mysqli_stmt_prepare($insertSTMT, $insertSQL))
+    			{
+    				echo "SQL ERROR";
+    			}
+    			else
+    			{
+    				mysqli_stmt_bind_param($insertSTMT, "sssi",$_POST["eci_name"][$x],$_POST["eci_phone_number"][$x],$_POST["eci_email"][$x],$_POST["application_id"]);
+    				mysqli_stmt_execute($insertSTMT);
+    				echo 'succes';
+    			}
+    		}
+    		
+    	}
+    }
+    if(isset($_POST["action"]) && $_POST["action"] == "submit_agreement")
+    {
+    	$signatorName = mysqli_real_escape_string($conn, $_POST["signatorName"]);
+    	$signatorDate = mysqli_real_escape_string($conn, $_POST["signedDate"]);
+    	$signatorDecision = mysqli_real_escape_string($conn, $_POST["signatorDecision"]);
+    	if($_POST["signatorDecision"] == "signNow")
+    	{
+    		$updateSQL = "UPDATE signator_info SET signatorName =?,signedDate =?,signatorBase64 =?,signatorDecision =? WHERE application_id =?;";
+    		$updateSTMT = mysqli_stmt_init($conn);
+    		mysqli_stmt_prepare($updateSTMT, $updateSQL);
+    		if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
+    		{
+    			echo "SQL ERROR";
+    		}
+    		else
+    		{
+    			mysqli_stmt_bind_param($updateSTMT, "ssssi",$signatorName,$signatorDate,$_POST["signatorBase64"],$signatorDecision,$_POST["application_id"]);
+    			mysqli_stmt_execute($updateSTMT);
+    		}
+    	}
+    	if($_POST["signatorDecision"] == "printSignLater")
+    	{
+    		$updateSQL = "UPDATE signator_info SET signatorName =?,signedDate =?,signatorDecision =? WHERE application_id =?;";
+    		$updateSTMT = mysqli_stmt_init($conn);
+    		mysqli_stmt_prepare($updateSTMT, $updateSQL);
+    		if(!mysqli_stmt_prepare($updateSTMT, $updateSQL))
+    		{
+    			echo "SQL ERROR";
+    		}
+    		else
+    		{
+    			mysqli_stmt_bind_param($updateSTMT, "sssi",$signatorName,$signatorDate,$signatorDecision,$_POST["application_id"]);
+    			mysqli_stmt_execute($updateSTMT);
+    		}
+    	}
+    }
+    if(isset($_POST["action"]) && $_POST["action"] == "submit_application")
+    {
+    	$action = "Submitted Application";
+    	$description = "";
+    	
+    	$insertSQL = "INSERT INTO activity_log (application_id,action)
+    	VALUES (?,?);";
+    	if($stmt = $conn->prepare($insertSQL))
+    	{
+    		$stmt->bind_param("is",$_POST["application_id"],$action);
+    		$stmt->execute();
+    		$stmt->close();
+    		
+    		$status = "submitted";
+    		$updateSQL = "UPDATE application_main SET application_status =?,reference_number =? WHERE application_id =?;";
+    		
+    		if($stmt = $conn->prepare($updateSQL))
+    		{
+    			$stmt->bind_param("sii",$status,$_POST["application_id"],$_POST["application_id"]);
+    			$stmt->execute();
+    			$stmt->close();
+    			
+    			$sql = "SELECT reference_number,name,primary_email FROM application_main where application_id =?;";
+    			if($stmt = $conn->prepare($sql))
+    			{
+    				$stmt->bind_param("i",$_POST["application_id"]);
+    				$stmt->execute();
+    				$stmt->bind_result($reference_number,$name,$primary_email);
+    				$stmt->fetch();
+    				
+    				require_once "PHPMailer/PHPMailer.php";
+    				require_once "PHPMailer/SMTP.php";
+    				require_once "PHPMailer/Exception.php";
+    
+    				$mail = new PHPMailer();
+    
+    				$mail->isSMTP();
+    				$mail->Host = "smtp.gmail.com";
+    				$mail->SMTPAuth = true;
+    				$mail->Username = "mota.damien@gmail.com";
+    				$mail->Password = "damienab";
+    				$mail->Port = 465;
+    				$mail->SMTPSecure = "ssl";
+    
+    				$tempReferenceNumber = "000".$reference_number;
+    				$referenceNumber = "";
+    				$counter = 0;
+    				
+    				for($x = 0; $x <= 4; $x++)
+    				{
+    					if($x > 1)
+    					{
+    						$counter++;
+    						$referenceNumber = substr($tempReferenceNumber, $counter);
+    					}
+    					else
+    					{
+    						$referenceNumber = $tempReferenceNumber;
+    						break;
+    					}
+    				}
+    				$find = array("[name]","[reference_number]");
+    				$repl = array($name,$referenceNumber);
+    				$body = str_replace($find,$repl,file_get_contents("submitted_email.html"));
+    				
+    				$mail->isHTML(true);
+    				$mail->setFrom($primary_email, $name);
+    				$mail->addAddress($primary_email);
+    				$mail->Subject = ("Application Submitted for: ".$name);
+    				$mail->Body = $body;
+    				
+    				$status = "";
+    				if($mail->send()){
+    					$status = "success";
+    					$response = "Email is sent!";
+    				}
+    				else
+    				{
+    					$status = "failed";
+    					$response = "Something is wrong: <br>" . $mail->ErrorInfo;
+    				}
+    				echo $status;
+    			}
+    		}
+    	}
+    }
 }
 if($_POST["action"] == "submit_verification_code")
 {
-	$validationCode = mysqli_real_escape_string($conn, $_POST["code"]);
+	$validationCode = $_POST["code"];
 	$sql = "SELECT client_URN FROM application_main where validation_code=?;";
 	if($stmt = $conn->prepare($sql)) 
 	{
@@ -1090,6 +1014,77 @@ if($_POST["action"] == "submit_verification_code")
 		else
 		{
 			echo json_encode("Error");
+		}
+	}
+}
+if($_POST["action"] == "resend_verification_code")
+{
+	$email = mysqli_real_escape_string($conn, $_POST["email"]);
+	$phone = mysqli_real_escape_string($conn, $_POST["phone"]);
+	
+	$sql = "SELECT application_id,name,primary_email,client_URN 
+	FROM application_main where primary_email =? and primary_phone_number =?;";
+	if($stmt = $conn->prepare($sql)) 
+	{
+		$validation_code = mt_rand(100000, 999999);
+		$stmt->bind_param("ss",$email,$phone);
+		$stmt->execute();
+		$stmt->bind_result($application_id,$name,$primary_email,$client_URN);
+		$stmt->fetch();
+		$stmt->close();
+		
+		if(isset($application_id) && $application_id != "")
+		{
+			$updateSQL = "UPDATE application_main set validation_code =? where application_id =?;";
+			if($stmt2 = $conn->prepare($updateSQL)) 
+			{
+				$stmt2->bind_param("ii",$validation_code,$application_id);
+				$stmt2->execute();
+				
+				$email = $primary_email;
+				$name = $name;
+				$find = array("[validation_code]","[client_URN]");
+				$repl = array($validation_code,$client_URN);
+				$fixedTemplate = str_replace($find,$repl,file_get_contents("initiation_email.html"));
+				$body = $fixedTemplate;
+				
+				require_once "PHPMailer/PHPMailer.php";
+				require_once "PHPMailer/SMTP.php";
+				require_once "PHPMailer/Exception.php";
+
+				$mail = new PHPMailer();
+
+				// smtp settings
+				$mail->isSMTP();
+				$mail->Host = "smtp.gmail.com";
+				$mail->SMTPAuth = true;
+				$mail->Username = "mota.damien@gmail.com";
+				$mail->Password = 'damienab';
+				$mail->Port = 465;
+				$mail->SMTPSecure = "ssl";
+
+				// email settings
+				$mail->isHTML(true);
+				$mail->setFrom($email, $name);
+				$mail->addAddress($email);
+				$mail->Subject = ("Application Initiated for: ".$name);
+				$mail->Body = $body;
+				$status = "";
+				if($mail->send()){
+					$status = "success";
+					$response = "Email is sent!";
+				}
+				else
+				{
+					$status = "failed";
+					$response = "Something is wrong: <br>" . $mail->ErrorInfo;
+				}
+				echo $status;
+			}
+		}
+		else
+		{
+			echo "Error";
 		}
 	}
 }

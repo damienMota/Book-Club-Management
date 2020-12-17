@@ -128,7 +128,7 @@ function submitVerificationCode()
 			$("#overlay").fadeOut(300);
 			if(data[1] == "Success")
 			{
-				Swal.fire({html:'Success', icon:'success'}).then(function()
+				Swal.fire({html:'Verification Successful.', icon:'success'}).then(function()
 				{
 					var url = window.location.toString();
 					var newURL = url.replace('/validation.php?page=', '/clientApplication.php?page=');
