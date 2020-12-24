@@ -427,7 +427,7 @@ function markApplicationComplete()
 		({
 			type: "POST",
 			url: "applicationManagement.php",
-			data:{action:"markApplicationComplete",application_id:$("#application_id").val()},
+			data:{action:"markApplicationComplete",application_id:$("#application_id").val(),name:$("#edit_name").val(),email:$("#edit_primary_email").val()},
 			success: function(data)
 			{
 				if(data == "success")

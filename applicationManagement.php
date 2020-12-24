@@ -664,8 +664,51 @@ if(isset($_SESSION["user001auth"]) && $_SESSION["user001auth"] == "true")
 			{
 				mysqli_stmt_bind_param($insertSTMT, "is",$_POST["application_id"],$action);
 				mysqli_stmt_execute($insertSTMT);
-				echo 'success';
 			}
+			$name = $_POST["name"];
+			$email = $_POST["email"];
+			//Formatting for PHP Mailer//		
+			$find = array("[name]");
+			$repl = array($name);
+			
+			$fixedTemplate = str_replace($find,$repl,file_get_contents("application_completed_email.html"));
+			$body = $fixedTemplate;
+			
+			require_once "PHPMailer/PHPMailer.php";
+			require_once "PHPMailer/SMTP.php";
+			require_once "PHPMailer/Exception.php";
+
+			$mail = new PHPMailer();
+
+			//smtp settings
+			$mail->isSMTP();
+			$mail->Host = "smtp.gmail.com";
+			$mail->SMTPAuth = true;
+			$mail->Username = "mota.damien@gmail.com";
+			$mail->Password = 'damienab';
+			$mail->Port = 465;
+			$mail->SMTPSecure = "ssl";
+
+			//email settings
+			$mail->isHTML(true);
+			$mail->setFrom($email, $name);
+			$mail->addAddress($email);
+			$mail->Subject = ("Application Marked Complete for: ".$name);
+			$mail->Body = $body;
+			$mail->AddEmbeddedImage('images/ubik.jpg','ubik');
+			$mail->AddEmbeddedImage('images/cantHurtMe.jpg','cantHurtMe');
+			$mail->AddEmbeddedImage('images/scythe.jpg','scythe');
+
+			if($mail->send()){
+				$status = "success";
+				$response = "Email is sent!";
+			}
+			else
+			{
+				$status = "failed";
+				$response = "Something is wrong: <br>" . $mail->ErrorInfo;
+			}
+			echo $status;
 		}
 	}
 	if(isset($_POST["action"]) && $_POST["action"] == "markApplicationIncomplete")
