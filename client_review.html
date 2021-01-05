@@ -108,7 +108,7 @@ function submitApplication()
 			$("#overlay").fadeOut(300);
 			if(data == "success")
 			{
-				Swal.fire({html:'Application Has Been Submitted.<br>You will recieve an email shortly.', icon:'success'}).then(function()
+				Swal.fire({html:'Your application has been submitted.<br>You will recieve an email shortly.', icon:'success'}).then(function()
 				{
 					var url = window.location.href;
 					newUrl = url.replace("?page=rev", "?page=");

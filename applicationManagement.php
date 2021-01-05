@@ -748,68 +748,85 @@ if(isset($_SESSION["user001auth"]) && $_SESSION["user001auth"] == "true")
 	}
 	if(isset($_POST["action"]) && $_POST["action"] == "saveApplication")
     {
-    	$selectSQL = "SELECT business_name,name,primary_phone_number,primary_email FROM application_main WHERE application_id =?;";
-    	if($stmt = $conn->prepare($selectSQL))
-    	{
-    		$stmt->bind_param("i",$_POST["application_id"]);
-    		$stmt->execute();
-    		$stmt->bind_result($business_name,$name,$primary_phone_number,$primary_email);
-    		$stmt->fetch();
-    		$stmt->close();
-    		
-    		$updateSQL = "UPDATE application_main set business_name =?, name =?, primary_phone_number =?, primary_email =? WHERE application_id =?;";
-    		$stmt = mysqli_stmt_init($conn);
-    		if(!mysqli_stmt_prepare($stmt, $updateSQL))
-    		{
-    			echo "SQL ERROR";
-    		}
-    		else
-    		{
-    			mysqli_stmt_bind_param($stmt, "ssssi",$_POST["business_name"],$_POST["name"],$_POST["primary_phone_number"],$_POST["primary_email"],$_POST["application_id"]);
-    			mysqli_stmt_execute($stmt);
-    			
-    			$err = array();
-    			if($name != $_POST["name"])
-    			{
-    				$err[] = "Name";
-    			}
-    			if($primary_phone_number != $_POST["primary_phone_number"])
-    			{
-    				$err[] = "Phone Number";
-    			}
-    			if($primary_email != $_POST["primary_email"])
-    			{
-    				$err[] = "Primary Email";
-    			}
-    			if($business_name != $_POST["business_name"])
-    			{
-    				$err[] = "Business Name";
-    			}
-    			
-    			$action = "Edited Application";
-    			if(empty($err))
-    			{
-    				echo "success";
-    			}
-    			else
-    			{
-    				$description = "The following text fields have changed: ".implode(", ",$err);
-    				$insertSQL = "INSERT INTO activity_log (application_id,action,description)
-    				VALUES (?,?,?);";
-    				$insertSTMT = mysqli_stmt_init($conn);
-    				if(!mysqli_stmt_prepare($insertSTMT,$insertSQL))
-    				{
-    					echo "SQL ERROR";
-    				}
-    				else
-    				{
-    					mysqli_stmt_bind_param($insertSTMT, "iss",$_POST["application_id"],$action,$description);
-    					mysqli_stmt_execute($insertSTMT);
-    					echo 'success';
-    				}
-    			}
-    		}
-    	}
+		$sql = "SELECT application_id FROM application_main where name=? or primary_phone_number=?";
+		if($stmt = $conn->prepare($sql)) 
+		{
+			$stmt->bind_param("ss",$_POST["name"],$_POST["primary_phone_number"]);
+			$stmt->bind_result($appId);
+			$stmt->execute();		
+			$stmt -> fetch();
+			$stmt->close();
+			if(isset($appId) && $appId != $_POST["application_id"])
+			{
+				$ret = "Error";
+				echo $ret;
+			}
+			else
+			{
+				$selectSQL = "SELECT business_name,name,primary_phone_number,primary_email FROM application_main WHERE application_id =?;";
+				if($stmt = $conn->prepare($selectSQL))
+				{
+					$stmt->bind_param("i",$_POST["application_id"]);
+					$stmt->execute();
+					$stmt->bind_result($business_name,$name,$primary_phone_number,$primary_email);
+					$stmt->fetch();
+					$stmt->close();
+					
+					$updateSQL = "UPDATE application_main set business_name =?, name =?, primary_phone_number =?, primary_email =? WHERE application_id =?;";
+					$stmt = mysqli_stmt_init($conn);
+					if(!mysqli_stmt_prepare($stmt, $updateSQL))
+					{
+						echo "SQL ERROR";
+					}
+					else
+					{
+						mysqli_stmt_bind_param($stmt, "ssssi",$_POST["business_name"],$_POST["name"],$_POST["primary_phone_number"],$_POST["primary_email"],$_POST["application_id"]);
+						mysqli_stmt_execute($stmt);
+						
+						$err = array();
+						if($name != $_POST["name"])
+						{
+							$err[] = "Name";
+						}
+						if($primary_phone_number != $_POST["primary_phone_number"])
+						{
+							$err[] = "Phone Number";
+						}
+						if($primary_email != $_POST["primary_email"])
+						{
+							$err[] = "Primary Email";
+						}
+						if($business_name != $_POST["business_name"])
+						{
+							$err[] = "Business Name";
+						}
+						
+						$action = "Edited Application";
+						if(empty($err))
+						{
+							echo "success";
+						}
+						else
+						{
+							$description = "The following text fields have changed: ".implode(", ",$err);
+							$insertSQL = "INSERT INTO activity_log (application_id,action,description)
+							VALUES (?,?,?);";
+							$insertSTMT = mysqli_stmt_init($conn);
+							if(!mysqli_stmt_prepare($insertSTMT,$insertSQL))
+							{
+								echo "SQL ERROR";
+							}
+							else
+							{
+								mysqli_stmt_bind_param($insertSTMT, "iss",$_POST["application_id"],$action,$description);
+								mysqli_stmt_execute($insertSTMT);
+								echo 'success';
+							}
+						}
+					}
+				}
+			}
+		}
     }
 }
 if(isset($_SESSION["client_application"]) && $_SESSION["client_application"] == "true")
@@ -1110,7 +1127,7 @@ if($_POST["action"] == "resend_verification_code")
 				$mail->isHTML(true);
 				$mail->setFrom($email, $name);
 				$mail->addAddress($email);
-				$mail->Subject = ("Application Initiated for: ".$name);
+				$mail->Subject = ("New Verification Code for: ".$name);
 				$mail->Body = $body;
 				$status = "";
 				if($mail->send()){
