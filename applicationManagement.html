@@ -57,8 +57,8 @@
 	<div style="text-align:center;font-size:35px;">Initiate Application</div>
 	<div style="text-align:right;margin-top:50px;width:58%;"><label style="margin-right:10px;"><b>First Name:</b></label><input id="first_name" type="text"></div>
 	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Last Name:</b></label><input id="last_name" type="text"></div>
-	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Phone Number:</b></label><input id="primary_phone_number" type="text">		</div>
-	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Email:</b></label><input disabled id="primary_email" type="text"></div>
+	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Phone Number:</b></label><input id="primary_phone_number" type="text"></div>
+	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Email:</b></label><input id="primary_email" type="text"></div>
 	<div style="text-align:center;margin-top:20px"><button style="font-size:16px;" class="btn btn-light" onclick="initiateNewApplicant();">Initiate</button></div>
 	<div style="text-align:center;margin-top:20px"><button style="font-size:16px;" class="btn btn-light" id="cancel">Cancel</button></div>
 </div>
@@ -380,6 +380,7 @@ function saveApplication()
 	}
 	else
 	{
+		$("#overlay").fadeIn(300);
 		$.ajax
 		({
 			type: "POST",
@@ -387,6 +388,11 @@ function saveApplication()
 			data:{action:"saveApplication",application_id:$("#application_id").val(),name:$("#edit_name").val(),primary_phone_number:$("#edit_primary_phone_number").val(),primary_email:$("#edit_primary_email").val(),business_name:$("#edit_business_name").val()},
 			success: function(data)
 			{
+				$("#overlay").fadeOut(300);
+				if(data == "Error")
+				{
+					Swal.fire({html:'Applicant has an existing application. <br>Please try again.', icon:'error'});
+				}
 				if(data == "success")
 				{
 					Swal.fire({html:'Application Saved.', icon:'success'}).then(function()
@@ -423,6 +429,7 @@ function markApplicationComplete()
 	}
 	else
 	{
+		$("#overlay").fadeIn(300);
 		$.ajax
 		({
 			type: "POST",
@@ -430,6 +437,7 @@ function markApplicationComplete()
 			data:{action:"markApplicationComplete",application_id:$("#application_id").val(),name:$("#edit_name").val(),email:$("#edit_primary_email").val()},
 			success: function(data)
 			{
+				$("#overlay").fadeOut(300);
 				if(data == "success")
 				{
 					Swal.fire({html:'Application Marked Complete.', icon:'success'}).then(function()
@@ -466,6 +474,7 @@ function markApplicationIncomplete()
 	}
 	else
 	{
+		$("#overlay").fadeIn(300);
 		$.ajax
 		({
 			type: "POST",
@@ -473,6 +482,7 @@ function markApplicationIncomplete()
 			data:{action:"markApplicationIncomplete",application_id:$("#application_id").val()},
 			success: function(data)
 			{
+				$("#overlay").fadeOut(300);
 				if(data == "success")
 				{
 					Swal.fire({html:'Application Marked Incomplete.', icon:'success'}).then(function()
@@ -515,7 +525,6 @@ function submitReturn()
 }
 function initiateNewApplicant()
 {
-	$("#overlay").fadeIn(300);　
 	var err = "";
 	if($("#first_name").val() == "")
 	{
@@ -539,6 +548,7 @@ function initiateNewApplicant()
 	}
 	else
 	{
+		$("#overlay").fadeIn(300);
 		$.ajax
 		({
 			type: "POST",
@@ -575,7 +585,7 @@ function logout()
 			Swal.fire({html:'Logout Successful', icon:'success'}).then(function()
 			{
 				var url = window.location.toString();
-				var newURL = url.replace('/home.php', '/index.php');
+				var newURL = url.replace('/home', '/index');
 				
 				window.location.href = newURL;
 			});

@@ -15,12 +15,12 @@
 
 </head>
 <body>
-	<div style="text-align:center;font-size:35px;margin-top:400px;margin-left:690px;"><b>Login</b></div>
-	<div style="text-align:right;width:80%;margin-top:20px;">
-	<div style="text-align:center;margin-top:20px;border-radius:25px;display:inline-block;"></div><span style="font-size:20px;" ><b>Username</b></span><input style="margin-left:5px;" type="text" id="username"><br>
-	<div style="text-align:center;margin-top:30px;border-radius:25px;display:inline-block;"></div><span style="font-size:20px;" ><b>Password</b></span><input style="margin-left:5px;" type="password" id="password">
+    <div style="text-align:right;display:inline;margin-top:420px;float:right;margin-right:285px;">
+	<div style="text-align:right;font-size:35px;margin-right:93px;"><b>Login</b></div>
+	<div style="margin-top:20px;"></div><span style="font-size:20px;" ><b>Username</b></span><input style="margin-left:5px;" type="text" id="username"><br>
+	<div style="margin-top:30px;display:inline-block;"></div><span style="font-size:20px;" ><b>Password</b></span><input style="margin-left:5px;" type="password" id="password">
+	<div style="text-align:center;margin-top:20px;"><button style="border: 1px solid #827f7f;" class="btn btn-light" onclick="login();">Login</button></div>
 	</div>
-	<div style="text-align:center;margin-top:20px;margin-left:715px;"><button style="border: 1px solid #827f7f;" class="btn btn-light" onclick="login();">Login</button></div>
 	<div class="modal fade" id="resendValCode" role="dialog">
 	<div class="modal-dialog">
 	</div>
@@ -82,7 +82,7 @@ function login()
 					{
 						var url = window.location.toString();
 						var windowURL = window.location.href;
-						var newURL = url.replace("/index.php", "/home.php");
+						var newURL = url.replace("/index", "/home");
 						
 						window.location.href = newURL;
 					});

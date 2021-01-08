@@ -35,9 +35,9 @@
 		</div>
 		<div id="activityLogTable"></div>
 		<div>Please Enter The Email and Phone Number Provided for this Account</div><br>
-		<div style="width:45%;text-align:right;">
-			<div style="display:inline-block;">Email:<input style="margin-left:4px;" id="email" type="text" ></div><br>
-			<div style="display:inline-block;margin-top:8px;">Phone Number:<input style="margin-left:4px;" id="phone" type="text" ></div>
+		<div style="width:55%;">
+			<div style="text-align:right;">Email:<input style="margin-left:4px;width:60%;" id="email" type="text" ></div>
+			<div style="text-align:right;margin-top:8px;">Phone Number:<input style="margin-left:4px;width:60%;" id="phone" type="text" ></div>
 		</div><br>
 		<div class="modal-footer">
 			<button type="button" class="btn btn-default" onclick="resendVerificationCode()">Submit</button>
@@ -131,7 +131,7 @@ function submitVerificationCode()
 				Swal.fire({html:'Verification Successful.', icon:'success'}).then(function()
 				{
 					var url = window.location.toString();
-					var newURL = url.replace('/validation.php?page=', '/clientApplication.php?page=');
+					var newURL = url.replace('/validation?page=', '/clientApplication?page=');
 					
 					window.location.href = newURL;
 				});
