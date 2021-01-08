@@ -3,13 +3,14 @@ Built an application management system for a Book Club that showcases the dynami
 
 To avoid any $_SESSION complications please use two windows to get the best experience, one for Implementation's side and one for the Client's side. Thank you!<br>
 
-<div><b>Steps</b></div>
+<div><b>Steps</b></div><br>
 <b>1. Implementation Side</b>
 <ul>
   <li>After logging in with the credentials provided in my resume you will land on the home page which will display three data tables: Pending, Submitted, Completed. 
-  These tables will list applications with there corresponding status in the application process.</li>
+  These tables will list applications with their corresponding status in the application process.</li>
   <li>Head over to "Initiate Application" on the top right. You will need to fill out all 4 text fields to properly initiate the application. Please provide an email you can access.</li>
   <li>After an application has been initiated, it will be stored in the Pending table.</li>
+  <li>All three tables will contain an Activity Log which will store an insert made on every status change</li>
 </ul>
 <b>2. Client Side</b>
 <ul>
@@ -24,7 +25,5 @@ To avoid any $_SESSION complications please use two windows to get the best expe
   has been Submitted or Completed.</li>
   <li>The Edit Application page also provides options to change major text fields, return the application back to client in a new email and 
   mark the application complete.</li>
-  <li>All of the actions above as well as initiating the application will be inserted to another table called the "Activity Log". This button can be found per application on 
-  the home page.</li>
-  <li>After reviewing the application, mark complete to finalize the application process.</li>
+  <li>After reviewing the application, mark complete to finalize the application process. A confirmation email will be sent to the client.</li>
 </ul>
