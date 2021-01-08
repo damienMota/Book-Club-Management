@@ -10,7 +10,7 @@ To avoid any $_SESSION complications please use two windows to get the best expe
   These tables will list applications with their corresponding status in the application process.</li>
   <li>Head over to "Initiate Application" on the top right. You will need to fill out all 4 text fields to properly initiate the application. Please provide an email you can access.</li>
   <li>After an application has been initiated, it will be stored in the Pending table.</li>
-  <li>All three tables will contain an Activity Log which will store an insert made on every status change</li>
+  <li>All three tables will contain an Activity Log which stores an insert made on every status change</li>
 </ul>
 <b>2. Client Side</b>
 <ul>
