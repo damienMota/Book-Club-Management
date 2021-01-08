@@ -1,57 +1,221 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
-
+<!-- JQuery -->
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
 <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+
+<!-- Bootstrap -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Fredericka+the+Great&display=swap" rel="stylesheet">
 </head>
 <body>
+<!-- Spinning Wheel -->
+<div id="overlay">
+  <div class="cv-spinner">
+    <span class="spinner"></span>
+  </div>
+</div>
 <div id="landingPage">
-	<div style="float:right;"><button onclick="initiateApplication();">Initiate Application</button></div><br>
+	<div style="float:left;padding-top:20px;padding-left:15px;"><button type="button" style="border: 1px solid #827f7f;" class="btn btn-light" onclick="logout();">Logout</button></div><br>
+	<div style="float:right;padding-right:55px;"><button type="button" style="border: 1px solid #827f7f;" class="btn btn-light" onclick="initiateApplication();">Initiate Application</button></div><br>
 	<div id="pendingApplicationsTable" style="margin-top:35px;">
-		<div style="text-align:center;font-size:35px;">Pending Applications</div>	
+		<div style="text-align:center;font-family:serif;font-size:35px;">Pending Applications</div>	
 	</div>
 	<div id="submittedApplicationsTable" style="margin-top:35px;">
-		<div style="text-align:center;font-size:35px;">Submitted Applications</div>	
+		<div style="text-align:center;font-family:serif;font-size:35px;">Submitted Applications</div>	
 	</div>
 	<div id="completedApplicationsTable" style="margin-top:35px;">
-		<div style="text-align:center;font-size:35px;">Completed Applications</div>	
+		<div style="text-align:center;font-family:serif;font-size:35px;">Completed Applications</div>	
 	</div>
 </div>
-<div id="initiatePage">
+<!-- Modal -->
+<div class="modal fade" id="activityLog" role="dialog">
+<div class="modal-dialog">
+
+  <!-- Modal content-->
+  <div class="modal-content" style="margin-top:100px;">
+	<div class="modal-header">
+	  <button type="button" class="close closeModal">&times;</button>
+	  <h4 class="modal-title">Activity Log:</h4>
+	</div>
+	<div id="activityLogTable"></div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default closeModal">Close</button>
+	</div>
+  </div> 
+</div>
+</div>
+<div id="initiatePage" style="font-size:16px;">
 	<div style="text-align:center;font-size:35px;">Initiate Application</div>
-	<div style="text-align:right;margin-top:50px;width:58%;"><label style="margin-right:10px;">First Name</label><input id="first_name" type="text"></div>
-	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;">Last Name</label><input id="last_name" type="text"></div>
-	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;">Phone Number</label><input id="primary_phone_number" type="text">		</div>
-	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;">Email</label><input id="primary_email" type="text"></div>
-	<div style="text-align:center;margin-top:20px"><button onclick="initiateNewApplicant();">Initiate</button></div>
-	<div style="text-align:center;margin-top:20px"><button id="cancel">Cancel</button></div>
+	<div style="text-align:right;margin-top:50px;width:58%;"><label style="margin-right:10px;"><b>First Name:</b></label><input id="first_name" type="text"></div>
+	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Last Name:</b></label><input id="last_name" type="text"></div>
+	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Phone Number:</b></label><input id="primary_phone_number" type="text">		</div>
+	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Email:</b></label><input disabled id="primary_email" type="text"></div>
+	<div style="text-align:center;margin-top:20px"><button style="font-size:16px;" class="btn btn-light" onclick="initiateNewApplicant();">Initiate</button></div>
+	<div style="text-align:center;margin-top:20px"><button style="font-size:16px;" class="btn btn-light" id="cancel">Cancel</button></div>
+</div>
+<div id="editPage" style="font-size:16px;">
+	<div style="text-align:center;font-size:35px;">Edit Application</div>
+	<div style="text-align:right;margin-top:50px;width:58%;"><label style="margin-right:10px;"><b>Name:</b></label><input id="edit_name" type="text"></div>
+	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Phone Number:</b></label><input id="edit_primary_phone_number" type="text"></div>
+	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Email:</b></label><input disabled="disabled" id="edit_primary_email" type="text"></div>
+	<div style="text-align:right;margin-top:20px;width:58%;"><label style="margin-right:10px;"><b>Business Name:</b></label><input id="edit_business_name" type="text"></div>
+	<input type="hidden" id="client_URN">
+	<input type="hidden" id="application_id">
+	<div id="applicationPDF"></div>
+	<div style="text-align:center;">
+	<div style="text-align:center;margin-top:20px;display:inline-block;"><button style="font-size:16px;" onclick="saveApplication();">Save Application</button></div>
+	<div style="text-align:center;margin-top:20px;display:inline-block;" id="markAppComp"><button style="font-size:16px;"onclick="markApplicationComplete();">Mark Complete</button></div>
+	<div style="text-align:center;margin-top:20px;display:inline-block;" id="markAppIncomp"><button style="font-size:16px;" onclick="markApplicationIncomplete();">Mark Incomplete</button></div>
+	<!-- Trigger the modal with a button -->
+	<div style="text-align:center;margin-top:20px;display:inline-block;"><button style="font-size:16px;" id="returnApplication" type="button" data-toggle="modal" data-target="#myModal">Return Application</button></div>
+	</div>
+	<div style="text-align:center;margin-top:20px;padding-bottom:30px;"><button style="font-size:16px;" id="cancelEdit">Cancel</button></div>
+	<!-- Modal -->
+	<div class="modal fade" id="myModal" role="dialog">
+	<div class="modal-dialog">
+
+	  <!-- Modal content-->
+      <div class="modal-content" style="margin-top:100px;">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Message to Client:</h4>
+        </div>
+		<textarea style="width:595px;height:278px;" id="returnAppMessage"></textarea>
+        <div class="modal-footer">
+			<div style="float:left;"><b>Prepared Statements:</b></div><br>
+			<button style="float:left;margin-right:10px;" id="returnBio">Bio</button>
+			<div id="returnAgreementDiv" style="display:inline-block;float:left;">
+				<button id="returnAgreementBut">Agreement</button>
+				<select id="returnAgreementSel" style="display:none;">
+					<option id="0">Please select a <b>Section</b> for the Client to Review</option>
+					<option>Please review Section 1 of the Agreement Form.</option>
+					<option>Please review Section 2 of the Agreement Form.</option>
+					<option>Please review Section 3 of the Agreement Form.</option>
+				</select>
+			</div><br>
+			
+			<button class="btn btn-default" onclick="submitReturn();">Submit</button>
+			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+	  
+	</div>
+	</div>
+  
 </div>
 </body>
 </html>
 <style>
+#overlay{	
+  position: fixed;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  height:100%;
+  display: none; 
+  background: rgba(0,0,0,0.6);
+}
+.cv-spinner {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;  
+}
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px #ddd solid;
+  border-top: 4px #2e93e6 solid;
+  border-radius: 50%;
+  animation: sp-anime 0.8s infinite linear;
+}
+@keyframes sp-anime {
+  100% { 
+    transform: rotate(360deg); 
+  }
+}
+.is-hide{
+  display:none;
+}
+
+body
+{
+	background-image: url('images/sincerely-media-_-hjiem5TqI-unsplash.jpg');
+	background-repeat: no-repeat;
+	background-size: 100%;
+	font-family:serif;
+
+}
 table, th, td 
 {
-  border: 1px solid black;
+  border: 1px solid #827f7f;
 }
 th,td
 {
 	width:100px;
+	text-align:center;
 }
+[class^="editUser"]
+{
+	background: #b8d1f3 !important;
+}
+[class^="editUser"]:hover 
+{
+	background-color: #ffff99 !important;
+	cursor: pointer;
+}
+#activityTable_wrapper
+{
+	padding:5px;
+}
+
+
+
 </style>
 <script>
 $(document).ready(function()
-{
+{　
 	pendingTable();
 	submittedTable();
 	completedTable();
 	$("#initiatePage").hide();
+	$("#editPage").hide();
 	$("#cancel").click(function()
   	{
 		$("#initiatePage").hide();
 		$("#landingPage").show();
+	});
+	$("#cancelEdit").click(function()
+  	{
+		$("#applicationEmbedded").remove();
+		$("#editPage").hide();
+		$("#landingPage").show();
+	});
+	$("#returnBio").click(function()
+	{
+		$("#returnAppMessage").val("");
+		$("#returnAppMessage").val('Please review " " in Bio section.');
+	});
+	$("#returnAgreementBut").click(function()
+	{
+		$("#returnAppMessage").val("");
+		$("#returnAgreementBut").hide();
+		$("#returnAgreementSel").show();
+	});
+	$('#returnAgreementSel').change(function()
+	{
+		$("#0").attr('disabled','disabled');
+		$("#returnAppMessage").val("");
+		$("#returnAppMessage").val($(this).val());
 	});
 });
 function pendingTable()
@@ -64,7 +228,7 @@ function pendingTable()
 		success: function(data)
 		{
 			$("#pendingApplicationsTable").append(data);
-			$("#pendingTable").DataTable();
+			var dataTable = $("#pendingTable").DataTable();
 		}
 	});
 }
@@ -78,7 +242,20 @@ function submittedTable()
 		success: function(data)
 		{
 			$("#submittedApplicationsTable").append(data);
-			$("#submittedTable").DataTable();
+			var dataTable = $("#submittedTable").DataTable({
+			"columnDefs": [
+				{
+					"targets": [8],
+					"visible": false,
+					"searchable": false
+				}
+			]
+			});
+			$('.editUser_S').click(function()
+			{
+				var userInfo = dataTable.row(this).data();
+				editUser(userInfo);
+			});
 		}
 	});
 }
@@ -92,7 +269,52 @@ function completedTable()
 		success: function(data)
 		{
 			$("#completedApplicationsTable").append(data);
-			$("#completedTable").DataTable();
+			var dataTable = $("#completedTable").DataTable({
+			"columnDefs": [
+				{
+					"targets": [8],
+					"visible": false,
+					"searchable": false
+				}
+			]
+			});
+			$('.editUser_C').click(function()
+			{
+				var userInfo = dataTable.row(this).data();
+				editUser(userInfo);
+			});
+		}
+	});
+}
+function activityLog(applicationId)
+{
+	event.stopPropagation();
+	$("#overlay").fadeIn(300);
+	$('#activityLog').modal('show');
+	$.ajax
+	({
+		type: "POST",
+		url: "applicationManagement.php",
+		data:{action:"activity_log",application_id:applicationId},
+		success: function(data)
+		{
+			$("#overlay").fadeOut(300);
+			$("#activityLogTable").append(data);
+			var dataTable = $("#activityTable").DataTable({
+				"order": [[ 2, 'desc' ]],
+				"pageLength": 5
+			});
+			$(".closeModal").click(function()
+			{
+				$('#activityLog').modal('hide');
+				dataTable.destroy();
+				$("#activityTable").remove();
+			});
+			$('#activityLog').on('hidden.bs.modal', function () 
+			{
+				dataTable.destroy();
+				$("#activityTable").remove();
+			});
 		}
 	});
 }
@@ -101,8 +323,199 @@ function initiateApplication()
 	$("#initiatePage").show();
 	$("#landingPage").hide();
 }
+function editUser(userInfo)
+{
+	$("#editPage").show();
+	$("#landingPage").hide();
+	
+	if(userInfo[5] == "completed")
+	{
+		$("#markAppComp").hide();
+		$("#markAppIncomp").show();
+	}
+	if(userInfo[5] == "submitted")
+	{
+		$("#markAppComp").show();
+		$("#markAppIncomp").hide();
+	}
+	$("#edit_name").val(userInfo[1]);
+	$("#edit_primary_phone_number").val(userInfo[2]);
+	$("#edit_primary_email").val(userInfo[3]);
+	$("#edit_business_name").val(userInfo[6]);
+	$("#client_URN").val(userInfo[8]);
+	$("#application_id").val(userInfo[0]);
+	$.ajax
+	({
+		type: "POST",
+		url: "applicationManagement.php",
+		data:{action:"getApplicationPDF",application_id:userInfo[0]},
+		success: function(data)
+		{
+			$("#applicationPDF").append(data);
+		}
+	});	
+}
+function saveApplication()
+{
+	var err = "";
+	if($("#edit_name").val() == "")
+	{
+		err+= "<br><b>Name</b>";
+	}
+	if($("#edit_primary_phone_number").val() == "")
+	{
+		err+= "<br><b>Phone number</b>";
+	}
+	if($("#edit_primary_email").val() == "")
+	{
+		err+= "<br><b>Phone number</b>";
+	}
+	if($("#edit_business_name").val() == "")
+	{
+		err+= "<br><b>Phone number</b>";
+	}
+	if(err != "")
+	{
+		Swal.fire({html:'The following text fields are required:', icon:'warning'});
+	}
+	else
+	{
+		$.ajax
+		({
+			type: "POST",
+			url: "applicationManagement.php",
+			data:{action:"saveApplication",application_id:$("#application_id").val(),name:$("#edit_name").val(),primary_phone_number:$("#edit_primary_phone_number").val(),primary_email:$("#edit_primary_email").val(),business_name:$("#edit_business_name").val()},
+			success: function(data)
+			{
+				if(data == "success")
+				{
+					Swal.fire({html:'Application Saved.', icon:'success'}).then(function()
+					{
+						location.reload();
+					});
+				}
+			}
+		});
+	}
+}
+function markApplicationComplete()
+{
+	var err = "";
+	if($("#edit_name").val() == "")
+	{
+		err+= "<br><b>Name</b>";
+	}
+	if($("#edit_primary_phone_number").val() == "")
+	{
+		err+= "<br><b>Phone number</b>";
+	}
+	if($("#edit_primary_email").val() == "")
+	{
+		err+= "<br><b>Phone number</b>";
+	}
+	if($("#edit_business_name").val() == "")
+	{
+		err+= "<br><b>Phone number</b>";
+	}
+	if(err != "")
+	{
+		Swal.fire({html:'The following text fields are required:', icon:'warning'});
+	}
+	else
+	{
+		$.ajax
+		({
+			type: "POST",
+			url: "applicationManagement.php",
+			data:{action:"markApplicationComplete",application_id:$("#application_id").val(),name:$("#edit_name").val(),email:$("#edit_primary_email").val()},
+			success: function(data)
+			{
+				if(data == "success")
+				{
+					Swal.fire({html:'Application Marked Complete.', icon:'success'}).then(function()
+					{
+						location.reload();
+					});
+				}
+			}
+		});
+	}
+}
+function markApplicationIncomplete()
+{
+	var err = "";
+	if($("#edit_name").val() == "")
+	{
+		err+= "<br><b>Name</b>";
+	}
+	if($("#edit_primary_phone_number").val() == "")
+	{
+		err+= "<br><b>Phone number</b>";
+	}
+	if($("#edit_primary_email").val() == "")
+	{
+		err+= "<br><b>Phone number</b>";
+	}
+	if($("#edit_business_name").val() == "")
+	{
+		err+= "<br><b>Phone number</b>";
+	}
+	if(err != "")
+	{
+		Swal.fire({html:'The following text fields are required:', icon:'warning'});
+	}
+	else
+	{
+		$.ajax
+		({
+			type: "POST",
+			url: "applicationManagement.php",
+			data:{action:"markApplicationIncomplete",application_id:$("#application_id").val()},
+			success: function(data)
+			{
+				if(data == "success")
+				{
+					Swal.fire({html:'Application Marked Incomplete.', icon:'success'}).then(function()
+					{
+						location.reload();
+					});
+				}
+			}
+		});
+	}
+}
+function submitReturn()
+{
+	if($("#returnAppMessage").val() == "")
+	{
+		Swal.fire({html:'Please provide a valid message to send to the client.', icon:'warning'});
+	}
+	else
+	{
+		$("#overlay").fadeIn(300);
+		$("#myModal").hide();
+		$.ajax
+		({
+			type: "POST",
+			url: "applicationManagement.php",
+			data:{action:"returnAppMessage",returnAppMessage:$("#returnAppMessage").val(),name:$("#edit_name").val(),email:$("#edit_primary_email").val(),clientURN:$("#client_URN").val(),application_id:$("#application_id").val()},
+			success: function(data)
+			{
+				if(data == "success")
+				{
+					$("#overlay").fadeOut(300);
+					Swal.fire({html:'Email has been sent.', icon:'success'}).then(function()
+					{
+						location.reload();
+					});
+				}
+			}
+		});
+	}
+}
 function initiateNewApplicant()
 {
+	$("#overlay").fadeIn(300);　
 	var err = "";
 	if($("#first_name").val() == "")
 	{
@@ -130,15 +543,43 @@ function initiateNewApplicant()
 		({
 			type: "POST",
 			url: "applicationManagement.php",
-			data:{action:"initiate_application",first_name:$("#first_name").val(),last_name:$("#last_name").val(),	                                     primary_phone_number:$("#primary_phone_number").val(),primary_email:$("#primary_email").val()},
+			data:{action:"initiate_application",first_name:$("#first_name").val(),last_name:$("#last_name").val(),primary_phone_number:$("#primary_phone_number").val(),primary_email:$("#primary_email").val()},
 			success: function(data)
 			{
-				Swal.fire({html:'Application Initiated', icon:'success'}).then(function()
+				$("#overlay").fadeOut(300);　
+				if(data == "Error")
 				{
-					location.reload();
-				});
+					Swal.fire({html:'Applicant has an existing application. <br>Please try again. ', icon:'error'});
+				}
+				else
+				{
+					Swal.fire({html:'Application Initiated', icon:'success'}).then(function()
+					{
+						location.reload();
+					});
+				}
+
 			}
 		});	
 	}	
+}
+function logout()
+{
+	$.ajax
+	({
+		type: "POST",
+		url: "applicationManagement.php",
+		data:{action:"logout"},
+		success: function(data)
+		{
+			Swal.fire({html:'Logout Successful', icon:'success'}).then(function()
+			{
+				var url = window.location.toString();
+				var newURL = url.replace('/home.php', '/index.php');
+				
+				window.location.href = newURL;
+			});
+		}
+	});
 }
 </script>

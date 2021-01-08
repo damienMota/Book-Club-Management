@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
+<body>
+	<div id="header"></div>
+	<div style="text-align:center;margin-top:30px;">
+	<div style="font-size:25px;margin-bottom:10px;"><b><u>Bio</u></b></div>
+	<div style="width:57%;text-align:right;margin-bottom:10px;"><b>Name:</b><input placeholder="name" style="margin-left:5px;" type="text" id="name" value="[name]"></div>
+	<div style="width:57%;text-align:right;margin-bottom:10px;"><b>Phone Number:</b><input placeholder="Phone Number" style="margin-left:5px;" type="text" id="primary_phone_number" value="[primary_phone_number]"></div>
+	<div style="width:57%;text-align:right;margin-bottom:10px;"><b>Email Address:</b><input disabled placeholder="Email Address" style="margin-left:5px;" type="text" id="primary_email" value="[primary_email]"></div>
+	<div style="width:57%;text-align:right;margin-bottom:10px;"><b>Business Name:</b><input placeholder="Business Name" style="margin-left:5px;" type="text" id="business_name" value="[business_name]"></div>
+	<div style="width:57%;text-align:right;margin-bottom:10px;"><b>Education:</b><div placeholder="Education" style="display:inline-block;margin-left:5px;">[education]</div></div>
+	<div style="text-align:center;margin-bottom:10px;"><b>About Me:</b><br><textarea style="border-radius:7px;"id="about_me" rows="4" cols="50">[about_me]</textarea></div>
+	<div style="margin-bottom:10px;"><b>Emergency Contact Info:</b></div>
+	<div style="margin-left:30%;">
+	 <div style="float: left; width: 200px;"><b>Name:</b></div>
+	 <div style="float: left; width: 178px;"><b>Email:</b></div>
+	 <div style="float: left; width: 224px;"><b>Phone Number:</b></div>
+	</div><br>
+	<div id="eci">[emergency_contact_info]</div>
+	<div style="text-align:center;margin-top:20px;"><button style="border: 1px solid #827f7f;" class="btn btn-light" onclick="save();">Save Application</button></div>
+	<input type="hidden" id="application_id" value="[application_id]">
+	</div>
+</body>
+</html>
+<style>
+body
+{
+	background-image: url('images/olia-gozha-J4kK8b9Fgj8-unsplash.jpg');
+	background-repeat: no-repeat;
+	background-size: 100%;
+	font-family:serif;
+	font-size:16px;
+}
+.eci_row
+{
+	margin-bottom:5px;
+}
+</style>
+<script>
+$(document).ready(function()
+{
+	$("#header").load("header.html");
+	
+	var url = window.location.href;
+	var splitURL = url.split("?page=");
+	var page = splitURL[1].substring(0,3);
+	var newURL = "";
+	if(page != "bio")
+	{
+		//don't replace, append
+		newUrl = splitURL[0] + "?page=bio" + splitURL[1];
+		window.history.pushState('', '', newUrl);
+	}
+	
+	$(".removeRow").click(function()
+	{
+		$(this).parent().remove();
+	});
+});
+function save()
+{
+	var err = "";
+	if($("#name").val() == "")
+	{
+		err += '<br>Name';
+	}
+	if($("#primary_phone_number").val() == "")
+	{
+		err += '<br>Phone Number';
+	}
+	if($("#primary_email").val() == "")
+	{
+		err += '<br>Email';
+	}
+	if($("#business_name").val() == "")
+	{
+		err += '<br>Business Name';
+	}
+	if($("#about_me").val() == "")
+	{
+		err += '<br>About Me';
+	}
+	
+	// HIGHLIGHT MISSING TEXT FIELDS IN RED //
+	$("#client_education").each(function()
+	{
+		if($(this).val() == 0)
+		{
+			$(this).css("border", "2px solid red");
+			err += '<br>Education';
+		}
+		else
+		{
+			$(this).css("border", "1px solid black");
+		}
+	});
+	var err2 = "";
+	$(".eci_name").each(function()
+	{
+		if($(this).val() == "")
+		{
+			$(this).css("border", "2px solid red");
+			err2 += 'err';
+		}
+		else
+		{
+			$(this).css("border", "1px solid black");
+		}
+	});
+	$(".eci_email").each(function()
+	{
+		if($(this).val() == "")
+		{
+			$(this).css("border", "2px solid red");
+			err2 += 'err';
+		}
+		else
+		{
+			$(this).css("border", "1px solid black");
+		}
+	});
+	$(".eci_phone_number").each(function()
+	{
+		if($(this).val() == "")
+		{
+			$(this).css("border", "2px solid red");
+			err2 += 'err';
+		}
+		else
+		{
+			$(this).css("border", "1px solid black");
+		}
+	});
+	$('input[type=text]').each(function()
+	{
+		if($(this).val() == "")
+		{
+			$(this).css("border", "2px solid red");
+		}
+		else
+		{
+			$(this).css("border", "1px solid black");
+		}
+	});
+	if($("#about_me").val() == "")
+	{
+		$("#about_me").css("border", "2px solid red");
+	}
+	else
+	{
+		$("#about_me").css("border", "1px solid black");
+	}
+	
+	if(err2 != '')
+	{
+		err += '<br>Emergency Contact';
+	}
+	if(err != '')
+	{
+		Swal.fire({html:'Please supply the following fields: '+ err, icon:'warning'});
+	}
+	else
+	{
+		var client_eci_name = new Array();
+		$(".eci_name").each(function()
+		{
+			client_eci_name.push($(this).val());
+		});
+		
+		var client_eci_email = new Array();
+		$(".eci_email").each(function()
+		{
+			client_eci_email.push($(this).val());
+		});
+		
+		var client_eci_phone_number = new Array();
+		$(".eci_phone_number").each(function()
+		{
+			client_eci_phone_number.push($(this).val());
+		});
+		var client_education_info = "";
+		$('#client_education option').each(function()
+		{
+			if($(this).is(':selected'))
+			{
+				client_education_info = $(this).val();
+			}
+		});
+		$.ajax
+		({
+			type: "POST",
+			url: "applicationManagement.php",
+			data:{action:"submit_bio",application_id:$("#application_id").val(),name:$("#name").val(),primary_phone_number:$("#primary_phone_number").val(),primary_email:$("#primary_email").val(),busines_name:$("#business_name").val(),client_education:client_education_info,about_me:$("#about_me").val(),eci_name:client_eci_name,eci_email:client_eci_email,eci_phone_number:client_eci_phone_number},
+			success: function(data)
+			{
+				Swal.fire({html:'Application Saved Successfully.', icon:'success'}).then(function()
+				{
+					var url = window.location.href;
+					newUrl = url.replace("?page=bio", "?page=agr");
+					window.history.pushState('', '', newUrl);
+					location.reload();	
+				});
+			}
+		});
+	}
+}
+function addECIRow()
+{
+	var html = '<div class="eci_row"><input placeholder="Contact Name" type="text" class="eci_name">';
+	html += '<input placeholder="Contact Email" style="margin-left:10px;" type="text" class="eci_email">';
+	html += '<input placeholder="Phone Number"style="margin-left:10px;" type="text" class="eci_phone_number"><div class="removeRow" style="margin-left:5px;display:inline-block;cursor: pointer;">';
+	html += '<svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-patch-minus" fill="currentColor" xmlns="http://www.w3.org/2000/svg">';
+	html += '<path fill-rule="evenodd" d="M5.5 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5z"/>';
+	html += '<path fill-rule="evenodd" d="M10.273 2.513l-.921-.944.715-.698.622.637.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944 1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92.016-1.32a1.89 1.89 0 0 0-1.912-1.911l-1.318.016z"/></svg>';
+	html += '</div></div>';
+	if($('.eci_row').length <= 3)
+	{
+		$("#eci").append(html);
+	}
+	else
+	{
+		Swal.fire({html:'The number of contacts allowed has been exceeded. Please allow room for 4 contacts only.', icon:'warning'});
+	}
+	$(".removeRow").click(function()
+	{
+		$(this).parent().remove();
+	});
+}
+</script>

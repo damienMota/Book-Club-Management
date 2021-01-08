@@ -1,0 +1,80 @@
+<head>
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
+<div style="text-align:center;padding-top:20px;">
+	<div style="display:inline-block;"><button id="bio" style="width:100px;border: 1px solid #d9d9d9;border-radius:15px;" class="btn btn-outline-light" onclick="bio()">Bio</button></div><div style="margin-left:5px;width:50px;display:inline-block;border-bottom:1px solid #d9d9d9;"></div>
+	<div style="display:inline-block;"><button id="agr" style="width:100px;border: 1px solid #d9d9d9;border-radius:15px;" class="btn btn-outline-light" onclick="agreement()">Agreement</button></div><div style="margin-left:5px;width:50px;display:inline-block;border-bottom:1px solid #d9d9d9;"></div>
+	<div style="display:inline-block;"><button id="rev" style="width:100px;border: 1px solid #d9d9d9;border-radius:15px;" class="btn btn-outline-light" onclick="review()">Review</button></div>
+</div>
+<style>
+button:hover{
+     background: #d4d4d4;
+}
+</style>
+<script>
+$(document).ready(function()
+{
+	var url = window.location.href;
+	var splitURL = url.split("?page=");
+	var client_URN = splitURL[1].substring(3)
+	$.ajax
+	({
+		type: "POST",
+		url: "applicationManagement.php",
+		data:{action:"header_validation",client_URN:client_URN},
+		success: function(data)
+		{
+			var data = JSON.parse(data);
+			data.forEach(iterate);
+			
+			function iterate(page)
+			{
+				if(page == "agr")
+				{
+					$('#agr').prop('disabled', true);
+				}
+				if(page == "rev")
+				{
+					$('#rev').prop('disabled', true);
+				}
+			}
+		}
+	});
+});
+function bio()
+{
+	var url = window.location.href;
+	var splitURL = url.split("?page=");
+	var page = splitURL[1].substring(0,3);
+
+	newUrl = url.replace("?page=" + page, "?page=bio");
+	window.history.pushState('', '', newUrl);
+	location.reload();
+}
+function agreement()
+{
+	var url = window.location.href;
+	var splitURL = url.split("?page=");
+	var page = splitURL[1].substring(0,3);
+	
+	newUrl = url.replace("?page=" + page, "?page=agr");
+	window.history.pushState('', '', newUrl);
+	location.reload();
+}
+function review()
+{
+	var url = window.location.href;
+	var splitURL = url.split("?page=");
+	var page = splitURL[1].substring(0,3);
+	
+	newUrl = url.replace("?page=" + page, "?page=rev");
+	window.history.pushState('', '', newUrl);
+	location.reload();
+}
+
+</script>
