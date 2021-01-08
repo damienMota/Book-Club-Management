@@ -1,5 +1,5 @@
 <?php
-$conn = mysqli_connect('localhost', 'damien', 'Oimadi*1', 'application_management');
+$conn = mysqli_connect('localhost', 'damien', 'password', 'application_management');
 if(!$conn)
 {
 	echo 'Connection ERRROR';
