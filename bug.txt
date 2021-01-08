@@ -56,8 +56,8 @@
 7)	Return Application still has link to localhost. (Fixed)
 
 ==== After Third Release ====
-1) Make login url replace more dynamic. (Fixed on live server).
-2) mysqlind driver needs to be installed in order to use mysqli result. This is an issue on the live server so I'm going to place a workaroun
-on all locations.(Activity Log,Initiate Application,Edit Application)
-3) Check return Application. (Didn't realize you shouldn't be able to change email). This will break Return to applicant.
-4) Check Resend Validation Code
+1) Make login url replace more dynamic. (Fixed).
+2) mysqlind driver needs to be installed in order to use mysqli result. This is an issue on the live server so I'm going to place a workaroun (Fixed)
+on all locations.(Activity Log,Initiate Application,Edit Application) (Fixed)
+3) Check return Application. (Didn't realize you shouldn't be able to change email). This will break Return to applicant.(Fixed)
+4) Check Resend Validation Code(Fixed)

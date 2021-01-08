@@ -329,7 +329,7 @@ if(isset($_SESSION["user001auth"]) && $_SESSION["user001auth"] == "true")
 
 					// email settings
 					$mail->isHTML(true);
-					$mail->setFrom($email, $name);
+					$mail->setFrom("mota.damien@gmail.com", "Book Club Management");
 					$mail->addAddress($email);
 					$mail->Subject = ("Application Initiated for: ".$name);
 					$mail->Body = $body;
@@ -621,7 +621,7 @@ if(isset($_SESSION["user001auth"]) && $_SESSION["user001auth"] == "true")
 
 			//email settings
 			$mail->isHTML(true);
-			$mail->setFrom($email, $name);
+			$mail->setFrom("mota.damien@gmail.com", "Book Club Management");
 			$mail->addAddress($email);
 			$mail->Subject = ("Application Returned for: ".$name);
 			$mail->Body = $body;
@@ -691,7 +691,7 @@ if(isset($_SESSION["user001auth"]) && $_SESSION["user001auth"] == "true")
 
 			//email settings
 			$mail->isHTML(true);
-			$mail->setFrom($email, $name);
+			$mail->setFrom("mota.damien@gmail.com", "Book Club Management");
 			$mail->addAddress($email);
 			$mail->Subject = ("Application Marked Complete for: ".$name);
 			$mail->Body = $body;
@@ -1033,7 +1033,7 @@ if(isset($_SESSION["client_application"]) && $_SESSION["client_application"] == 
     				$body = str_replace($find,$repl,file_get_contents("submitted_email.html"));
     				
     				$mail->isHTML(true);
-    				$mail->setFrom($primary_email, $name);
+    				$mail->setFrom("mota.damien@gmail.com", "Book Club Management");
     				$mail->addAddress($primary_email);
     				$mail->Subject = ("Application Submitted for: ".$name);
     				$mail->Body = $body;
@@ -1125,7 +1125,7 @@ if($_POST["action"] == "resend_verification_code")
 
 				// email settings
 				$mail->isHTML(true);
-				$mail->setFrom($email, $name);
+				$mail->setFrom("mota.damien@gmail.com", "Book Club Management");
 				$mail->addAddress($email);
 				$mail->Subject = ("New Verification Code for: ".$name);
 				$mail->Body = $body;
