@@ -2,7 +2,7 @@
 session_start();
 use PHPMailer\PHPMailer\PHPMailer;
 require('fpdf.php');
-$conn = mysqli_connect('localhost', 'damien', 'Oimadi*1', 'application_management');
+$conn = mysqli_connect('localhost', 'damien', 'password', 'application_management');
 if(isset($_SESSION["user001auth"]) && $_SESSION["user001auth"] == "true")
 {
 	
@@ -322,14 +322,14 @@ if(isset($_SESSION["user001auth"]) && $_SESSION["user001auth"] == "true")
 					$mail->isSMTP();
 					$mail->Host = "smtp.gmail.com";
 					$mail->SMTPAuth = true;
-					$mail->Username = "mota.damien@gmail.com";
-					$mail->Password = 'damienab';
+					$mail->Username = "email goes here";
+					$mail->Password = 'password';
 					$mail->Port = 465;
 					$mail->SMTPSecure = "ssl";
 
 					// email settings
 					$mail->isHTML(true);
-					$mail->setFrom("mota.damien@gmail.com", "Book Club Management");
+					$mail->setFrom("email goes here", "Book Club Management");
 					$mail->addAddress($email);
 					$mail->Subject = ("Application Initiated for: ".$name);
 					$mail->Body = $body;
@@ -614,14 +614,14 @@ if(isset($_SESSION["user001auth"]) && $_SESSION["user001auth"] == "true")
 			$mail->isSMTP();
 			$mail->Host = "smtp.gmail.com";
 			$mail->SMTPAuth = true;
-			$mail->Username = "mota.damien@gmail.com";
-			$mail->Password = 'damienab';
+			$mail->Username = "email goes here";
+			$mail->Password = 'password';
 			$mail->Port = 465;
 			$mail->SMTPSecure = "ssl";
 
 			//email settings
 			$mail->isHTML(true);
-			$mail->setFrom("mota.damien@gmail.com", "Book Club Management");
+			$mail->setFrom("email goes here", "Book Club Management");
 			$mail->addAddress($email);
 			$mail->Subject = ("Application Returned for: ".$name);
 			$mail->Body = $body;
@@ -684,14 +684,14 @@ if(isset($_SESSION["user001auth"]) && $_SESSION["user001auth"] == "true")
 			$mail->isSMTP();
 			$mail->Host = "smtp.gmail.com";
 			$mail->SMTPAuth = true;
-			$mail->Username = "mota.damien@gmail.com";
-			$mail->Password = 'damienab';
+			$mail->Username = "email goes here";
+			$mail->Password = 'password';
 			$mail->Port = 465;
 			$mail->SMTPSecure = "ssl";
 
 			//email settings
 			$mail->isHTML(true);
-			$mail->setFrom("mota.damien@gmail.com", "Book Club Management");
+			$mail->setFrom("email goes here", "Book Club Management");
 			$mail->addAddress($email);
 			$mail->Subject = ("Application Marked Complete for: ".$name);
 			$mail->Body = $body;
@@ -1006,8 +1006,8 @@ if(isset($_SESSION["client_application"]) && $_SESSION["client_application"] == 
     				$mail->isSMTP();
     				$mail->Host = "smtp.gmail.com";
     				$mail->SMTPAuth = true;
-    				$mail->Username = "mota.damien@gmail.com";
-    				$mail->Password = "damienab";
+    				$mail->Username = "email goes here";
+    				$mail->Password = "password";
     				$mail->Port = 465;
     				$mail->SMTPSecure = "ssl";
     
@@ -1033,7 +1033,7 @@ if(isset($_SESSION["client_application"]) && $_SESSION["client_application"] == 
     				$body = str_replace($find,$repl,file_get_contents("submitted_email.html"));
     				
     				$mail->isHTML(true);
-    				$mail->setFrom("mota.damien@gmail.com", "Book Club Management");
+    				$mail->setFrom("email goes here", "Book Club Management");
     				$mail->addAddress($primary_email);
     				$mail->Subject = ("Application Submitted for: ".$name);
     				$mail->Body = $body;
@@ -1118,14 +1118,14 @@ if($_POST["action"] == "resend_verification_code")
 				$mail->isSMTP();
 				$mail->Host = "smtp.gmail.com";
 				$mail->SMTPAuth = true;
-				$mail->Username = "mota.damien@gmail.com";
-				$mail->Password = 'damienab';
+				$mail->Username = "email goes here";
+				$mail->Password = 'password';
 				$mail->Port = 465;
 				$mail->SMTPSecure = "ssl";
 
 				// email settings
 				$mail->isHTML(true);
-				$mail->setFrom("mota.damien@gmail.com", "Book Club Management");
+				$mail->setFrom("email goes here", "Book Club Management");
 				$mail->addAddress($email);
 				$mail->Subject = ("New Verification Code for: ".$name);
 				$mail->Body = $body;

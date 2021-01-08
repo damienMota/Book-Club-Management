@@ -2,7 +2,7 @@
 session_start();
 use PHPMailer\PHPMailer\PHPMailer;
 require('fpdf.php');
-$conn = mysqli_connect('localhost', 'damien', 'Oimadi*1', 'application_management');
+$conn = mysqli_connect('localhost', 'damien', 'password', 'application_management');
 
 if(isset($_SESSION["client_application"]) && $_SESSION["client_application"] == "true")
 {
